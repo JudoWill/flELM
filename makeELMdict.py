@@ -40,10 +40,10 @@ def ProcessFile(filename):
 		#if i > 1000: break
 		len_counter += len(seq)
 		for elm, reg in elm_dict.items():
-			for m in reg.finditer(seq):
-				if m:
-					#print  (elm, m.group())
-					count_dict[(elm, m.group())] += 1
+			m = reg.search(seq)
+			while m:
+				count_dict[(elm, m.group())] += 1
+				m = reg.search(seq, m.start()+1)
 	
 	#genome_total = float(len_counter)
 	#for key, val in count_dict.iteritems():
