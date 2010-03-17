@@ -4,6 +4,7 @@ import os, os.path
 import sys
 sys.path.append('.')
 from local_settings import *
+import utils_plot
 
 @task
 def get_elm_patterns():
@@ -23,8 +24,8 @@ def get_flu_seq():
 @task
 def get_host_seq():
     """ mouse, cow, dog, fish, hourse, chicken, human, rat protein seq from NCBI """
-    sh('sh wgetgenome.sh')
 
+    sh('sh wgetgenome.sh')
 
 @task
 def process_elm():
@@ -36,4 +37,10 @@ def process_elm():
 		ofile = os.path.join(RESULTSDIR, f.split('.')[0] + '.txt')
 		ifile = os.path.join(DATADIR, f)
 		sh('python makeELMdict.py -o %(out)s %(infile)s' % {'out':ofile, 
-														'infile': ifile})
+                                                                    'infile': ifile})
+
+@task
+def elm_hist():
+    """ Plot host/virus histograms of sequence counts """
+
+    sh('python elm_hists.py')
