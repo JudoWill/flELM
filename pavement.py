@@ -12,6 +12,8 @@ def get_flu_seq():
 
     sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/influenza.faa.gz ./')
     sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/genomeset.dat.gz ./')
+    sh('gunzip influenza.faa.gz')
+    sh('gunzip genomeset.dat.gz')
 
 @task
 def get_host_seq():
