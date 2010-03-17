@@ -1,6 +1,12 @@
 from paver.easy import *
 
 @task
+def get_elm_patterns():
+    """ Grab ELM patterns from the resource """
+
+    sh('python get_elm_patterns.py > elm_expressions.txt')
+
+@task
 def get_flu_seq():
     """ Grab flu protein fasta & description file from NCBI """
 
