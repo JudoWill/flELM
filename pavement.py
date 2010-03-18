@@ -26,11 +26,14 @@ def get_flu_seq():
 def get_host_seq():
 	""" mouse, cow, dog, fish, hourse, chicken, human, rat protein seq from NCBI """
 	
+	genomes = ('M_musculus', 'Bos_taurus','Canis_familiaris','D_rerio',
+		   'Equus_caballus', 'Gallus_gallus', 'H_sapiens', 
+		   'Macaca_mulatta', 'R_norvegicus')
 	bs = 'ftp.ncbi.nlm.nih.gov::genomes/'
 	for genome in GENOMES:
 		fname = genome+'.fa.gz'
 		sh('rsync -av --size-only %(bs)s%(ome)s/protein/protein.fa.gz %(pth)s' % {'bs':bs, 
-					'ome':genome, 'pth':os.path.join(DATADIR, fname)})
+											  'ome':genome, 'pth':os.path.join(DATADIR, fname)})
 		sh('gunzip -fq %s' % os.path.join(DATADIR, fname))
 
 @task
@@ -45,6 +48,7 @@ def process_elm():
 			#only do if missing or FORCING
 			sh('python makeELMdict.py -o %(out)s %(infile)s' % {'out':ofile, 
 																	'infile': ifile})
+
 
 @task
 def elm_hist():
