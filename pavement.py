@@ -16,16 +16,39 @@ def get_elm_patterns():
 def get_flu_seq():
     """ Grab flu protein fasta & description file from NCBI """
 
-    sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/influenza.faa.gz ./')
-    sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/genomeset.dat.gz ./')
-    sh('gunzip influenza.faa.gz')
-    sh('gunzip genomeset.dat.gz')
+    for afile, file_name in [['influenza.faa',
+                              'influenza.fa'], 
+                             ['genomeset.dat',
+                              'genomeset.dat']]:
+        dump_file = os.path.join(DATADIR, afile + '.gz')
+        sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/'
+           + afile + '.gz '
+           + dump_file)
+        sh('gunzip -dqc ' + dump_file + ' > '
+           + os.path.join(DATADIR,file_name))
 
 @task
 def get_host_seq():
-    """ mouse, cow, dog, fish, hourse, chicken, human, rat protein seq from NCBI """
+    """ mouse, cow, dog, fish, hourse, chicken, human, rat, cat protein seq from NCBI """
+    species = [#'M_musculus',
+               'Bos_taurus',
+               'Canis_familiaris',
+               'D_rerio',
+               'Equus_caballus',
+               'Gallus_gallus',
+               'H_sapiens',
+               'Macaca_mulatta',
+               'R_norvegicus']
+    for org in species:
+        dump_file = os.path.join(DATADIR, org + '.fa.gz')
+        sh('wget -nc -O '
+           + dump_file
+           + ' ftp://ftp.ncbi.nih.gov/genomes/'
+           + org + '/protein/protein.fa.gz')
+        sh('gunzip -dqc ' + dump_file + ' > '
+           + os.path.join(DATADIR, org + '.fa'))
 
-    sh('sh wgetgenome.sh')
+    #sh('sh wgetgenome.sh')
 
 @task
 def process_elm():
