@@ -4,9 +4,10 @@
 import utils_plot
 
 def get_test_data():
-    test_data1 = utils_plot.mk_test_data()
-    test_data2 = utils_plot.mk_test_data()
-    return [test_data1, test_data2]
+    #test_data1 = utils_plot.mk_test_data()
+    #test_data2 = utils_plot.mk_test_data()
+    #return [test_data1, test_data2]
+    return utils_plot.mk_test_data()
 
 def test_plot():
     """ Makes test data """
@@ -24,5 +25,5 @@ def test_plot():
 [test_data1, test_data2] = get_test_data()
 utils_plot.elm_freq_histogram(test_data1, 'human',
                               test_data2, 'virus',
-                              'test.png')
+                              'test.png', 'LIG_TEST')
 
