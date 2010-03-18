@@ -56,7 +56,7 @@ def process_elm(options):
 
 @task
 def elm_hist():
-	""" Plot host/host histograms of sequence frequencies of at least .05 """
+	""" Plot host histograms of sequence frequencies of at least .05 """
 	input_line = ''
 	for genome in GENOMES:
 		input_line += os.path.join(RESULTSDIR, 'elmdict_'
