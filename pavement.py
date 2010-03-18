@@ -77,8 +77,25 @@ def elm_hist():
 
 	sh('python elm_hists.py '
 	   + input_line
-	   + '.05 '
+	   + SEQ_FRAC_CUT + ' '
 	   + PLOTDIR)
+
+@task
+def elm_hist_2():
+	""" Plot host/virus histograms of sequence frequencies of at least .05 """
+
+	input_line = ''
+	for genome in GENOMES:
+		input_line += os.path.join(RESULTSDIR, 'elmdict_'
+					   + genome + '.txt') + ' ' + genome + ' '
+	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_chicken') + ' chicken '
+	#input_line += os.path.join(RESULTSDIR, 'flu_elmdict_chicken') + ' human '
+	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_swine') + ' swine '
+	sh('python elm_hists.py '
+	   + input_line
+	   + SEQ_FRAC_CUT' '
+	   + PLOTDIR)
+
 
 # @task
 # def get_seq():
