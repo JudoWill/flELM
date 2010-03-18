@@ -24,28 +24,19 @@ def GetFluSeqs(*args, **kwargs):
 	
 	"""
 	
-	def ProcessLine(line):
-		"""Processes the genomeset.dat line and returns a dict or properties"""
-		out = {}
-		parts = line.split('\t')
-		out['genbank'] = parts[0]
-		out['source'] = parts[1]
-		out['strain'] = parts[3]
-		out['country'] = parts[4]
-		if parts[1] == 'Human': 
-			out['organism'] = 'Human' 
-		else:
-			out['organism'] = parts[7].split('/')[1]
-		return out
 		
-		
-	
+	def TruthTest(inp, line):
+		for i in inp:
+			if i in line:
+				return True
+		return False
+
 	vdict = {}
 	always_true = lambda x: True
 	easy = ('year','strain','source','country','organism')
 	for key in easy:
 		if key in kwargs:
-			vdict[key] = lambda x: x == deepcopy(kwargs[key])
+			vdict[key] = lambda x: TruthTest(deepcopy(kwargs[key]), x)
 			kwargs.pop(key)
 		else:
 			vdcit[key] = always_true
@@ -63,14 +54,14 @@ def GetFluSeqs(*args, **kwargs):
 	
 	with open(os.path.join(DATADIR, 'genomeset.dat')) as handle:
 		for line in handle:
-			odict = ProcessLine(line.strip())
-			all_true = True
-			for key, fun in vdict.items():
-				if not fun(odict[key]):
-					all_true = False
+			l_line = line.lower()
+			bad = False
+			for fun in vdict.values():
+				if not fun(l_line):
+					bad = True:
 					break
-			if all_true:
-				valid_seqs.add(odict['genbank'])
+			if not bad:
+				valid_seqs.add(line.split('\t')[0])
 	
 	with open(os.path.join(DATADIR, 'influenza.faa')) as handle:
 		for seqreq in SeqIO.parse(handle, 'fasta'):
