@@ -16,11 +16,11 @@ def get_flu_seq():
 	""" Grab flu protein fasta & description file from NCBI """
 
 	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/influenza.faa.gz %s' % DATADIR)
-	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/genomeset.dat.gz %s' % DATADIR)
+	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/influenza_aa.dat.gz %s' % DATADIR)
 	sh('gunzip -fq %s' % os.path.join(DATADIR, 'influenza.faa.gz'))
 	sh('mv ' + os.path.join(DATADIR, 'influenza.faa') + ' '
 	   + os.path.join(DATADIR, 'influenza.fa'))
-	sh('gunzip -fq %s' % os.path.join(DATADIR, 'genomeset.dat.gz'))
+	sh('gunzip -fq %s' % os.path.join(DATADIR, 'influenza_aa.dat.gz'))
 
 @task
 def get_host_seq():
