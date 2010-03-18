@@ -171,3 +171,61 @@ def DictFromGen(GEN, label = None, chunk_size = 500, stop_count = None):
 
 	return outdict		
 		
+def get_seq2count_dict(elm_file, cutoff):
+    """ grab ELM seq frequency data """
+
+    elm2seq2count = defaultdict(dict)
+    with open(elm_file) as f:
+        for line in f:
+            [elm, seq, count, frac_st] = line.strip().split('\t')
+            frac = float(frac_st)
+            if frac >= cutoff:
+                elm2seq2count[elm][seq] = frac
+    return elm2seq2count
+
+def init_zero(): return 0
+
+def get_seq2count_dict_for_seqs(elm_file, cutoff, virus2elms2seq):
+    """ grab ELM seq frequency data 
+        ONLY for these ELM sequences
+	renormalize for these ELM sequences
+    """
+
+    elm2seq2count = defaultdict(dict)
+    elm_totals = defaultdict(init_zero)
+    with open(elm_file) as f:
+	    for line in f:
+		    [elm, seq, count_st, frac_st] = line.strip().split('\t')
+		    for virus in virus2elms2seq:
+			    if elm in virus2elms2seq[virus]:
+				    if seq in virus2elms2seq[virus][elm]:
+					    count = float(count_st)
+					    elm_totals[elm] += count
+					    elm2seq2count[elm][seq] = count
+				    
+    # renormalize
+    to_remove = {}
+    for elm in elm2seq2count:
+	    for seq in elm2seq2count[elm]:
+		    frac = float(elm2seq2count[elm][seq])/float(elm_totals[elm])
+		    if frac >= cutoff:
+			    elm2seq2count[elm][seq] = frac
+		    else: # ignore this fraction
+			    to_remove[elm+':'+seq] = True
+    for k in to_remove:
+	    [elm, seq] = k.split(':')
+	    del elm2seq2count[elm][seq]
+    return elm2seq2count
+
+def check_ones(species2elms, elm):
+    """ Is there only one sequence for this ELM
+        in all species? 
+    """
+
+    not_one = False
+
+    for species in species2elms:
+        if len(species2elms[species][elm].keys()) > 1:
+            not_one = True
+            break
+    return not_one

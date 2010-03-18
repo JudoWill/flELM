@@ -120,8 +120,8 @@ def distance_matrix(species2elms):
 
     mat = defaultdict(dict)
     for species1, species2 in itertools.combinations(species2elms.keys(), 2):
-        distance = distance_species_weighted(species2elms[species1],
-                                             species2elms[species2])
+        distance = distance_species(species2elms[species1],
+                                    species2elms[species2])
         mat[species1][species2] = distance
         mat[species2][species1] = distance
     return mat

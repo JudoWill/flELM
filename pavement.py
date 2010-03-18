@@ -100,6 +100,22 @@ def elm_hist_2():
 	   + SEQ_FRAC_CUT + ' '
 	   + PLOTDIR)
 
+@task
+def barplot():
+	""" Plot host/virus barplots for virus ELMs & sequences """
+
+	input_line = ''
+	for genome in ('H_sapiens', 'Gallus_gallus', 'Sus_scrofa'):
+		input_line += os.path.join(RESULTSDIR, 'elmdict_'
+					   + genome + '.txt') + ' ' + genome + ' '
+	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_chicken') + ' chicken '
+	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_human') + ' human '
+	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_swine') + ' swine '
+	sh('python host_virus_barplot.py '
+	   + input_line
+	   + SEQ_FRAC_CUT + ' '
+	   + os.path.join(PLOTDIR, 'virus_host'))
+
 
 # @task
 # def get_seq():

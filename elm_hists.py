@@ -8,7 +8,7 @@
     This will output out seq count
     bar graphs for each ELM.
 """
-import utils_plot, sys, os
+import utils_plot, sys, os, utils
 from collections import defaultdict
 
 def get_test_data():
@@ -36,28 +36,6 @@ def test_plot():
                                   test_data2, 'virus',
                                   'test.png', 'LIG_TEST')
 
-def get_seq2count_dict(elm_file, cutoff):
-    elm2seq2count = defaultdict(dict)
-    with open(elm_file) as f:
-        for line in f:
-            [elm, seq, count, frac_st] = line.strip().split('\t')
-            frac = float(frac_st)
-            if frac >= cutoff:
-                elm2seq2count[elm][seq] = frac
-    return elm2seq2count
-
-def check_ones(species2elms, elm):
-    """ Is there only one sequence for this ELM
-        in all species """
-
-    not_one = False
-
-    for species in species2elms:
-        if len(species2elms[species][elm].keys()) > 1:
-            not_one = True
-            break
-    return not_one
-
 def main(args):
     file_species_pairs = []
     i = 1
@@ -70,14 +48,14 @@ def main(args):
 
     species2elms = {}
     for file, species in file_species_pairs:
-        species2elms[species] = get_seq2count_dict(file, cutoff)
+        species2elms[species] = utils.get_seq2count_dict(file, cutoff)
 
     elms = {}
     for species in species2elms:
         for elm in species2elms[species]:
             elms[elm] = True
     for elm in elms:
-        if check_ones(species2elms, elm):
+        if utils.check_ones(species2elms, elm):
             utils_plot.elm_host_barplot(species2elms, elm,
                                         os.path.join(plot_dir,
                                                      elm + '.hosts.png'))
