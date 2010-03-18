@@ -49,6 +49,7 @@ def process_elm():
 		ofile = os.path.join(RESULTSDIR, f.split('.')[0] + '.txt')
 		ifile = os.path.join(DATADIR, f)
 		sh('python makeELMdict.py -o %(out)s %(infile)s' % {'out':ofile, 
+								    'infile': ifile})
 
 @task
 def elm_hist():
