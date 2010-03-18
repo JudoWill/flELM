@@ -12,15 +12,16 @@ def get_elm_patterns():
 
 	sh('python get_elm_patterns.py > elm_expressions.txt')
 
+@task
 def get_flu_seq():
 	""" Grab flu protein fasta & description file from NCBI """
 
 	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/influenza.faa.gz %s' % DATADIR)
-	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/genomeset.dat.gz %s' % DATADIR)
+	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/influenza_aa.dat.gz %s' % DATADIR)
 	sh('gunzip -fq %s' % os.path.join(DATADIR, 'influenza.faa.gz'))
 	sh('mv ' + os.path.join(DATADIR, 'influenza.faa') + ' '
 	   + os.path.join(DATADIR, 'influenza.fa'))
-	sh('gunzip -fq %s' % os.path.join(DATADIR, 'genomeset.dat.gz'))
+	sh('gunzip -fq %s' % os.path.join(DATADIR, 'influenza_aa.dat.gz'))
 
 @task
 def get_host_seq():
@@ -53,6 +54,18 @@ def process_elm(options):
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
 													'c':c_arg, 'infile': ifile})
 
+@task
+@cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
+			('picloud', 'c', 'Use PiCloud')])
+def process_flu(options):
+	"""Determines (and writes) the ELM dictionary"""
+
+	c_arg = ''
+	if options.process_elm.get('picloud', False): c_arg = '-c'
+
+	for genome in GENOMES:
+		#only do if missing or FORCING
+		sh('python process_flu.py %(c)s ' % {'c':c_arg})
 
 @task
 def elm_hist():
