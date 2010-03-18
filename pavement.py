@@ -17,10 +17,8 @@ def get_seq():
 	""" Grab protein fasta & description file from NCBI """
 
 	# flu
-	for afile, file_name in [['influenza.faa',
-				  'influenza.fa'], 
-				 ['genomeset.dat',
-				  'genomeset.dat']]:
+	for afile, file_name in [['influenza.faa','influenza.fa'], 
+				 ['genomeset.dat','genomeset.dat']]:
 		dump_file = os.path.join(DATADIR, afile + '.gz')
 		sh('rsync -av --size-only ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/'
 		   + afile + '.gz '
@@ -41,7 +39,7 @@ def get_seq():
 
 @task
 def process_elm():
-	"""Determines (and writes) the ELM dictionary"""
+	""" Determines (and writes) the ELM dictionary"""
 	
 	seq_files = os.listdir(DATADIR)
 	
