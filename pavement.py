@@ -53,7 +53,13 @@ def process_elm():
 def elm_hist():
 	""" Plot host/virus histograms of sequence counts """
 
-	sh('python elm_hists.py')
+	sh('python elm_hists.py '
+	   + os.path.join(RESULTSDIR, 'elmdict_M_musculus.txt') + ' '
+	   + 'mouse '
+	   + os.path.join(RESULTSDIR, 'elmdict_M_musculus.txt') + ' '
+	   + 'notmouse '
+	   + '.05 '
+	   + PLOTDIR)
 
 
 # @task
