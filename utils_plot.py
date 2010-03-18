@@ -4,6 +4,7 @@
     R must be installed
 """
 import random, os
+from global_settings import *
 random.seed()
 
 def mk_test_data():
@@ -87,6 +88,45 @@ def elm_freq_histogram(seq2count_dict1, species_name1,
         #f.write("ggplot(d, aes(Seq, Count, group=Set, colour=Set)) + geom_line(size=1) + opts(legend.position='none')\n")
         #f.write("ggplot(d) + aes(x=Seq) + geom_histogram() + facet_grid(Set~.)\n")
         f.write("ggplot(d) + aes(x=Seq,y=NormalizedCount) + geom_bar(aes(fill=Set)) + facet_grid(Set~.) + opts(legend.position='none') + opts(title='" + elm_name + "')\n")
+        f.write('dev.off()\n')
+    os.system('R < ' + r_file + ' --no-save')
+    os.system('rm ' + r_file + ' ' + tmp_input)
+
+
+def create_elm_barplot_tmp_file(species2elms, elm):
+    """ Called in elm_host_barplot """
+
+    tmp_file = 'tmp_input' + str(random.randint(0,100))
+
+    with open(tmp_file, 'w') as f:
+        f.write('Set\tSeq\tNormalizedCount\n')
+        for species in species2elms:
+            if elm in species2elms[species]:
+                for seq in species2elms[species][elm]:
+                    f.write(ALIASES[species] + '\t' 
+                            + seq + '\t' 
+                            + str(species2elms[species][elm][seq]) + '\n')
+
+    return tmp_file
+
+def elm_host_barplot(species2elms, elm, out_file):
+    """ This is intended to work for 
+        one ELM type to compare sequence
+        distributions.
+
+        Given a {} species to {} of raw sequence counts,
+        normalize the counts and plot
+        one histogram per species
+    """
+    
+    tmp_input = create_elm_barplot_tmp_file(species2elms, elm)
+    r_file = 'tmp' + str(random.randint(0,100))
+    with open(r_file, 'w') as f:
+        f.write('library(ggplot2)\n')
+        f.write("d<-read.delim('"
+                + tmp_input + "', header=T, sep='\\t')\n")
+        f.write("png('" + out_file + "')\n")
+        f.write("ggplot(d) + aes(x=Seq,y=NormalizedCount) + geom_bar(aes(fill=Set)) + facet_grid(Set~.) + opts(legend.position='none') + opts(title='" + elm + "')\n")
         f.write('dev.off()\n')
     os.system('R < ' + r_file + ' --no-save')
     os.system('rm ' + r_file + ' ' + tmp_input)
