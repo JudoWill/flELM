@@ -130,3 +130,26 @@ def elm_host_barplot(species2elms, elm, out_file):
         f.write('dev.off()\n')
     os.system('R < ' + r_file + ' --no-save')
     os.system('rm ' + r_file + ' ' + tmp_input)
+
+def distance_heatmap(x_by_y_dict, out_file):
+    """ make a heatmap of x vs. y
+        using the {} d[x][y] = val
+    """
+
+    tmp_input_file = 'tmp' + str(random.randint(0,100))
+    tmp_r_file = 'rtmp' + str(random.randint(0,100))
+    with open(tmp_input_file, 'w') as f:
+        f.write('ELM\tSpeciesPair\tDistance\n')
+        for x in x_by_y_dict:
+            for y in x_by_y_dict[x]:
+                f.write(x + '\t' + 
+                        y + '\t' +
+                        str(x_by_y_dict[x][y]) + '\n')
+    with open(tmp_r_file, 'w') as f:
+        f.write('library(ggplot2)\n')
+        f.write("d<-read.delim('"
+                + tmp_input_file + "', header=T, sep='\\t')\n")
+        f.write("png('" + out_file + "')\n")
+        f.write("ggplot(d,aes(SpeciesPair,ELM)) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='white',high='steelblue')\n")
+        f.write('dev.off()\n')
+    os.system('R < ' + tmp_r_file + ' --no-save')
