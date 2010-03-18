@@ -69,7 +69,7 @@ def process_flu(options):
 
 @task
 def elm_hist():
-	""" Plot host histograms of sequence frequencies of at least .05 """
+	""" Plot host histograms of sequence frequencies of at least SEQ_FRAC_CUT """
 	input_line = ''
 	for genome in GENOMES:
 		input_line += os.path.join(RESULTSDIR, 'elmdict_'
@@ -89,11 +89,11 @@ def elm_hist_2():
 		input_line += os.path.join(RESULTSDIR, 'elmdict_'
 					   + genome + '.txt') + ' ' + genome + ' '
 	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_chicken') + ' chicken '
-	#input_line += os.path.join(RESULTSDIR, 'flu_elmdict_chicken') + ' human '
+	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_human') + ' human '
 	input_line += os.path.join(RESULTSDIR, 'flu_elmdict_swine') + ' swine '
 	sh('python elm_hists.py '
 	   + input_line
-	   + SEQ_FRAC_CUT' '
+	   + SEQ_FRAC_CUT + ' '
 	   + PLOTDIR)
 
 
