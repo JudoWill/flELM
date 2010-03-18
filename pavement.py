@@ -37,17 +37,21 @@ def get_host_seq():
 		sh('gunzip -fq %s' % os.path.join(DATADIR, fname))
 
 @task
-def process_elm():
+@cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
+			('picloud', 'c', 'Use PiCloud')])
+def process_elm(options):
 	"""Determines (and writes) the ELM dictionary"""
-	FORCE_REDO = False
+	
+	c_arg = ''
+	if options.process_elm.get('picloud', False): c_arg = '-c'
 	
 	for genome in GENOMES:
 		ofile = os.path.join(RESULTSDIR, 'elmdict_'+genome+'.txt')
 		ifile = os.path.join(DATADIR, genome+'.fa')
-		if not os.path.exists(ofile) or FORCE_REDO:
+		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
 			#only do if missing or FORCING
-			sh('python makeELMdict.py -o %(out)s %(infile)s' % {'out':ofile, 
-																	'infile': ifile})
+			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
+													'c':c_arg, 'infile': ifile})
 
 
 @task

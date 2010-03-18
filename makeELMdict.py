@@ -1,4 +1,4 @@
-import re
+import re, os
 from collections import defaultdict
 from Bio import SeqIO
 from optparse import OptionParser
@@ -77,22 +77,38 @@ def ProcessFile(filename):
 			yield block
 			block = take(per_block, gen)
 			c += per_block
-			#if c > 5000: break
+			#if c > 3000: break
 
+	label = filename.split(os.sep)[-1]
 	elm_dict = ReadELMs_nocompile('elm_expressions.txt')
 
 	count_dict = defaultdict(int)
 	elm_count = defaultdict(int)
-	
-	jids = cloud.map(ProcessSeq, izip(ChunkGen(filename, 100), repeat(elm_dict)))
+	jids = []
+	for block in ChunkGen(filename, 1000):
+		try:
+			jids.append(cloud.call(ProcessSeq, (block, elm_dict), _label=filename))
+		except cloud.cloud.CloudException:
+			try:
+				print 'tooooo big'
+				jids.append(cloud.call(ProcessSeq, (block[0::2], elm_dict), _label=filename))
+				jids.append(cloud.call(ProcessSeq, (block[1::2], elm_dict), _label=filename))
+			except cloud.cloud.CloudException:
+				print 'really tooo big'
+				jids.append(cloud.call(ProcessSeq, (block[0::3], elm_dict), _label=filename))
+				jids.append(cloud.call(ProcessSeq, (block[1::3], elm_dict), _label=filename))
+				jids.append(cloud.call(ProcessSeq, (block[2::3], elm_dict), _label=filename))
+				
 	#print str(jids)
 	print 'waiting!'
 	for i, res in enumerate(cloud.iresult(jids)):
-		#print 'processing result %d' % i
+		if i % 4 == 0: print 'processing result %d' % i
 		for key, item in res.iteritems():
 			elm, spec = key
 			count_dict[key] += item
 			elm_count[elm] += item
+			
+	cloud.delete(jids)
 			
 	outdict = {}
 	for key, count in count_dict.iteritems():
