@@ -68,7 +68,9 @@ def main(args):
             utils_plot.elm_freq_histogram(elms1[elm], species1,
                                           elms2[elm], species2,
                                           os.path.join(plot_dir,
-                                                       elm + '.png'),
+                                                       species1 + '.'
+                                                       + species2 + '.'
+                                                       + elm + '.png'),
                                           elm)
 
 if __name__ == '__main__': main(sys.argv)

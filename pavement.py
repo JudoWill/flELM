@@ -1,5 +1,5 @@
 from paver.easy import *
-import os, os.path
+import os, os.path, itertools
 
 import sys
 sys.path.append('.')
@@ -51,16 +51,18 @@ def process_elm():
 
 @task
 def elm_hist():
-	""" Plot host/virus histograms of sequence counts """
+	""" Plot host/host histograms of sequence frequencies of at least .05 """
 
-	sh('python elm_hists.py '
-	   + os.path.join(RESULTSDIR, 'elmdict_M_musculus.txt') + ' '
-	   + 'mouse '
-	   + os.path.join(RESULTSDIR, 'elmdict_M_musculus.txt') + ' '
-	   + 'notmouse '
-	   + '.05 '
-	   + PLOTDIR)
-
+	for genome1, genome2 in itertools.combinations(GENOMES, 2):
+		sh('python elm_hists.py '
+		   + os.path.join(RESULTSDIR, 'elmdict_'
+				  + genome1 + '.txt') + ' '
+		   + genome1 + ' '
+		   + os.path.join(RESULTSDIR, 'elmdict_'
+				  + genome2 + '.txt') + ' '
+		   + genome2 + ' '
+		   + '.05 '
+		   + PLOTDIR)
 
 # @task
 # def get_seq():
