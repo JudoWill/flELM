@@ -1,8 +1,8 @@
 from local_settings import *
 from Bio import SeqIO
 from copy import deepcopy
-import re, os.path
-
+import re, os.path, os
+from functools import partial
 
 
 
@@ -36,10 +36,10 @@ def GetFluSeqs(*args, **kwargs):
 	easy = ('year','strain','source','country','organism')
 	for key in easy:
 		if key in kwargs:
-			vdict[key] = lambda x: TruthTest(deepcopy(kwargs[key]), x)
+			vdict[key] = partial(TruthTest, deepcopy(kwargs[deepcopy(key)]))
 			kwargs.pop(key)
 		else:
-			vdcit[key] = always_true
+			vdict[key] = always_true
 	if 'genbank' in kwargs:
 		vdict['genbank'] = lambda x: re.match(kwargs['genbank'],x)
 		kwargs.pop('genbank')
@@ -52,23 +52,26 @@ def GetFluSeqs(*args, **kwargs):
 	
 	valid_seqs = set()
 	
-	with open(os.path.join(DATADIR, 'genomeset.dat')) as handle:
+	with open(os.path.join(DATADIR, 'influenza_aa.dat')) as handle:
 		for line in handle:
 			l_line = line.lower()
 			bad = False
 			for fun in vdict.values():
 				if not fun(l_line):
-					bad = True:
+					bad = True
 					break
 			if not bad:
 				valid_seqs.add(line.split('\t')[0])
-	
-	with open(os.path.join(DATADIR, 'influenza.faa')) as handle:
+	print 'valid gbs:', len(valid_seqs)
+	#print valid_seqs
+	with open(os.path.join(DATADIR, 'influenza.fa')) as handle:
 		for seqreq in SeqIO.parse(handle, 'fasta'):
 			gb = seqreq.id.split('|')[3]
+			#print gb
 			if gb in valid_seqs:
 				yield str(seqreq.seq)
 				valid_seqs.remove(gb)
+				#print 'yielding:', gb
 		
 		
 		

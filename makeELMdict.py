@@ -43,9 +43,6 @@ def ReadELMs_nocompile(filename):
 	return outdict
 
 
-		
-	return count_dict
-	
 def ProcessFile(filename):
 	"""Finds the frequencey of ELM instances in a FASTA file.
 

@@ -54,6 +54,18 @@ def process_elm(options):
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
 													'c':c_arg, 'infile': ifile})
 
+@task
+@cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
+			('picloud', 'c', 'Use PiCloud')])
+def process_flu(options):
+	"""Determines (and writes) the ELM dictionary"""
+
+	c_arg = ''
+	if options.process_elm.get('picloud', False): c_arg = '-c'
+
+	for genome in GENOMES:
+		#only do if missing or FORCING
+		sh('python process_flu.py %(c)s ' % {'c':c_arg})
 
 @task
 def elm_hist():
