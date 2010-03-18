@@ -7,6 +7,23 @@ import random, os
 random.seed()
 
 def mk_test_data():
+    """ make two {}'s of seq counts """
+
+    d1 = {'AAA':5,
+          'BBB':3,
+          'CCC':7,
+          'DDD':1,
+          'EEE':15}
+
+    d2 = {'AAA':7,
+          'BBB':10,
+          'CCC':1,
+          'DDD':9,
+          'EEE':8}
+
+    return [d1, d2]
+
+def mk_random_test_data():
     """ {} of sequence to
         count
     """
@@ -34,7 +51,7 @@ def create_elm_hist_tmp_file(seq2count_dict1, species_name1,
     total_hits1 = get_total_elm_hits(seq2count_dict1)
     total_hits2 = get_total_elm_hits(seq2count_dict2)
     with open(tmp_file, 'w') as f:
-        f.write('Set\tSeq\tCount\n')
+        f.write('Set\tSeq\tNormalizedCount\n')
         for name, a_set, total_hits in [[species_name1,
                                          seq2count_dict1,
                                          total_hits1], 
@@ -44,13 +61,13 @@ def create_elm_hist_tmp_file(seq2count_dict1, species_name1,
             for k in a_set:
                 f.write(name + '\t' 
                         + k + '\t' 
-                        + str(a_set[k]) + '\n')
-                        #+ str(float(a_set[k])/total_hits) + '\n')
+                        #+ str(a_set[k]) + '\n')
+                        + str(float(a_set[k])/total_hits) + '\n')
     return tmp_file
 
 def elm_freq_histogram(seq2count_dict1, species_name1,
                        seq2count_dict2, species_name2,
-                       out_file):
+                       out_file, elm_name):
     """ This is intended to work for 
         one ELM type to compare sequence
         distributions.
@@ -69,7 +86,8 @@ def elm_freq_histogram(seq2count_dict1, species_name1,
                 + tmp_input + "', header=T, sep='\\t')\n")
         f.write("png('" + out_file + "')\n")
         #f.write("ggplot(d, aes(Seq, Count, group=Set, colour=Set)) + geom_line(size=1) + opts(legend.position='none')\n")
-        f.write("ggplot(d) + aes(x=Seq) + geom_histogram() + facet_grid(Set~.)\n")
+        #f.write("ggplot(d) + aes(x=Seq) + geom_histogram() + facet_grid(Set~.)\n")
+        f.write("ggplot(d) + aes(x=Seq,y=NormalizedCount) + geom_bar(aes(fill=Set)) + facet_grid(Set~.) + opts(legend.position='none') + opts(title='" + elm_name + "')\n")
         f.write('dev.off()\n')
     os.system('R < ' + r_file + ' --no-save')
     os.system('rm ' + r_file + ' ' + tmp_input)
