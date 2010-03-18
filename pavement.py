@@ -1,11 +1,9 @@
 from paver.easy import *
-import os, os.path
+import os, os.path, itertools
 
 import sys
 sys.path.append('.')
 from local_settings import *
-import utils_plot
-
 
 @task
 def get_elm_patterns():
@@ -13,14 +11,15 @@ def get_elm_patterns():
 
 	sh('python get_elm_patterns.py > elm_expressions.txt')
 
-@task
 def get_flu_seq():
 	""" Grab flu protein fasta & description file from NCBI """
 
 	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/influenza.faa.gz %s' % DATADIR)
 	sh('rsync -av ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/genomeset.dat.gz %s' % DATADIR)
 	sh('gunzip -fq %s' % os.path.join(DATADIR, 'influenza.faa.gz'))
-	sh('gunzip -fq %s'	% os.path.join(DATADIR, 'genomeset.dat.gz'))
+	sh('mv ' + os.path.join(DATADIR, 'influenza.faa') + ' '
+	   + os.path.join(DATADIR, 'influenza.fa'))
+	sh('gunzip -fq %s' % os.path.join(DATADIR, 'genomeset.dat.gz'))
 
 @task
 def get_host_seq():
@@ -56,6 +55,29 @@ def process_elm(options):
 
 @task
 def elm_hist():
-	""" Plot host/virus histograms of sequence counts """
+	""" Plot host/host histograms of sequence frequencies of at least .05 """
 
-	sh('python elm_hists.py')
+	for genome1, genome2 in itertools.combinations(GENOMES, 2):
+		sh('python elm_hists.py '
+		   + os.path.join(RESULTSDIR, 'elmdict_'
+				  + genome1 + '.txt') + ' '
+		   + genome1 + ' '
+		   + os.path.join(RESULTSDIR, 'elmdict_'
+				  + genome2 + '.txt') + ' '
+		   + genome2 + ' '
+		   + '.05 '
+		   + PLOTDIR)
+
+# @task
+# def get_seq():
+# 	""" Grab protein fasta & description file from NCBI """
+
+# 	# flu
+# 	for afile, file_name in [['influenza.faa','influenza.fa'], 
+# 				 ['genomeset.dat','genomeset.dat']]:
+# 		dump_file = os.path.join(DATADIR, afile + '.gz')
+# 		sh('rsync -av --size-only ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/'
+# 		   + afile + '.gz '
+# 		   + dump_file)
+# 		sh('gunzip -dqc ' + dump_file + ' > '
+# 		   + os.path.join(DATADIR,file_name))

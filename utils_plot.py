@@ -48,21 +48,20 @@ def create_elm_hist_tmp_file(seq2count_dict1, species_name1,
     """ Called in elm_freq_histogram """
 
     tmp_file = 'tmp_input' + str(random.randint(0,100))
-    total_hits1 = get_total_elm_hits(seq2count_dict1)
-    total_hits2 = get_total_elm_hits(seq2count_dict2)
+    #total_hits1 = get_total_elm_hits(seq2count_dict1)
+    #total_hits2 = get_total_elm_hits(seq2count_dict2)
     with open(tmp_file, 'w') as f:
         f.write('Set\tSeq\tNormalizedCount\n')
-        for name, a_set, total_hits in [[species_name1,
-                                         seq2count_dict1,
-                                         total_hits1], 
-                                        [species_name2,
-                                         seq2count_dict2,
-                                         total_hits2]]:
+        for name, a_set, in [[species_name1,
+                              seq2count_dict1], 
+                             [species_name2,
+                              seq2count_dict2]]:
             for k in a_set:
                 f.write(name + '\t' 
                         + k + '\t' 
-                        #+ str(a_set[k]) + '\n')
-                        + str(float(a_set[k])/total_hits) + '\n')
+                        + str(a_set[k]) + '\n')
+
+                        #+ str(float(a_set[k])/total_hits) + '\n') already given %s
     return tmp_file
 
 def elm_freq_histogram(seq2count_dict1, species_name1,
