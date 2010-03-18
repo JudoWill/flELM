@@ -88,7 +88,7 @@ def ProcessFile(filename):
 	#print str(jids)
 	print 'waiting!'
 	for i, res in enumerate(cloud.iresult(jids)):
-		print 'processing result %d' % i
+		#print 'processing result %d' % i
 		for key, item in res.iteritems():
 			elm, spec = key
 			count_dict[key] += item

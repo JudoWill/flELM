@@ -6,6 +6,7 @@ sys.path.append('.')
 from local_settings import *
 import utils_plot
 
+
 @task
 def get_elm_patterns():
 	""" Grab ELM patterns from the resource """
@@ -24,11 +25,9 @@ def get_flu_seq():
 @task
 def get_host_seq():
 	""" mouse, cow, dog, fish, hourse, chicken, human, rat protein seq from NCBI """
-	genomes = ('M_musculus', 'Bos_taurus','Canis_familiaris','D_rerio',
-				'Equus_caballus', 'Gallus_gallus', 'H_sapiens', 
-				'Macaca_mulatta', 'R_norvegicus')
+	
 	bs = 'ftp.ncbi.nlm.nih.gov::genomes/'
-	for genome in genomes:
+	for genome in GENOMES:
 		fname = genome+'.fa.gz'
 		sh('rsync -av --size-only %(bs)s%(ome)s/protein/protein.fa.gz %(pth)s' % {'bs':bs, 
 					'ome':genome, 'pth':os.path.join(DATADIR, fname)})
@@ -37,13 +36,14 @@ def get_host_seq():
 @task
 def process_elm():
 	"""Determines (and writes) the ELM dictionary"""
+	FORCE_REDO = False
 	
-	seq_files = os.listdir(DATADIR)
-	
-	for f in filter(lambda x: x.endswith('.fa'), seq_files):
-		ofile = os.path.join(RESULTSDIR, f.split('.')[0] + '.txt')
-		ifile = os.path.join(DATADIR, f)
-		sh('python makeELMdict.py -o %(out)s %(infile)s' % {'out':ofile, 
+	for genome in GENOMES:
+		ofile = os.path.join(RESULTSDIR, 'elmdict_'+genome+'.txt')
+		ifile = os.path.join(DATADIR, genome+'.fa')
+		if not os.path.exists(ofile) or FORCE_REDO:
+			#only do if missing or FORCING
+			sh('python makeELMdict.py -o %(out)s %(infile)s' % {'out':ofile, 
 																	'infile': ifile})
 
 @task
