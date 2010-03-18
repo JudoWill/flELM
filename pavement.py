@@ -4,6 +4,7 @@ import os, os.path, itertools
 import sys
 sys.path.append('.')
 from local_settings import *
+from global_settings import *
 
 @task
 def get_elm_patterns():
