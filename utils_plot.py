@@ -153,3 +153,4 @@ def distance_heatmap(x_by_y_dict, out_file):
         f.write("ggplot(d,aes(SpeciesPair,ELM)) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='white',high='steelblue')\n")
         f.write('dev.off()\n')
     os.system('R < ' + tmp_r_file + ' --no-save')
+    os.system('rm ' + tmp_r_file + ' ' + tmp_input_file)
