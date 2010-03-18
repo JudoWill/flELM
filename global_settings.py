@@ -8,7 +8,9 @@ ALIASES = {'M_musculus':'Mouse', 'Bos_taurus':'Cow',
            'Macaca_mulatta':'Monkey', 'R_norvegicus':'Rat',
            'swine':'swineFlu', 'human':'humanFlu', 'chicken':'chickenFlu'}
 
-FLU_NAMES = (('duck', 'mallard'), ('chicken',), ('goose', 'swan'), 
-             ('swine', 'pig'), ('equine', 'horse'), ('turkey',), ('human',))
+FLU_NAMES = {'duck':('duck', 'mallard'), 'chicken':('chicken',), 
+				'goose':('goose', 'swan'), 'swine':('swine', 'pig'), 
+				'equine':('equine', 'horse'), 'turkey':('turkey',), 
+				'human':('human',)}
 
 SEQ_FRAC_CUT = '.05'

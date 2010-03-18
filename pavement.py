@@ -58,14 +58,18 @@ def process_elm(options):
 @cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
 			('picloud', 'c', 'Use PiCloud')])
 def process_flu(options):
-	"""Determines (and writes) the ELM dictionary"""
+	"""Determines (and writes) the ELM dictionary for inluenza"""
 
 	c_arg = ''
 	if options.process_flu.get('picloud', False): c_arg = '-c'
+	
 
-	for genome in GENOMES:
+	for org in FLU_NAMES:
+		fname = os.path.join(RESULTSDIR, 'flu_elmdict_'+org)
+		if os.path.exists(fname) or options.process_flu.get('forcenew', False):
+			continue
 		#only do if missing or FORCING
-		sh('python process_flu.py %(c)s ' % {'c':c_arg})
+		sh('python process_flu.py %(c)s %(name)s' % {'c':c_arg, 'name':org})
 
 @task
 def elm_hist():
