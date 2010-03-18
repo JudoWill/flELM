@@ -11,4 +11,4 @@ ALIASES = {'M_musculus':'Mouse', 'Bos_taurus':'Cow',
 FLU_NAMES = (('duck', 'mallard'), ('chicken',), ('goose', 'swan'), 
              ('swine', 'pig'), ('equine', 'horse'), ('turkey',), ('human',))
 
-SEQ_FRAC_CUT = '.05'
+SEQ_FRAC_CUT = '.01'
