@@ -3,8 +3,14 @@ from Bio import SeqIO
 from copy import deepcopy
 import re, os.path, os, logging
 from functools import partial
+from itertools import *
+from collections import defaultdict
 
+import cloud
 
+def take(n, iterable):
+	"Return first n items of the iterable as a list"
+	return list(islice(iterable, n))
 
 def GetFluSeqs(*args, **kwargs):
 	"""A generator which returns flu sequences based on provided requests
@@ -101,8 +107,7 @@ def DictFromGen(GEN, label = None, chunk_size = 500, stop_count = None):
 			c += per_block
 			if stop_count != None and stop_count < c: break
 		
-	def ProcessSeq(inp):
-		seq_chunk, d = inp
+	def ProcessSeq(seq_chunk, d):
 		count_dict = defaultdict(int)
 		elm_dict = {}
 		for key, val in d.items():
@@ -129,7 +134,7 @@ def DictFromGen(GEN, label = None, chunk_size = 500, stop_count = None):
 				try:
 					#try to submit the current slice of the block
 					logging.debug('Submitting a chunk to the cloud')
-					id = cloud.call(ProcessSeq, chunk[c-1::s], _label = label)
+					id = cloud.call(ProcessSeq, chunk[c-1::s], elm_dict, _label = label)
 					tids.append(id)
 					c+=1
 					submitted = True
