@@ -12,6 +12,7 @@ def get_elm_patterns():
 
 	sh('python get_elm_patterns.py > elm_expressions.txt')
 
+@task
 def get_flu_seq():
 	""" Grab flu protein fasta & description file from NCBI """
 
