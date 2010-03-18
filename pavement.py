@@ -56,17 +56,15 @@ def process_elm(options):
 @task
 def elm_hist():
 	""" Plot host/host histograms of sequence frequencies of at least .05 """
+	input_line = ''
+	for genome in GENOMES:
+		input_line += os.path.join(RESULTSDIR, 'elmdict_'
+					   + genome + '.txt') + ' ' + genome + ' '
 
-	for genome1, genome2 in itertools.combinations(GENOMES, 2):
-		sh('python elm_hists.py '
-		   + os.path.join(RESULTSDIR, 'elmdict_'
-				  + genome1 + '.txt') + ' '
-		   + genome1 + ' '
-		   + os.path.join(RESULTSDIR, 'elmdict_'
-				  + genome2 + '.txt') + ' '
-		   + genome2 + ' '
-		   + '.05 '
-		   + PLOTDIR)
+	sh('python elm_hists.py '
+	   + input_line
+	   + '.05 '
+	   + PLOTDIR)
 
 # @task
 # def get_seq():

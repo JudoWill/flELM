@@ -46,32 +46,41 @@ def get_seq2count_dict(elm_file, cutoff):
                 elm2seq2count[elm][seq] = frac
     return elm2seq2count
 
-def main(args):
-    elm_file_1 = sys.argv[1]
-    species1 = sys.argv[2]
-    elm_file_2 = sys.argv[3]
-    species2 = sys.argv[4]
-    cutoff = float(sys.argv[5])
-    plot_dir = sys.argv[6]
+def check_ones(species2elms, elm):
+    """ Is there only one sequence for this ELM
+        in all species """
 
-    elms1 = get_seq2count_dict(elm_file_1, cutoff)
-    elms2 = get_seq2count_dict(elm_file_2, cutoff)
+    not_one = False
+
+    for species in species2elms:
+        if len(species2elms[species][elm].keys()) > 1:
+            not_one = True
+            break
+    return not_one
+
+def main(args):
+    file_species_pairs = []
+    i = 1
+    while i < len(args)-2:
+        file_species_pairs.append([args[i], args[i+1]])
+        i += 2
+
+    cutoff = float(sys.argv[-2])
+    plot_dir = sys.argv[-1]
+
+    species2elms = {}
+    for file, species in file_species_pairs:
+        species2elms[species] = get_seq2count_dict(file, cutoff)
 
     elms = {}
-    for elm_d in [elms1, elms2]:
-        for elm in elm_d:
+    for species in species2elms:
+        for elm in species2elms[species]:
             elms[elm] = True
     for elm in elms:
-        if len(elms1[elm].keys()) == 1 and len(elms2[elm].keys()) == 1:
-            pass
-        else:
-            utils_plot.elm_freq_histogram(elms1[elm], species1,
-                                          elms2[elm], species2,
-                                          os.path.join(plot_dir,
-                                                       species1 + '.'
-                                                       + species2 + '.'
-                                                       + elm + '.png'),
-                                          elm)
+        if check_ones(species2elms, elm):
+            utils_plot.elm_host_barplot(species2elms, elm,
+                                        os.path.join(plot_dir,
+                                                     elm + '.hosts.png'))
 
 if __name__ == '__main__': main(sys.argv)
 
