@@ -4,6 +4,7 @@
     R must be installed
 """
 import random, os
+from global_settings import *
 random.seed()
 
 def mk_test_data():
@@ -102,7 +103,7 @@ def create_elm_barplot_tmp_file(species2elms, elm):
         for species in species2elms:
             if elm in species2elms[species]:
                 for seq in species2elms[species][elm]:
-                    f.write(species + '\t' 
+                    f.write(ALIASES[species] + '\t' 
                             + seq + '\t' 
                             + str(species2elms[species][elm][seq]) + '\n')
 
