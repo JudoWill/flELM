@@ -61,7 +61,7 @@ def process_flu(options):
 	"""Determines (and writes) the ELM dictionary"""
 
 	c_arg = ''
-	if options.process_elm.get('picloud', False): c_arg = '-c'
+	if options.process_flu.get('picloud', False): c_arg = '-c'
 
 	for genome in GENOMES:
 		#only do if missing or FORCING
