@@ -71,6 +71,24 @@ def process_flu(options):
 		#only do if missing or FORCING
 		sh('python process_flu.py %(c)s %(name)s' % {'c':c_arg, 'name':org})
 
+
+@task
+@cmdopts([('picloud', 'c', 'Use PiCloud')])
+def subsample_genomes(options):
+	"""Determines (and writes) the ELM dictionary for inluenza"""
+
+	c_arg = ''
+	if options.subsample_genomes.get('picloud', False): c_arg = '-c'
+
+
+	for org in GENOMES:
+		#only do if missing or FORCING
+		sh('python subsample.py %(c)s %(name)s' % {'c':c_arg, 'name':org})
+
+
+
+
+
 @task
 def elm_hist():
 	""" Plot host histograms of sequence frequencies of at least SEQ_FRAC_CUT """
