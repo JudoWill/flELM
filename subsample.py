@@ -17,7 +17,7 @@ def SampleIterator(gen, fract_return):
 
 
 if __name__ == '__main__':
-	
+	logging.basicConfig(level=logging.WARNING)
 	parser = OptionParser()
 	
 	parser.add_option('-c', '--use-cloud', default = False, action = 'store_true',
