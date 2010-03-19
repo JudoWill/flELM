@@ -24,9 +24,11 @@ if __name__ == '__main__':
 						dest = 'usecloud', help = 'Use PiCloud computing')
 	parser.add_option('-n', '--num-samples', default = 3000, type = 'int',
 						help = 'Number of subsamples to create', dest = 'numsamples')
-	parser.add_option('-f', '--fraction', default = 0.1, type = 'float',
-						help = 'Fraction to sample', dest = 'fraction')
-
+	parser.add_option('-p', '--percentage', default = 0.1, type = 'float',
+						help = 'Percentage to sample', dest = 'percentage')
+	parser.add_option('-f', '--forcenew', default = False, action = 'store_true',
+						help = 'Force overwritting of previously generated samples', 
+						dest = 'forcenew')
 						
 	(options, args) = parser.parse_args()
 	
@@ -47,12 +49,17 @@ if __name__ == '__main__':
 			os.mkdir(outdirect)
 		ifile = os.path.join(DATADIR, genome + '.fa')
 		for i in xrange(options.numsamples):
+			outfile = os.path.join(outdirect, short_name + '%05d.txt' % (i+1,))
+			if os.path.exists(outfile) and not options.forcenew:
+				continue
+			
 			logging.warning('Processing subsample %d' % (i+1,))
+			
 			fgen = SeqGen(ifile)
-			sub_gen = SampleIterator(fgen, options.fraction)
+			sub_gen = SampleIterator(fgen, options.percentage)
 			d = DictFromGen(sub_gen, label = short_name, chunk_size = 200)
 			
-			outfile = os.path.join(outdirect, short_name + '%05d.txt' % (i+1,))
+			
 			logging .warning('Writting file: %s' % outfile)
 			with open(outfile, 'w') as handle:
 				l = d.keys()

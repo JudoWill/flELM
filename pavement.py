@@ -73,17 +73,18 @@ def process_flu(options):
 
 
 @task
-@cmdopts([('picloud', 'c', 'Use PiCloud')])
+@cmdopts([('picloud', 'c', 'Use PiCloud'),
+			('forcenew', 'f', 'Force the re-creation of the result files'),])
 def subsample_genomes(options):
 	"""Determines (and writes) the ELM dictionary for inluenza"""
 
-	c_arg = ''
-	if options.subsample_genomes.get('picloud', False): c_arg = '-c'
+	arg = '-c' if options.subsample_genomes.get('picloud', False) else ''
+	arg += ' -f' if options.subsample_genomes.get('forcenew', False) else ''
 
 
 	for org in GENOMES:
 		#only do if missing or FORCING
-		sh('python subsample.py %(c)s %(name)s' % {'c':c_arg, 'name':org})
+		sh('python subsample.py %(arg)s %(name)s' % {'arg':arg, 'name':org})
 
 
 
