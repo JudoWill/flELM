@@ -116,7 +116,7 @@ def elm_hist_2():
 	sh('python elm_hists.py '
 	   + input_line
 	   + SEQ_FRAC_CUT + ' '
-	   + PLOTDIR)
+	   + os.path.join(PLOTDIR, 'full'))
 
 @task
 def barplot():

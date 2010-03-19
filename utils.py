@@ -1,7 +1,7 @@
 from local_settings import *
 from Bio import SeqIO
 from copy import deepcopy
-import re, os.path, os, logging
+import re, os.path, os, logging, math
 from functools import partial
 from itertools import *
 from collections import defaultdict
@@ -229,3 +229,40 @@ def check_ones(species2elms, elm):
             not_one = True
             break
     return not_one
+
+def calc_entropy(prob_list):
+    """ given a list of probabilities,
+	find the entropy
+    """
+    
+    entropy = float(0)
+    for prob in prob_list:
+        entropy -= prob * math.log(prob, 2)
+    return entropy
+
+def get_species_entropy(elm2seq2prob):
+    """ find entropy for all ELMs
+        given {} of ELM 2 seq
+    """
+
+    entropy = {}
+    for elm in elm2seq2prob:
+        prob_ls = []
+	for seq in elm2seq2prob[elm]:
+            prob_ls.append(elm2seq2prob[elm][seq])
+	entropy[elm] = calc_entropy(prob_ls)
+    return entropy
+
+def calc_elm_frequency(elmdict_file):
+	""" find the fraction of ELM occurance
+            out of total ELMs """
+	counts = defaultdict(init_zero)
+	total = 0
+	with open(elmdict_file) as f:
+		for line in f:
+			[elm, seq, count, frac] = line.strip().split('\t')
+			counts[elm] += int(count)
+			total += int(count)
+	for elm in counts:
+		counts[elm] = float(counts[elm])/float(total)
+	return counts
