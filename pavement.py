@@ -134,6 +134,37 @@ def barplot():
 	   + SEQ_FRAC_CUT + ' '
 	   + os.path.join(PLOTDIR, 'virus_host'))
 
+@task 
+def hprdplot():
+	sh('python host_virus_barplot.py '
+	   + 'results/human.website.elm.elmdict '
+	   + 'web '
+	   + 'results/hprd_new.regex.elms.elmdict '
+	   + '.01 '
+	   + '/plots/hprd/')
+
+@task
+def redo_elmdict():
+	""" subtract counts expected by chance """
+	
+	for g in GENOMES:
+		sh('python get_aa_freq.py '
+		   + os.path.join(DATADIR, g + '.fa ')
+		   + '> ' + os.path.join(RESULTSDIR, g + '.aa_freq'))
+		sh('python prob_of_seq.py '
+		   + os.path.join(RESULTSDIR, g + '.aa_freq ')
+		   + os.path.join(DATADIR, g + '.fa ')
+		   + os.path.join(RESULTSDIR, 'elmdict_' + g + '.txt ')
+		   + '> ' + os.path.join(RESULTSDIR, 'elmdict_' + g + '.redo'))
+
+	for org in FLU_NAMES:
+		sh('python get_flu_aa_freq.py '
+		   + org)
+		sh('python prob_of_seq.py '
+		   + os.path.join(RESULTSDIR, 'flu.' + org + '.aa_freq ')
+		   + org + ' '
+		   + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + ' ')
+		   + '> ' + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + '.redo'))
 
 # @task
 # def get_seq():
