@@ -1,4 +1,5 @@
 from local_settings import *
+from global_settings import *
 from Bio import SeqIO
 from copy import deepcopy
 import re, os.path, os, logging, math
@@ -7,6 +8,36 @@ from itertools import *
 from collections import defaultdict
 
 import cloud
+
+def loadFASTA(fasta_file):
+    """ Make a {} from a FASTA file.
+
+    @param fasta_file: >name
+                       seq
+                       seq ...
+    @return: fasta[gene] = seq (oneline)
+    """
+
+    fasta = {}
+    fasta_f = open(fasta_file)
+    name = ''
+    seq = ''
+    line = fasta_f.readline()
+    while line != '':
+        if line[0] == '>':
+            if name != '':
+                fasta[ name ] = seq
+            name = line[1:].strip()
+            seq = ''
+        else:
+            seq = seq + line.strip()
+        line = fasta_f.readline()
+    fasta_f.close()
+
+    if name != '':    
+        fasta[name] = seq
+
+    return fasta
 
 def take(n, iterable):
 	"Return first n items of the iterable as a list"
@@ -29,13 +60,13 @@ def GetFluSeqs(*args, **kwargs):
 	Any other kwargs raise a KeyError!
 	
 	"""
-	
+
 		
 	def TruthTest(inp, line):
-		for i in inp:
-			if i in line:
-				return True
-		return False
+            for i in inp:
+                if i in line:
+                    return True
+            return False
 
 	vdict = {}
 	always_true = lambda x: True
@@ -72,12 +103,16 @@ def GetFluSeqs(*args, **kwargs):
 	
 	logging.warning('valid gbs: %d' % len(valid_seqs))
 	logging.info('yielding sequences')
-	with open(os.path.join(DATADIR, 'influenza.fa')) as handle:
-		for seqreq in SeqIO.parse(handle, 'fasta'):
-			gb = seqreq.id.split('|')[3]
-			if gb in valid_seqs:
-				yield str(seqreq.seq)
-				valid_seqs.remove(gb)
+	handle = os.path.join(DATADIR, 'influenza.fa')
+	fasta = loadFASTA(handle)
+	for seqreq in fasta:
+		gb = seqreq.split('|')[3]
+		protein = seqreq.split('|')[4].split('[')[0].strip()
+		if protein in PROTEIN_ALIAS:
+			protein = PROTEIN_ALIAS[protein]
+		if gb in valid_seqs:
+			yield [str(fasta[seqreq]), protein, gb]
+			valid_seqs.remove(gb)
 		
 def ReadELMs_nocompile(filename):
 	"""Reads ELM file and returns dictionary of (name:regxp)"""
@@ -266,3 +301,32 @@ def calc_elm_frequency(elmdict_file):
 	for elm in counts:
 		counts[elm] = float(counts[elm])/float(total)
 	return counts
+
+def get_fluSeqs_by_serotype(flu_shortname):
+    """ return {} of serotype 2 proteinName 2 seq """
+
+    gb2type = {}
+    with open(os.path.join(DATADIR, 'influenza_aa.dat')) as f:
+        for line in f:
+            for shortname in FLU_NAMES[flu_shortname]:
+                if shortname in line.lower() and 'Influenza A virus' in line:
+                    if line.split('\t')[1] != 'Avian':
+                        gb = line.split('\t')[0]
+                        serotype = line.split('\t')[3]
+                        gb2type[gb] = serotype
+    fasta = loadFASTA(os.path.join(DATADIR, 'influenza.fa'))
+    type2protein2gb2seq = {}
+    for key in fasta:
+        gb = key.split('|')[3]
+        protein = key.split('|')[4].split('[')[0].strip()
+        if protein in PROTEIN_ALIAS:
+            protein = PROTEIN_ALIAS[protein]
+        if gb in gb2type:
+            serotype = gb2type[gb]
+            if not serotype in type2protein2gb2seq:
+                type2protein2gb2seq[serotype] = {}
+            if not protein in type2protein2gb2seq[serotype]:
+                type2protein2gb2seq[serotype][protein] = {}
+            type2protein2gb2seq[serotype][protein][gb] = fasta[key]
+    return type2protein2gb2seq
+                

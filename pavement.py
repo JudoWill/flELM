@@ -5,6 +5,7 @@ import sys
 sys.path.append('.')
 from local_settings import *
 from global_settings import *
+import utils
 
 @task
 def get_elm_patterns():
@@ -166,6 +167,47 @@ def redo_elmdict():
 		   + org + ' '
 		   + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + ' ')
 		   + '> ' + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + '.redo'))
+
+@task
+def conserved_elms():
+	for host in ['human', 'swine', 'equine', 'chicken']:
+		sh('python count_flu.py '
+		   + host)
+		sh('python matchELMpattern.py '
+		   + 'elm_expressions.txt '
+		   + 'results/' + host + '.H9N2.fa '
+		   + '> ' + 'results/' + host + '.H9N2.elms')
+		sh('python getConserved.py '
+		   + 'results/' + host + '.H9N2.elms '
+		   + 'ELM '
+		   + '90 '
+		   + '1> results/' + host + '.H9N2.elms.90 '
+		   + '2> results/' + host + '.H9N2.elms.conservation')
+			
+@task
+def conserved_elms_2():
+	for host in ['human', 'swine', 'equine', 'chicken']:
+		sh('python mk_freq.py '
+		   + 'results/' + host + '.H9N2.elms.90 '
+		   + 'results/' + host + '.H9N2.elms '
+		   + '> results/' + host + '.H9N2.elms.90.freq')
+		#sh('python prob_of_seq.py '
+		#   + os.path.join(RESULTSDIR, 'flu.' + host + '.aa_freq ')
+		#   + host + ' '
+		#   + os.path.join(RESULTSDIR, host + '.elms.90.freq ')
+		#   + '> ' + os.path.join(RESULTSDIR, host + '.elms.90.freq.redo'))
+
+@task
+def serotypes():
+	""" How does ELM conservation change between serotypes (ex H1N1, H2N4) """
+	type2protein2gb2seq = utils.get_fluSeqs_by_serotype('swine')
+	for t in type2protein2gb2seq:
+		for p in type2protein2gb2seq[t]:
+			seq_count = len(type2protein2gb2seq[t][p].keys())
+			if seq_count > 100:
+				print t + '\t' + p + '\t' + str(seq_count)
+
+	
 
 # @task
 # def get_seq():
