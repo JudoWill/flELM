@@ -200,14 +200,32 @@ def conserved_elms_2():
 @task
 def serotypes():
 	""" How does ELM conservation change between serotypes (ex H1N1, H2N4) """
-	type2protein2gb2seq = utils.get_fluSeqs_by_serotype('swine')
-	for t in type2protein2gb2seq:
-		for p in type2protein2gb2seq[t]:
-			seq_count = len(type2protein2gb2seq[t][p].keys())
-			if seq_count > 100:
-				print t + '\t' + p + '\t' + str(seq_count)
 
-	
+	type2protein2gb2seq = utils.get_fluSeqs_by_serotype('human')
+	for t in ['H1N1', 'H5N1', 'H3N2']:
+		with open('human.' + t + '.fa', 'w') as f:
+			for p in type2protein2gb2seq[t]:
+				length = len(type2protein2gb2seq[t][p].keys())
+				if length > 100:
+				#print t + '\t' + p + '\t' + str(length)
+					for gb in type2protein2gb2seq[t][p]:
+						f.write('>' + gb + '.' + p + '\n')
+						f.write(type2protein2gb2seq[t][p][gb] + '\n')
+ 		sh('python matchELMpattern.py '
+ 		   + 'elm_expressions.txt '
+ 		   + 'human.' + t + '.fa '
+ 		   + '> ' + 'human.' + t + '.elms')
+ 		sh('python getConserved.py '
+ 		   + 'human.' + t + '.elms '
+ 		   + 'ELM '
+ 		   + '90 '
+ 		   + '1> human.' + t + '.elms.90 '
+ 		   + '2> human.' + t + '.elms.conservation')
+ 		sh('python mk_freq.py '
+ 		   + 'human.' + t + '.elms.90 '
+ 		   + 'human.' + t + '.elms '
+ 		   + '> human.' + t + '.elms.90.freq')
+		
 
 # @task
 # def get_seq():
