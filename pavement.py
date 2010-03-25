@@ -233,7 +233,7 @@ def serotypes_random():
 	#type2protein2gb2seq = utils.get_fluSeqs_by_serotype('human')
 	for r in xrange(10):
 		r_str = str(r)
-		#sh('mkdir random/' + r_str)
+		#sh('mkdir -p random/' + r_str)
 		for t in ['H1N1', 'H5N1']:#, 'H3N2']:
 			#sh('python matchELMpattern.py '
 			#   + 'elm_exp_random' + r_str +  ' '
@@ -257,13 +257,13 @@ def serotypes_random_fasta():
 	#type2protein2gb2seq = utils.get_fluSeqs_by_serotype('human')
 	for r in xrange(10):
 		r_str = str(r)
-		sh('mkdir random_seq/' + r_str)
+		sh('mkdir -p random_seq/' + r_str)
 		for t in ['H1N1', 'H5N1', 'H3N2']:
 			utils.mk_random_fasta('human.' + t + '.fa',
-					      '/random_seq/' + r_str + '/human.' + t + '.fa')
+					      'random_seq/' + r_str + '/human.' + t + '.fa')
 			sh('python matchELMpattern.py '
 			   + 'elm_expressions.txt '
-			   + '/random_seq/' + r_str + '/human.' + t + '.fa '
+			   + 'random_seq/' + r_str + '/human.' + t + '.fa '
 			   + '> random_seq/' + r_str + '/human.' + t + '.elms')
 			sh('python getConserved.py '
 			   + 'random_seq/' + r_str + '/human.' + t + '.elms '
