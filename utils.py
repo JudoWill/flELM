@@ -6,6 +6,7 @@ import re, os.path, os, logging, math
 from functools import partial
 from itertools import *
 from collections import defaultdict
+import markov_chain
 
 import cloud
 
@@ -38,6 +39,27 @@ def loadFASTA(fasta_file):
         fasta[name] = seq
 
     return fasta
+
+def mk_random_fasta(fasta_file, out_fasta_file):
+    """ given a flu FASTA file of ID.protein,
+        use the markov chain to produce
+        a random FASTA file.
+        Keep the same # of protein types
+    """
+
+    fasta = loadFASTA(fasta_file)
+    proteins = defaultdict(list)
+    for k in fasta:
+        protein = k.split('.')[1]
+        proteins[protein].append(fasta[k])
+    with open(out_fasta_file, 'w') as f:
+        for protein in proteins:
+            chain = markov_chain.MarkovChain()
+            for seq in proteins[protein]:
+                chain.add(seq)
+            for i in xrange(len(proteins[protein])):
+                f.write('>' + str(i) + '.' + protein + '\n')
+                f.write(chain.random_output() + '\n')
 
 def take(n, iterable):
 	"Return first n items of the iterable as a list"
@@ -310,7 +332,9 @@ def get_fluSeqs_by_serotype(flu_shortname):
         for line in f:
             for shortname in FLU_NAMES[flu_shortname]:
                 if shortname in line.lower() and 'Influenza A virus' in line:
-                    if line.split('\t')[1] != 'Avian':
+                    if shortname == 'human' and line.split('\t')[1] == 'Avian':
+                        pass
+                    else:
                         gb = line.split('\t')[0]
                         serotype = line.split('\t')[3]
                         gb2type[gb] = serotype
