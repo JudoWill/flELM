@@ -269,8 +269,8 @@ def serotypes_random_fasta():
 			   + 'random_seq/' + r_str + '/human.' + t + '.elms '
 			   + 'ELM '
 			   + '90 '
-			   + '1> random/' + r_str + '/human.' + t + '.elms.90 '
-			   + '2> random/' + r_str + '/human.' + t + '.elms.conservation')
+			   + '1> random_seq/' + r_str + '/human.' + t + '.elms.90 '
+			   + '2> random_seq/' + r_str + '/human.' + t + '.elms.conservation')
 			sh('python mk_freq.py '
 			   + 'random_seq/' + r_str + '/human.' + t + '.elms.90 '
 			   + 'random_seq/' + r_str + '/human.' + t + '.elms '
