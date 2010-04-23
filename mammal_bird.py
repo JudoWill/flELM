@@ -1,5 +1,6 @@
 from collections import defaultdict
 import utils_motif, sys, utils_graph
+import utils_stats
 
 def get_aa_freqs(afile):
     d = {}
@@ -12,10 +13,16 @@ def get_aa_freqs(afile):
     return (d, elms)
 
 def check_gtr(elm, elm2fracs):
-    return (elm2fracs[elm]['human'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['human'] > elm2fracs[elm]['finch'] and elm2fracs[elm]['swine'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['swine'] > elm2fracs[elm]['finch'])
+    return (elm2fracs[elm]['human'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['human'] > elm2fracs[elm]['finch'] and elm2fracs[elm]['swine'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['swine'] > elm2fracs[elm]['finch'] and elm2fracs[elm]['horse'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['horse'] > elm2fracs[elm]['finch'])
+
+def check_gtr_2fold(elm, elm2fracs):
+    return (elm2fracs[elm]['human']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['human']/elm2fracs[elm]['finch'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['finch'] > float(1.05))
 
 def check_less(elm, elm2fracs):
-    return (elm2fracs[elm]['human'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['human'] < elm2fracs[elm]['finch'] and elm2fracs[elm]['swine'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['swine'] < elm2fracs[elm]['finch'])
+    return (elm2fracs[elm]['human'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['human'] < elm2fracs[elm]['finch'] and elm2fracs[elm]['swine'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['swine'] < elm2fracs[elm]['finch'] and elm2fracs[elm]['horse'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['horse'] < elm2fracs[elm]['finch'])
+
+def check_less_2fold(elm, elm2fracs):
+    return (elm2fracs[elm]['human']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['human']/elm2fracs[elm]['finch'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['finch'] > float(1.05))
 
 elm2fracs = {}
 with open(sys.argv[1]) as f:
@@ -34,7 +41,9 @@ with open(sys.argv[1]) as f:
 aa_freqs = {'human':get_aa_freqs('results/H_sapiens.elm_aa_freq'),
             'chicken':get_aa_freqs('results/Gallus_gallus.elm_aa_freq'),
             'finch':get_aa_freqs('results/Taeniopygia_guttata.elm_aa_freq'),
-            'swine':get_aa_freqs('results/Sus_scrofa.elm_aa_freq')}
+            'swine':get_aa_freqs('results/Sus_scrofa.elm_aa_freq'),
+            'horse':get_aa_freqs('results/Equus_caballus.elm_aa_freq')}
+
 freq_elms = {}
 for k in aa_freqs:
     d, e = aa_freqs[k]
@@ -51,7 +60,7 @@ for elm in freq_elms:
         if elm in aa_freqs[s][0]:
             elm2freq[elm][s] = aa_freqs[s][0][elm]
         else:
-            elm2freq[elm][s] = float(0)
+            elm2freq[elm][s] = float(0.0000000000000000000001)
 
 cut = sys.argv[2]
 d = {'ELM':True}
@@ -63,6 +72,9 @@ human_H1N1_elms = utils_motif.protein2annotation('results/human.H1N1.elms.' + cu
 human_H3N2_elms = utils_motif.protein2annotation('results/human.H3N2.elms.' + cut, d)
 human_H5N1_elms = utils_motif.protein2annotation('results/human.H5N1.elms.' + cut, d)
 human = [human_H1N1_elms, human_H3N2_elms, human_H5N1_elms]
+
+horse_H3N8_elms = utils_motif.protein2annotation('results/equine.H3N8.elms.' + cut, d)
+horse = [horse_H3N8_elms]
 
 chicken_H5N1_elms = utils_motif.protein2annotation('results/chicken.H5N1.elms.' + cut, d)
 chicken_H9N2_elms = utils_motif.protein2annotation('results/chicken.H9N2.elms.' + cut, d)
@@ -84,22 +96,36 @@ for protein in human[0]:
             if protein in h:
                 if not elm in h[protein]:
                     not_found = True
+            else:
+                not_found = True
         for s in swine:
             if protein in s:
                 if not elm in s[protein]:
                     not_found = True
+            else:
+                not_found = True
         for c in chicken:
             if protein in c:
                 if not elm in c[protein]:
                     not_found = True
+            else:
+                not_found = True
         for d in duck:
             if protein in d:
                 if not elm in d[protein]:
                     not_found = True
+            else:
+                not_found = True
+        for d in horse:
+            if protein in d:
+                if not elm in d[protein]:
+                    not_found = True
+            else:
+                not_found = True
         if not not_found:
             common_all[protein][elm] = True
             common_all_elms[elm] = True
-
+#print common_all.keys()
 common_mammal = defaultdict(dict)
 mammal_elms = {}
 for protein in human[0]:
@@ -112,6 +138,10 @@ for protein in human[0]:
         for s in swine:
             if protein in s:
                 if not elm in s[protein]:
+                    not_found = True
+        for h in horse:
+            if protein in h:
+                if not elm in h[protein]:
                     not_found = True
         if not not_found:
             common_mammal[protein][elm] = True
@@ -150,21 +180,87 @@ for protein in common_bird:
                 use_bird[elm] = True
 utils_graph.dumpNodes('bird' + str(cut), use_bird)
 
+
 def test_it(elm, d, out):
+    same = 0
+    count = 0
     if elm in d:
+        count = 1
         if check_gtr(elm, d):
-            out.write(elm + '\tGTG\n')
+            out.write(elm + '\tGTR\n')
         elif check_less(elm, d):
             out.write(elm + '\tLESS\n')
         else:
+            same = 1
             out.write(elm + '\tSAME\n')
+    return (count, same)
 
 test_elms = utils_graph.unionLists([use_mammal, use_bird]) 
-with open('mammal_bird.' + str(cut) + '.test', 'w') as f:
+virus_elms_same = 0
+virus_elm_count = 0
+non_virus_elms_same = 0
+with open('mammal_bird.different.' + str(cut) + '.test', 'w') as f:
     for elm in test_elms:
-        test_it(elm, elm2freq, f)
+        count,same = test_it(elm, elm2freq, f)
+        virus_elms_same += same
+        virus_elm_count += count
 
-with open('mammal_bird.' + str(cut) + '.notest', 'w') as f:       
+non_virus_elms = 0
+non_virus_elms_all = 0
+with open('mammal_bird.different.' + str(cut) + '.notest', 'w') as f:       
     for elm in elm2freq:
         if not elm in test_elms:
-            test_it(elm, elm2freq, f)
+            non_virus_elms_all += 1
+            count,same = test_it(elm, elm2freq, f)
+            non_virus_elms += count
+            non_virus_elms_same += same            
+
+with open(str(cut) + '.different.results', 'w') as f:
+    p = utils_stats.fisher_positive_pval([virus_elm_count-
+                                          virus_elms_same,
+                                          virus_elms_same + len(test_elms.keys())-virus_elm_count],
+                                         [non_virus_elms-
+                                          non_virus_elms_same,
+                                          non_virus_elms_same + non_virus_elms_all-non_virus_elms])
+    f.write('pvalue\t' + str(p) + '\n')
+    f.write('virus\t' + str(virus_elm_count-virus_elms_same)
+            + '\t' + str(virus_elms_same + len(test_elms.keys())-virus_elm_count) + '\n')
+    f.write('nvirus\t' + str(non_virus_elms-non_virus_elms_same)
+            + '\t' + str(non_virus_elms_same + non_virus_elms_all-non_virus_elms) + '\n')
+
+test_elms_2 = {}
+for c in common_all_elms:
+    if not c in test_elms:
+        test_elms_2[c] = True
+
+virus_elms_same = 0
+virus_elm_count = 0
+non_virus_elms_same = 0
+with open('mammal_bird.same.' + str(cut) + '.test', 'w') as f:
+    for elm in test_elms_2:
+        count,same = test_it(elm, elm2freq, f)
+        virus_elms_same += same
+        virus_elm_count += count
+
+non_virus_elms = 0
+non_virus_elms_all = 0
+with open('mammal_bird.same.' + str(cut) + '.notest', 'w') as f:       
+    for elm in elm2freq:
+        if not elm in test_elms_2:
+            non_virus_elms_all += 1
+            count,same = test_it(elm, elm2freq, f)
+            non_virus_elms += count
+            non_virus_elms_same += same
+
+with open(str(cut) + '.same.results', 'w') as f:
+    p = utils_stats.fisher_positive_pval([virus_elm_count-
+                                          virus_elms_same,
+                                          virus_elms_same + len(test_elms_2.keys())-virus_elm_count],
+                                         [non_virus_elms-
+                                          non_virus_elms_same,
+                                          non_virus_elms_same + non_virus_elms_all-non_virus_elms])
+    f.write('pvalue\t' + str(p) + '\n')
+    f.write('virus\t' + str(virus_elm_count-virus_elms_same)
+            + '\t' + str(virus_elms_same + len(test_elms_2.keys())-virus_elm_count) + '\n')
+    f.write('nvirus\t' + str(non_virus_elms-non_virus_elms_same)
+            + '\t' + str(non_virus_elms_same + non_virus_elms_all-non_virus_elms) + '\n')
