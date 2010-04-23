@@ -2,6 +2,11 @@ from collections import defaultdict
 import utils_motif, sys, utils_graph
 import utils_stats
 
+ignore_elms = {'LIG_PDZ_3':True,
+               'MOD_CK1_1':True,
+               'MOD_CK2_1':True,
+               'MOD_GSK3_1':True}
+
 def get_aa_freqs(afile):
     d = {}
     elms = {}
@@ -180,7 +185,6 @@ for protein in common_bird:
                 use_bird[elm] = True
 utils_graph.dumpNodes('bird' + str(cut), use_bird)
 
-
 def test_it(elm, d, out):
     same = 0
     count = 0
@@ -201,32 +205,36 @@ virus_elm_count = 0
 non_virus_elms_same = 0
 with open('mammal_bird.different.' + str(cut) + '.test', 'w') as f:
     for elm in test_elms:
-        count,same = test_it(elm, elm2freq, f)
-        virus_elms_same += same
-        virus_elm_count += count
+        if not elm in ignore_elms:
+            count,same = test_it(elm, elm2freq, f)
+            virus_elms_same += same
+            virus_elm_count += count
 
 non_virus_elms = 0
 non_virus_elms_all = 0
+control_elms = {}
 with open('mammal_bird.different.' + str(cut) + '.notest', 'w') as f:       
     for elm in elm2freq:
         if not elm in test_elms:
+            control_elms[elm] = True
             non_virus_elms_all += 1
-            count,same = test_it(elm, elm2freq, f)
-            non_virus_elms += count
-            non_virus_elms_same += same            
-
+            if not elm in ignore_elms:
+                count,same = test_it(elm, elm2freq, f)
+                non_virus_elms += count
+                non_virus_elms_same += same            
+                
+diff_diff = virus_elm_count-virus_elms_same
+diff_same = virus_elms_same + len(test_elms.keys())-virus_elm_count-len(utils_graph.intersectLists([test_elms,ignore_elms]))
+diff_bg_diff = non_virus_elms-non_virus_elms_same
+diff_bg_same = non_virus_elms_same + non_virus_elms_all-non_virus_elms-len(utils_graph.intersectLists([control_elms,ignore_elms]))
 with open(str(cut) + '.different.results', 'w') as f:
-    p = utils_stats.fisher_positive_pval([virus_elm_count-
-                                          virus_elms_same,
-                                          virus_elms_same + len(test_elms.keys())-virus_elm_count],
-                                         [non_virus_elms-
-                                          non_virus_elms_same,
-                                          non_virus_elms_same + non_virus_elms_all-non_virus_elms])
+    p = utils_stats.fisher_positive_pval([diff_diff,diff_same],
+                                         [diff_bg_diff,diff_bg_same])
     f.write('pvalue\t' + str(p) + '\n')
-    f.write('virus\t' + str(virus_elm_count-virus_elms_same)
-            + '\t' + str(virus_elms_same + len(test_elms.keys())-virus_elm_count) + '\n')
-    f.write('nvirus\t' + str(non_virus_elms-non_virus_elms_same)
-            + '\t' + str(non_virus_elms_same + non_virus_elms_all-non_virus_elms) + '\n')
+    f.write('virus\t' + str(diff_diff)
+            + '\t' + str(diff_same) + '\n')
+    f.write('nvirus\t' + str(diff_bg_diff)
+            + '\t' + str(diff_bg_same) + '\n')
 
 test_elms_2 = {}
 for c in common_all_elms:
@@ -238,29 +246,43 @@ virus_elm_count = 0
 non_virus_elms_same = 0
 with open('mammal_bird.same.' + str(cut) + '.test', 'w') as f:
     for elm in test_elms_2:
-        count,same = test_it(elm, elm2freq, f)
-        virus_elms_same += same
-        virus_elm_count += count
+        if not elm in ignore_elms:
+            count,same = test_it(elm, elm2freq, f)
+            virus_elms_same += same
+            virus_elm_count += count
 
 non_virus_elms = 0
 non_virus_elms_all = 0
+control_elms = {}
 with open('mammal_bird.same.' + str(cut) + '.notest', 'w') as f:       
     for elm in elm2freq:
         if not elm in test_elms_2:
+            control_elms[elm] = True
             non_virus_elms_all += 1
-            count,same = test_it(elm, elm2freq, f)
-            non_virus_elms += count
-            non_virus_elms_same += same
+            if not elm in ignore_elms:
+                count,same = test_it(elm, elm2freq, f)
+                non_virus_elms += count
+                non_virus_elms_same += same
 
+same_diff = virus_elm_count-virus_elms_same
+same_same = virus_elms_same + len(test_elms_2.keys())-virus_elm_count-len(utils_graph.intersectLists([test_elms_2,ignore_elms]))
+same_bg_diff = non_virus_elms-non_virus_elms_same
+same_bg_same = non_virus_elms_same + non_virus_elms_all-non_virus_elms-len(utils_graph.intersectLists([control_elms,ignore_elms]))
 with open(str(cut) + '.same.results', 'w') as f:
-    p = utils_stats.fisher_positive_pval([virus_elm_count-
-                                          virus_elms_same,
-                                          virus_elms_same + len(test_elms_2.keys())-virus_elm_count],
-                                         [non_virus_elms-
-                                          non_virus_elms_same,
-                                          non_virus_elms_same + non_virus_elms_all-non_virus_elms])
+    p = utils_stats.fisher_positive_pval([same_diff,same_same],
+                                         [same_bg_diff,same_bg_same])
     f.write('pvalue\t' + str(p) + '\n')
-    f.write('virus\t' + str(virus_elm_count-virus_elms_same)
-            + '\t' + str(virus_elms_same + len(test_elms_2.keys())-virus_elm_count) + '\n')
-    f.write('nvirus\t' + str(non_virus_elms-non_virus_elms_same)
-            + '\t' + str(non_virus_elms_same + non_virus_elms_all-non_virus_elms) + '\n')
+    f.write('virus\t' + str(same_diff)
+            + '\t' + str(same_same) + '\n')
+    f.write('nvirus\t' + str(same_bg_diff)
+            + '\t' + str(same_bg_same) + '\n')
+
+with open(str(cut) + '.results', 'w') as f:
+    p = utils_stats.fisher_positive_pval([diff_diff,diff_same],
+                                         [same_diff,same_same])
+    f.write('pvalue\t' + str(p) + '\n')
+    f.write('virus\t' + str(diff_diff)
+            + '\t' + str(diff_same) + '\n')
+    f.write('nvirus\t' + str(same_diff)
+            + '\t' + str(same_same) + '\n')
+    
