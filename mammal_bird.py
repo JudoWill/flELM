@@ -2,19 +2,57 @@ from collections import defaultdict
 import utils_motif, sys, utils_graph
 import utils_stats
 
-# ignore_elms = {'LIG_PDZ_3':True,
-#                'MOD_CK1_1':True,
-#                'MOD_CK2_1':True,
-#                'MOD_GSK3_1':True}
+ignore_elms = {}#'LIG_PDZ_3':True,
+               #'MOD_CK1_1':True,
+               #'MOD_CK2_1':True,
+               #'MOD_GSK3_1':True}
 
-def get_ignore_elms(afile):
-    ignore = defaultdict(dict)
-    with open(afile) as f:
-        for line in f:
-            if 'FAIL' in line:
-                sp = line.strip().split('\t')
-                ignore[sp[1]][sp[2]] = True
-    return ignore
+def get_unique_elms(common_mammal, common_bird):
+    use_mammal = {}
+    for protein in common_mammal:
+        if protein in common_bird:
+            for elm in common_mammal[protein]:
+                if not elm in common_bird[protein]:
+                    use_mammal[elm] = True
+    return use_mammal
+
+
+def get_common_elms(d):
+    """enter [] of species 2 [] of strains2protein2elms"""
+
+    protein2elm = defaultdict(dict)
+    elms = {}
+    start_strain = d[0][0] # needs to have all proteins
+    for protein in start_strain:
+        for elm in start_strain[protein]:
+            not_found = False
+            for a_strain in d[0][1:]:
+                if protein in a_strain:
+                    if not elm in a_strain[protein]:
+                        not_found = True
+            for species in d[1:]:
+                for a_strain in species:
+                    if protein in a_strain:
+                        if not elm in a_strain[protein]:
+                            not_found = True
+            if not not_found:
+                protein2elm[protein][elm] = True
+                elms[elm] = True
+    return (protein2elm, elms)
+
+def test_it(elm, d, out):
+    same = 0
+    count = 0
+    if elm in d:
+        count = 1
+        if check_gtr(elm, d):
+            out.write(elm + '\tGTR\n')
+        elif check_less(elm, d):
+            out.write(elm + '\tLESS\n')
+        else:
+            same = 1
+            out.write(elm + '\tSAME\n')
+    return (count, same)
 
 def get_aa_freqs(afile):
     d = {}
@@ -47,10 +85,6 @@ with open(sys.argv[1]) as f:
                           'swine':float(swine),
                           'chicken':float(chicken),
                           'finch':float(finch)}
-# del elm2fracs['LIG_PDZ_3']
-# #del elm2fracs['MOD_GSK3_1']
-# #del elm2fracs['MOD_CK1_1']
-# #del elm2fracs['MOD_CK2_1']
 
 aa_freqs = {'human':get_aa_freqs('results/H_sapiens.elm_aa_freq'),
             'chicken':get_aa_freqs('results/Gallus_gallus.elm_aa_freq'),
@@ -63,10 +97,7 @@ for k in aa_freqs:
     d, e = aa_freqs[k]
     for elm in e:
         freq_elms[elm] = True
-# del freq_elms['LIG_PDZ_3']
-# del freq_elms['MOD_CK1_1']
-# del freq_elms['MOD_CK2_1']
-# del freq_elms['MOD_GSK3_1']
+
 elm2freq = {}
 for elm in freq_elms:
     elm2freq[elm] = {}
@@ -77,6 +108,7 @@ for elm in freq_elms:
             elm2freq[elm][s] = float(0.0000000000000000000001)
 
 cut = sys.argv[2]
+
 d = {'ELM':True}
 swine_H1N1_elms = utils_motif.protein2annotation('results/swine.H1N1.elms.' + cut, d)
 swine_H3N2_elms = utils_motif.protein2annotation('results/swine.H3N2.elms.' + cut, d)
@@ -95,20 +127,20 @@ chicken_H9N2_elms = utils_motif.protein2annotation('results/chicken.H9N2.elms.' 
 chicken = [chicken_H5N1_elms, chicken_H9N2_elms]
 
 duck_H5N1_elms = utils_motif.protein2annotation('results/duck.H5N1.elms.' + cut, d)
-duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms.', d)
+duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms.' + cut, d)
 duck = [duck_H5N1_elms, duck_H9N2_elms]
 
 swine_H1N1_elms_controled = utils_motif.protein2annotation('results/swine.H1N1.elms.' + cut + '.controled', d)
 swine_H3N2_elms_controled = utils_motif.protein2annotation('results/swine.H3N2.elms.' + cut + '.controled', d)
-swine = [swine_H1N1_elms_controled, swine_H3N2_elms_controled]
+swine_controled = [swine_H1N1_elms_controled, swine_H3N2_elms_controled]
 
 human_H1N1_elms_controled = utils_motif.protein2annotation('results/human.H1N1.elms.' + cut + '.controled', d)
 human_H3N2_elms_controled = utils_motif.protein2annotation('results/human.H3N2.elms.' + cut + '.controled', d)
 human_H5N1_elms_controled = utils_motif.protein2annotation('results/human.H5N1.elms.' + cut + '.controled', d)
-human = [human_H1N1_elms_controled, human_H3N2_elms_controled, human_H5N1_elms_controled]
+human_controled = [human_H1N1_elms_controled, human_H3N2_elms_controled, human_H5N1_elms_controled]
 
 horse_H3N8_elms_controled = utils_motif.protein2annotation('results/equine.H3N8.elms.' + cut + '.controled', d)
-horse = [horse_H3N8_elms_controled]
+horse_controled = [horse_H3N8_elms_controled]
 
 chicken_H5N1_elms_controled = utils_motif.protein2annotation('results/chicken.H5N1.elms.' + cut + '.controled', d)
 chicken_H9N2_elms_controled = utils_motif.protein2annotation('results/chicken.H9N2.elms.' + cut + '.controled', d)
@@ -121,112 +153,38 @@ duck_controled = [duck_H5N1_elms_controled, duck_H9N2_elms_controled]
 # these {}s are not completely right
 # b/c they may miss proteins not present
 # in the starting {}
-common_all = defaultdict(dict)
-common_all_elms = {}
-for protein in human[0]:
-    for elm in human[0][protein]:
-        not_found = False
-        for h in human[1:]:
-            if protein in h:
-                if not elm in h[protein]:
-                    not_found = True
-            else:
-                not_found = True
-        for s in swine:
-            if protein in s:
-                if not elm in s[protein]:
-                    not_found = True
-            else:
-                not_found = True
-        for c in chicken:
-            if protein in c:
-                if not elm in c[protein]:
-                    not_found = True
-            else:
-                not_found = True
-        for d in duck:
-            if protein in d:
-                if not elm in d[protein]:
-                    not_found = True
-            else:
-                not_found = True
-        for d in horse:
-            if protein in d:
-                if not elm in d[protein]:
-                    not_found = True
-            else:
-                not_found = True
-        if not not_found:
-            common_all[protein][elm] = True
-            common_all_elms[elm] = True
-#print common_all.keys()
-common_mammal = defaultdict(dict)
-mammal_elms = {}
-for protein in human[0]:
-    for elm in human[0][protein]:
-        not_found = False
-        for h in human[1:]:
-            if protein in h:
-                if not elm in h[protein]:
-                    not_found = True
-        for s in swine:
-            if protein in s:
-                if not elm in s[protein]:
-                    not_found = True
-        for h in horse:
-            if protein in h:
-                if not elm in h[protein]:
-                    not_found = True
-        if not not_found:
-            common_mammal[protein][elm] = True
-            mammal_elms[elm] = True
+ls = [human, swine, horse, chicken, duck]
+common_all, common_all_elms = get_common_elms(ls)
 
-common_bird = defaultdict(dict)
-bird_elms = {}
-for protein in chicken[0]:
-    for elm in chicken[0][protein]:
-        not_found = False
-        for c in chicken[1:]:
-            if protein in c:
-                if not elm in c[protein]:
-                    not_found = True
-        for d in duck:
-            if protein in d:
-                if not elm in d[protein]:
-                    not_found = True
-        if not not_found:
-            common_bird[protein][elm] = True
-            bird_elms[elm] = True
+ls = [human, swine, horse]
+common_mammal, mammal_elms = get_common_elms(ls)
 
-use_mammal = {}
-for protein in common_mammal:
-    if protein in common_bird:
-        for elm in common_mammal[protein]:
-            if not elm in common_bird[protein]:
-                use_mammal[elm] = True
+ls = [chicken, duck]
+common_bird, bird_elms = get_common_elms(ls)
+
+use_mammal = get_unique_elms(common_mammal, common_bird)
+use_bird = get_unique_elms(common_bird, common_mammal)
 utils_graph.dumpNodes('mammal' + str(cut), use_mammal)
-
-use_bird = {}
-for protein in common_bird:
-    if protein in common_mammal:
-        for elm in common_bird[protein]:
-            if not elm in common_mammal[protein]:
-                use_bird[elm] = True
 utils_graph.dumpNodes('bird' + str(cut), use_bird)
+utils_graph.dumpNodes('common' + str(cut), common_all_elms)
 
-def test_it(elm, d, out):
-    same = 0
-    count = 0
-    if elm in d:
-        count = 1
-        if check_gtr(elm, d):
-            out.write(elm + '\tGTR\n')
-        elif check_less(elm, d):
-            out.write(elm + '\tLESS\n')
-        else:
-            same = 1
-            out.write(elm + '\tSAME\n')
-    return (count, same)
+ls = [human_controled, swine_controled, 
+      horse_controled, chicken_controled, duck_controled]
+common_all_controled, common_all_elms_controled = get_common_elms(ls)
+
+ls = [human_controled, swine_controled, horse_controled]
+common_mammal_controled, mammal_elms_controled = get_common_elms(ls)
+
+ls = [chicken_controled, duck_controled]
+common_bird_controled, bird_elms_controled = get_common_elms(ls)
+
+use_mammal_controled = get_unique_elms(common_mammal_controled, 
+                                       common_bird_controled)
+use_bird_controled = get_unique_elms(common_bird_controled, 
+                                     common_mammal_controled)
+utils_graph.dumpNodes('mammal_controled' + str(cut), use_mammal_controled)
+utils_graph.dumpNodes('bird_controled' + str(cut), use_bird_controled)
+utils_graph.dumpNodes('common_controled' + str(cut), common_all_elms_controled)
 
 test_elms = utils_graph.unionLists([use_mammal, use_bird]) 
 virus_elms_same = 0
@@ -234,7 +192,7 @@ virus_elm_count = 0
 non_virus_elms_same = 0
 with open('mammal_bird.different.' + str(cut) + '.test', 'w') as f:
     for elm in test_elms:
-        if not elm in ignore_elms:
+        if elm not in ignore_elms:
             count,same = test_it(elm, elm2freq, f)
             virus_elms_same += same
             virus_elm_count += count
