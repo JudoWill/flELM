@@ -2,10 +2,19 @@ from collections import defaultdict
 import utils_motif, sys, utils_graph
 import utils_stats
 
-ignore_elms = {'LIG_PDZ_3':True,
-               'MOD_CK1_1':True,
-               'MOD_CK2_1':True,
-               'MOD_GSK3_1':True}
+# ignore_elms = {'LIG_PDZ_3':True,
+#                'MOD_CK1_1':True,
+#                'MOD_CK2_1':True,
+#                'MOD_GSK3_1':True}
+
+def get_ignore_elms(afile):
+    ignore = defaultdict(dict)
+    with open(afile) as f:
+        for line in f:
+            if 'FAIL' in line:
+                sp = line.strip().split('\t')
+                ignore[sp[1]][sp[2]] = True
+    return ignore
 
 def get_aa_freqs(afile):
     d = {}
@@ -86,8 +95,28 @@ chicken_H9N2_elms = utils_motif.protein2annotation('results/chicken.H9N2.elms.' 
 chicken = [chicken_H5N1_elms, chicken_H9N2_elms]
 
 duck_H5N1_elms = utils_motif.protein2annotation('results/duck.H5N1.elms.' + cut, d)
-duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms.' + cut, d)
+duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms.', d)
 duck = [duck_H5N1_elms, duck_H9N2_elms]
+
+swine_H1N1_elms_controled = utils_motif.protein2annotation('results/swine.H1N1.elms.' + cut + '.controled', d)
+swine_H3N2_elms_controled = utils_motif.protein2annotation('results/swine.H3N2.elms.' + cut + '.controled', d)
+swine = [swine_H1N1_elms_controled, swine_H3N2_elms_controled]
+
+human_H1N1_elms_controled = utils_motif.protein2annotation('results/human.H1N1.elms.' + cut + '.controled', d)
+human_H3N2_elms_controled = utils_motif.protein2annotation('results/human.H3N2.elms.' + cut + '.controled', d)
+human_H5N1_elms_controled = utils_motif.protein2annotation('results/human.H5N1.elms.' + cut + '.controled', d)
+human = [human_H1N1_elms_controled, human_H3N2_elms_controled, human_H5N1_elms_controled]
+
+horse_H3N8_elms_controled = utils_motif.protein2annotation('results/equine.H3N8.elms.' + cut + '.controled', d)
+horse = [horse_H3N8_elms_controled]
+
+chicken_H5N1_elms_controled = utils_motif.protein2annotation('results/chicken.H5N1.elms.' + cut + '.controled', d)
+chicken_H9N2_elms_controled = utils_motif.protein2annotation('results/chicken.H9N2.elms.' + cut + '.controled', d)
+chicken_controled = [chicken_H5N1_elms_controled, chicken_H9N2_elms_controled]
+
+duck_H5N1_elms_controled = utils_motif.protein2annotation('results/duck.H5N1.elms.' + cut + '.controled', d)
+duck_H9N2_elms_controled = utils_motif.protein2annotation('results/duck.H9N2.elms.' + cut + '.controled', d)
+duck_controled = [duck_H5N1_elms_controled, duck_H9N2_elms_controled]
 
 # these {}s are not completely right
 # b/c they may miss proteins not present
