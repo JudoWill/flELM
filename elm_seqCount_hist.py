@@ -37,4 +37,4 @@ with open(tmp_r, 'w') as f:
     f.write("ggplot(d) + aes(x=ELM,y=SeqCount) + geom_bar() + opts(legend.position='none', axis.text.x = theme_blank()) + opts(title='Sequence Counts Per ELM')\n")
     f.write('dev.off()\n')
 os.system('R < ' + tmp_r + ' --no-save')
-#os.system('rm ' + tmp_r + ' ' + tmp_input)
+os.system('rm ' + tmp_r + ' ' + tmp_input)
