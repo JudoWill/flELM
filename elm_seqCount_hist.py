@@ -2,8 +2,10 @@
     # of strings an ELM can match.
 
     Updated to use log10(seqCount) and entropy.
+
+    Updated to use only ELMs conserved on a virus.
 """
-import global_settings, local_settings, os, random, math, utils
+import global_settings, local_settings, os, random, math, utils, sys
 from collections import defaultdict
 
 def get_seqs(afile, d):
@@ -32,21 +34,30 @@ def get_entropy(counts):
         elm2entropy[elm] = entropy
     return elm2entropy
 
+use_elms = {}
+with open(sys.argv[1]) as f:
+    for line in f:
+        [vH, elm, dis] = line.split('\t')
+        use_elms[elm] = True
+
 counts = {}
 for genome in global_settings.GENOMES:
     get_seqs(os.path.join(local_settings.RESULTSDIR,
                           'elmdict_' + genome + '.txt'),
              counts)
 entropy = get_entropy(counts)
-tmp_input = 'tmp_input' + str(random.randint(0,100))
+#tmp_input = 'tmp_input' + str(random.randint(0,100))
+tmp_input = 'plots/for_aydin/elm_seqCount_hist.tab'
 with open(tmp_input, 'w') as f:
     f.write('ELM\tMeasure\tVal\n')
     for elm in counts:
-        f.write('%s\tLog10SeqCount\t%.10f\n' 
-                % (elm, math.log(len(counts[elm].keys()),10)))
+        if elm in use_elms:
+            f.write('%s\tLog10SeqCount\t%.10f\n' 
+                    % (elm, math.log(len(counts[elm].keys()),10)))
     for elm in entropy:
-        f.write('%s\tEntropy\t%.10f\n' 
-                % (elm, entropy[elm]))
+        if elm in use_elms:
+            f.write('%s\tEntropy\t%.10f\n' 
+                    % (elm, entropy[elm]))
 
 tmp_r = 'tmp_r' + str(random.randint(0,100))
 out_file = 'plots/for_aydin/elm_seqCount_hist.png'
