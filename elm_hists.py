@@ -55,7 +55,7 @@ def main(args):
         for elm in species2elms[species]:
             elms[elm] = True
     for elm in elms:
-        if utils.check_ones(species2elms, elm):
+        if utils.check_ones(species2elms, elm) and (elm in species2elms['swine'] or elm in species2elms['human'] or elm in species2elms['chicken']) and elm in species2elms['H_sapiens'] :
             utils_plot.elm_host_barplot(species2elms, elm,
                                         os.path.join(plot_dir,
                                                      elm + '.hosts.png'))

@@ -8,6 +8,65 @@ from global_settings import *
 import utils
 
 @task
+def get_fail_elms():
+	host_strains = [['human','H1N1'],
+			['human','H3N2'],
+			['human','H5N1'],
+			
+			['swine','H3N2'],
+			['swine','H1N1'],
+
+			['equine','H3N8'],
+			
+			['chicken','H9N2'],
+			['chicken','H5N1'],
+
+			['duck','H9N2'],
+			['duck','H5N1']]
+	for host,strain in host_strains:
+		for cint in (70,80,90):
+			c = str(cint)
+			sh('python findGoodProteins.py '
+			   + host + '.' + strain + '.elms.' + c + ' '
+			   + '1 '
+			   + '> results/' + host + '.' + strain + '.elms.'
+			   + c + '.controled')
+
+@task
+def elm_aa_freqs():
+	for genome in ('H_sapiens', 'Gallus_gallus', 'Sus_scrofa', 
+		       'Taeniopygia_guttata', 'Equus_caballus'):
+		sh('python mk_aa_freq.py '
+		   'data/' + genome + '.fa '
+		   + 'results/elmdict_' + genome + '.txt '
+		   + 'results/' + genome + '.init.elm_aa_freq')
+
+#conserved_elms -c 90
+@task 
+@cmdopts([('cutoff=', 'c', '% cutoff'),])
+def ratios():
+	"""test hypothesis"""
+
+	cut = options.ratios.get('cutoff')
+	for genome in ('H_sapiens', 'Gallus_gallus', 'Sus_scrofa', 'Taeniopygia_guttata'):
+		sh('python get_ratios.py '
+		   + 'results/elmdict_' + genome + '.redo '
+		   + '> ' + genome + '.redo.ratio')
+	sh('python triplet.py > new_data.tab')
+	sh('python get_mammal_bird_diffs.py '
+	   + 'new_data.tab '
+	   + cut)
+
+@task
+def recount_elm_seqs():
+	"""count ELM seqs based on fixed positions"""
+
+	for genome in ('H_sapiens', 'Gallus_gallus', 'Sus_scrofa'):
+		sh('python reCountELMseqs.py '
+		   + 'results/elmdict_' + genome + '.redo > '
+		   + 'results/elmdict_' + genome + '.redo.remakeELMs')
+
+@task
 def get_elm_patterns():
 	""" Grab ELM patterns from the resource """
 
@@ -28,9 +87,7 @@ def get_flu_seq():
 def get_host_seq():
 	""" mouse, cow, dog, fish, hourse, chicken, human, rat protein seq from NCBI """
 	
-	genomes = ('M_musculus', 'Bos_taurus','Canis_familiaris','D_rerio',
-		   'Equus_caballus', 'Gallus_gallus', 'H_sapiens', 
-		   'Macaca_mulatta', 'R_norvegicus')
+	#genomes = ('Drosophila_melanogaster')
 	bs = 'ftp.ncbi.nlm.nih.gov::genomes/'
 	for genome in GENOMES:
 		fname = genome+'.fa.gz'
@@ -40,7 +97,7 @@ def get_host_seq():
 
 @task
 @cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
-			('picloud', 'c', 'Use PiCloud')])
+	  ('picloud', 'c', 'Use PiCloud')])
 def process_elm(options):
 	"""Determines (and writes) the ELM dictionary"""
 	
@@ -53,7 +110,7 @@ def process_elm(options):
 		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
 			#only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
-													'c':c_arg, 'infile': ifile})
+										  'c':c_arg, 'infile': ifile})
 
 @task
 @cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
@@ -159,30 +216,50 @@ def redo_elmdict():
 		   + os.path.join(RESULTSDIR, 'elmdict_' + g + '.txt ')
 		   + '> ' + os.path.join(RESULTSDIR, 'elmdict_' + g + '.redo'))
 
-	for org in FLU_NAMES:
-		sh('python get_flu_aa_freq.py '
-		   + org)
-		sh('python prob_of_seq.py '
-		   + os.path.join(RESULTSDIR, 'flu.' + org + '.aa_freq ')
-		   + org + ' '
-		   + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + ' ')
-		   + '> ' + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + '.redo'))
+	# for org in FLU_NAMES:
+	# 	sh('python get_flu_aa_freq.py '
+	# 	   + org)
+	# 	sh('python prob_of_seq.py '
+	# 	   + os.path.join(RESULTSDIR, 'flu.' + org + '.aa_freq ')
+	# 	   + org + ' '
+	# 	   + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + ' ')
+	# 	   + '> ' + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + '.redo'))
 
 @task
+@cmdopts([('cutoff=', 'c', '% cutoff'),])
 def conserved_elms():
-	for host in ['human', 'swine', 'equine', 'chicken']:
-		sh('python count_flu.py '
-		   + host)
+	"""Find ELMs conserved on strains"""
+
+	cut = options.conserved_elms.get('cutoff')
+	host_strains = [['human','H1N1'],
+			['human','H3N2'],
+			['human','H5N1'],
+
+			['swine','H3N2'],
+			['swine','H1N1'],
+
+			['equine','H3N8'],
+			
+			['chicken','H9N2'],
+			['chicken','H5N1'],
+
+			['duck','H9N2'],
+			['duck','H5N1']]
+
+	for host, strain in host_strains:
+		sh('python get_flu_seqs.py '
+		   + host + ' '
+		   + strain)
 		sh('python matchELMpattern.py '
 		   + 'elm_expressions.txt '
-		   + 'results/' + host + '.H9N2.fa '
-		   + '> ' + 'results/' + host + '.H9N2.elms')
+		   + 'results/' + host + '.' + strain + '.fa '
+		   + '> ' + 'results/' + host + '.' + strain + '.elms')
 		sh('python getConserved.py '
-		   + 'results/' + host + '.H9N2.elms '
+		   + 'results/' + host + '.' + strain + '.elms '
 		   + 'ELM '
-		   + '90 '
-		   + '1> results/' + host + '.H9N2.elms.90 '
-		   + '2> results/' + host + '.H9N2.elms.conservation')
+		   + cut + ' '
+		   + '1> results/' + host + '.' + strain + '.elms.' + cut + ' '
+		   + '2> results/' + host + '.' + strain + '.elms.conservation')
 			
 @task
 def conserved_elms_2():
@@ -201,9 +278,11 @@ def conserved_elms_2():
 def serotypes():
 	""" How does ELM conservation change between serotypes (ex H1N1, H2N4) """
 
-	type2protein2gb2seq = utils.get_fluSeqs_by_serotype('human')
-	for t in ['H1N1', 'H5N1', 'H3N2']:
-		with open('human.' + t + '.fa', 'w') as f:
+	species = 'swine'
+	type2protein2gb2seq = utils.get_fluSeqs_by_serotype(species)
+	subtypes = ['H1N1', 'H3N2']
+	for t in subtypes:
+		with open(species + '.' + t + '.fa', 'w') as f:
 			for p in type2protein2gb2seq[t]:
 				length = len(type2protein2gb2seq[t][p].keys())
 				if length > 100:
@@ -213,22 +292,22 @@ def serotypes():
 						f.write(type2protein2gb2seq[t][p][gb] + '\n')
  		sh('python matchELMpattern.py '
  		   + 'elm_expressions.txt '
- 		   + 'human.' + t + '.fa '
- 		   + '> ' + 'human.' + t + '.elms')
+ 		   + species + '.' + t + '.fa '
+ 		   + '> ' + species + '.' + t + '.elms')
  		sh('python getConserved.py '
- 		   + 'human.' + t + '.elms '
+ 		   + species + '.' + t + '.elms '
  		   + 'ELM '
  		   + '90 '
- 		   + '1> human.' + t + '.elms.90 '
- 		   + '2> human.' + t + '.elms.conservation')
+ 		   + '1> ' + species + '.' + t + '.elms.90 '
+ 		   + '2> ' + species + '.' + t + '.elms.conservation')
  		sh('python mk_freq.py '
- 		   + 'human.' + t + '.elms.90 '
- 		   + 'human.' + t + '.elms '
- 		   + '> human.' + t + '.elms.90.freq')
+ 		   + species + '.' + t + '.elms.90 '
+ 		   + species + '.' + t + '.elms '
+ 		   + '> ' + species + '.' + t + '.elms.90.freq')
 
 @task
 def serotypes_random():
-	""" run serotypes with random ELMs """
+	""" run serotypes with random ELMs for human """
 	
 	#type2protein2gb2seq = utils.get_fluSeqs_by_serotype('human')
 	for r in xrange(10):
@@ -252,29 +331,33 @@ def serotypes_random():
 
 @task
 def serotypes_random_fasta():
-	""" run serotypes with random flu sequences """
+	""" run serotypes with random flu sequences for human """
 	
+	species = 'swine'
 	#type2protein2gb2seq = utils.get_fluSeqs_by_serotype('human')
+	
 	for r in xrange(10):
 		r_str = str(r)
 		sh('mkdir -p random_seq/' + r_str)
-		for t in ['H1N1', 'H5N1', 'H3N2']:
-			utils.mk_random_fasta('human.' + t + '.fa',
-					      'random_seq/' + r_str + '/human.' + t + '.fa')
-			sh('python matchELMpattern.py '
-			   + 'elm_expressions.txt '
-			   + 'random_seq/' + r_str + '/human.' + t + '.fa '
-			   + '> random_seq/' + r_str + '/human.' + t + '.elms')
-			sh('python getConserved.py '
-			   + 'random_seq/' + r_str + '/human.' + t + '.elms '
-			   + 'ELM '
-			   + '90 '
-			   + '1> random_seq/' + r_str + '/human.' + t + '.elms.90 '
-			   + '2> random_seq/' + r_str + '/human.' + t + '.elms.conservation')
-			sh('python mk_freq.py '
-			   + 'random_seq/' + r_str + '/human.' + t + '.elms.90 '
-			   + 'random_seq/' + r_str + '/human.' + t + '.elms '
-			   + '> random_seq/' + r_str + '/human.' + t + '.elms.90.freq')
+		for t in ['H3N2','H1N1']:
+			#utils.mk_random_fasta('results/' + species + '.' + t + '.fa',
+			#		      'random_seq/' + r_str + '/' + species + '.' + t + '.fa')
+			#sh('python matchELMpattern.py '
+			#   + 'elm_expressions.txt '
+			#   + 'random_seq/' + r_str + '/' + species + '.' + t + '.fa '
+#			   + '> random_seq/' + r_str + '/' + species + '.' + t + '.elms')
+			for cons in (70,80):
+				c = str(cons)
+				sh('python getConserved.py '
+				   + 'random_seq/' + r_str + '/' + species + '.' + t + '.elms '
+				   + 'ELM '
+				   + str(c) + ' '
+				   + '1> random_seq/' + r_str + '/' + species + '.' + t + '.elms.' + c + ' '
+				   + '2> random_seq/' + r_str + '/' + species + '.' + t + '.elms.conservation')
+				sh('python mk_freq.py '
+				   + 'random_seq/' + r_str + '/' + species + '.' + t + '.elms.' + c + ' '
+				   + 'random_seq/' + r_str + '/' + species + '.' + t + '.elms '
+				   + '> random_seq/' + r_str + '/' + species + '.' + t + '.elms.' + c + '.freq')
 
 # @task
 # def get_seq():

@@ -59,7 +59,7 @@ def mk_random_fasta(fasta_file, out_fasta_file):
                 chain.add(seq)
             for i in xrange(len(proteins[protein])):
                 f.write('>' + str(i) + '.' + protein + '\n')
-                f.write(chain.random_output() + '\n')
+                f.write("".join(chain.random_output()) + '\n')
 
 def take(n, iterable):
 	"Return first n items of the iterable as a list"
@@ -149,7 +149,7 @@ def ReadELMs_nocompile(filename):
 
 
 		
-def DictFromGen(GEN, label = None, chunk_size = 500, stop_count = None):		
+def DictFromGen(GEN, label = None, chunk_size = 10, stop_count = None):		
 	"""Creates a dictionary of ELM frequencies from a generator"""
 	
 	

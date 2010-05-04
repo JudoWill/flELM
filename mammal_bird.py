@@ -2,7 +2,27 @@ from collections import defaultdict
 import utils_motif, sys, utils_graph
 import utils_stats
 
-ignore_elms = {}#'LIG_PDZ_3':True,
+# ignore_elms = {'CLV_PCSK_KEX2_1':True,
+#                'CLV_PCSK_PC1ET2_1':True,
+#                'CLV_PCSK_SKI1_1':True,
+#                'LIG_FHA_1':True,
+#                'LIG_FHA_2':True,
+#                'LIG_PDZ_3':True,
+#                'LIG_SH2_STAT5':True,
+#                'LIG_SH3_3':True,
+#                'LIG_WW_4':True,
+#                'MOD_CDK_1':True,
+#                'MOD_CK1_1':True,
+#                'MOD_CK2_1':True,
+#                'MOD_GlcNHglycan':True,
+#                'MOD_GSK3_1':True,
+#                'MOD_N-GLC_1':True,
+#                'MOD_PIKK_1':True,
+#                'MOD_PKA_2':True,
+#                'MOD_ProDKin_1':True,
+#                'TRG_ENDOCYTIC_2':True}
+ignore_elms = {}#'MOD_CMANNOS':True}
+               #'CLV_PCSK_PC1ET2_1':True}#'LIG_PDZ_3':True,
                #'MOD_CK1_1':True,
                #'MOD_CK2_1':True,
                #'MOD_GSK3_1':True}
@@ -15,7 +35,6 @@ def get_unique_elms(common_mammal, common_bird):
                 if not elm in common_bird[protein]:
                     use_mammal[elm] = True
     return use_mammal
-
 
 def get_common_elms(d):
     """enter [] of species 2 [] of strains2protein2elms"""
@@ -67,24 +86,8 @@ def get_aa_freqs(afile):
 def check_gtr(elm, elm2fracs):
     return (elm2fracs[elm]['human'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['human'] > elm2fracs[elm]['finch'] and elm2fracs[elm]['swine'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['swine'] > elm2fracs[elm]['finch'] and elm2fracs[elm]['horse'] > elm2fracs[elm]['chicken'] and elm2fracs[elm]['horse'] > elm2fracs[elm]['finch'])
 
-def check_gtr_2fold(elm, elm2fracs):
-    return (elm2fracs[elm]['human']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['human']/elm2fracs[elm]['finch'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['finch'] > float(1.05))
-
 def check_less(elm, elm2fracs):
     return (elm2fracs[elm]['human'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['human'] < elm2fracs[elm]['finch'] and elm2fracs[elm]['swine'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['swine'] < elm2fracs[elm]['finch'] and elm2fracs[elm]['horse'] < elm2fracs[elm]['chicken'] and elm2fracs[elm]['horse'] < elm2fracs[elm]['finch'])
-
-def check_less_2fold(elm, elm2fracs):
-    return (elm2fracs[elm]['human']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['human']/elm2fracs[elm]['finch'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['chicken'] > float(1.05) and elm2fracs[elm]['swine']/elm2fracs[elm]['finch'] > float(1.05))
-
-elm2fracs = {}
-with open(sys.argv[1]) as f:
-    f.readline()
-    for line in f:
-        [elm, human, swine, chicken, finch] = line.strip().split('\t')
-        elm2fracs[elm] = {'human':float(human),
-                          'swine':float(swine),
-                          'chicken':float(chicken),
-                          'finch':float(finch)}
 
 aa_freqs = {'human':get_aa_freqs('results/H_sapiens.elm_aa_freq'),
             'chicken':get_aa_freqs('results/Gallus_gallus.elm_aa_freq'),
@@ -107,7 +110,7 @@ for elm in freq_elms:
         else:
             elm2freq[elm][s] = float(0.0000000000000000000001)
 
-cut = sys.argv[2]
+cut = sys.argv[1]
 
 d = {'ELM':True}
 swine_H1N1_elms = utils_motif.protein2annotation('results/swine.H1N1.elms.' + cut, d)
@@ -130,6 +133,7 @@ duck_H5N1_elms = utils_motif.protein2annotation('results/duck.H5N1.elms.' + cut,
 duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms.' + cut, d)
 duck = [duck_H5N1_elms, duck_H9N2_elms]
 
+#### controled
 swine_H1N1_elms_controled = utils_motif.protein2annotation('results/swine.H1N1.elms.' + cut + '.controled', d)
 swine_H3N2_elms_controled = utils_motif.protein2annotation('results/swine.H3N2.elms.' + cut + '.controled', d)
 swine_controled = [swine_H1N1_elms_controled, swine_H3N2_elms_controled]
@@ -158,9 +162,16 @@ common_all, common_all_elms = get_common_elms(ls)
 
 ls = [human, swine, horse]
 common_mammal, mammal_elms = get_common_elms(ls)
-
+with open('mammalAll' + str(cut), 'w') as f:
+    for protein in common_mammal:
+        for elm in common_mammal[protein]:
+            f.write(protein + '\t' + elm + '\n')
 ls = [chicken, duck]
 common_bird, bird_elms = get_common_elms(ls)
+with open('birdAll' + str(cut), 'w') as f:
+    for protein in common_bird:
+        for elm in common_bird[protein]:
+            f.write(protein + '\t' + elm + '\n')
 
 use_mammal = get_unique_elms(common_mammal, common_bird)
 use_bird = get_unique_elms(common_bird, common_mammal)
@@ -174,9 +185,17 @@ common_all_controled, common_all_elms_controled = get_common_elms(ls)
 
 ls = [human_controled, swine_controled, horse_controled]
 common_mammal_controled, mammal_elms_controled = get_common_elms(ls)
+with open('mammalAllControled' + str(cut), 'w') as f:
+    for protein in common_mammal_controled:
+        for elm in common_mammal_controled[protein]:
+            f.write(protein + '\t' + elm + '\n')
 
 ls = [chicken_controled, duck_controled]
 common_bird_controled, bird_elms_controled = get_common_elms(ls)
+with open('birdAllControled' + str(cut), 'w') as f:
+    for protein in common_bird_controled:
+        for elm in common_bird_controled[protein]:
+            f.write(protein + '\t' + elm + '\n')
 
 use_mammal_controled = get_unique_elms(common_mammal_controled, 
                                        common_bird_controled)
@@ -185,6 +204,16 @@ use_bird_controled = get_unique_elms(common_bird_controled,
 utils_graph.dumpNodes('mammal_controled' + str(cut), use_mammal_controled)
 utils_graph.dumpNodes('bird_controled' + str(cut), use_bird_controled)
 utils_graph.dumpNodes('common_controled' + str(cut), common_all_elms_controled)
+
+for k in use_mammal_controled.keys():
+    if 'FAIL' in k:
+        del use_mammal_controled[k]
+for k in use_bird_controled.keys():
+    if 'FAIL' in k:
+        del use_bird_controled[k]
+for k in common_all_elms_controled.keys():
+    if 'FAIL' in k:
+        del common_all_elms_controled[k]
 
 test_elms = utils_graph.unionLists([use_mammal, use_bird]) 
 virus_elms_same = 0
@@ -273,3 +302,5 @@ with open(str(cut) + '.results', 'w') as f:
     f.write('nvirus\t' + str(same_diff)
             + '\t' + str(same_same) + '\n')
     
+#now go through the different protein2elms and make sure
+#none of the different ones are ruled out by the control

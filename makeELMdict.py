@@ -82,7 +82,7 @@ def ProcessFile(filename):
 	count_dict = defaultdict(int)
 	elm_count = defaultdict(int)
 	jids = []
-	for block in ChunkGen(filename, 1000):
+	for block in ChunkGen(filename, 100):
 		try:
 			jids.append(cloud.call(ProcessSeq, (block, elm_dict), _label=filename))
 		except cloud.cloud.CloudException:

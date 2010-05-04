@@ -53,22 +53,23 @@ for elm in freq_elms:
         else:
             elm2freq[elm][s] = float(0)
 
+cut = sys.argv[2]
 d = {'ELM':True}
-swine_H1N1_elms = utils_motif.protein2annotation('swine.H1N1.elms.90', d)
-swine_H3N2_elms = utils_motif.protein2annotation('swine.H3N2.elms.90', d)
+swine_H1N1_elms = utils_motif.protein2annotation('results/swine.H1N1.elms.' + cut, d)
+swine_H3N2_elms = utils_motif.protein2annotation('results/swine.H3N2.elms.' + cut, d)
 swine = [swine_H1N1_elms, swine_H3N2_elms]
 
-human_H1N1_elms = utils_motif.protein2annotation('human.H1N1.elms.90', d)
-human_H3N2_elms = utils_motif.protein2annotation('human.H3N2.elms.90', d)
-human_H5N1_elms = utils_motif.protein2annotation('human.H5N1.elms.90', d)
+human_H1N1_elms = utils_motif.protein2annotation('results/human.H1N1.elms.' + cut, d)
+human_H3N2_elms = utils_motif.protein2annotation('results/human.H3N2.elms.' + cut, d)
+human_H5N1_elms = utils_motif.protein2annotation('results/human.H5N1.elms.' + cut, d)
 human = [human_H1N1_elms, human_H3N2_elms, human_H5N1_elms]
 
-chicken_H5N1_elms = utils_motif.protein2annotation('chicken.H5N1.elms.90', d)
-chicken_H9N2_elms = utils_motif.protein2annotation('chicken.H9N2.elms.90', d)
+chicken_H5N1_elms = utils_motif.protein2annotation('results/chicken.H5N1.elms.' + cut, d)
+chicken_H9N2_elms = utils_motif.protein2annotation('results/chicken.H9N2.elms.' + cut, d)
 chicken = [chicken_H5N1_elms, chicken_H9N2_elms]
 
-duck_H5N1_elms = utils_motif.protein2annotation('duck.H5N1.elms.90', d)
-duck_H9N2_elms = utils_motif.protein2annotation('duck.H9N2.elms.90', d)
+duck_H5N1_elms = utils_motif.protein2annotation('results/duck.H5N1.elms.' + cut, d)
+duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms.' + cut, d)
 duck = [duck_H5N1_elms, duck_H9N2_elms]
 
 # these {}s are not completely right
@@ -180,7 +181,7 @@ for protein in common_bird:
 #                     f.write(elm + '\tSAME\n')
 
 test_elms = {}
-with open('mammal_bird.test', 'w') as f:
+with open('mammal_bird.' + cut + '.test', 'w') as f:
     for elm in utils_graph.intersectLists([use_elms,freq_elms]):
          if elm in mammal_elms and elm in bird_elms:
                      control_elms[elm] = True
@@ -201,7 +202,7 @@ with open('mammal_bird.test', 'w') as f:
              else:
                  f.write(elm + '\tSAME\n')
 
-with open('mammal_bird.notTest', 'w') as f:
+with open('mammal_bird.' + cut + '.notTest', 'w') as f:
      for elm in freq_elms:
          if not elm in test_elms:
              if elm in elm2fracs:
@@ -218,8 +219,6 @@ with open('mammal_bird.notTest', 'w') as f:
                      f.write(elm + '\tLESS\n')
                  else:
                      f.write(elm + '\tSAME\n')
-
-
 
 # with open('mammal_bird.notTest', 'w') as f:
 #     for elm in utils_graph.intersectLists([control_elms,freq_elms]):

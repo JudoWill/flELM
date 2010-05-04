@@ -57,7 +57,7 @@ if __name__ == '__main__':
 			
 			fgen = SeqGen(ifile)
 			sub_gen = SampleIterator(fgen, options.percentage)
-			d = DictFromGen(sub_gen, label = short_name, chunk_size = 200)
+			d = DictFromGen(sub_gen, label = short_name, chunk_size = 10)
 			
 			
 			logging .warning('Writting file: %s' % outfile)

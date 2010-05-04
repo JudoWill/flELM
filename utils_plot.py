@@ -134,6 +134,8 @@ def elm_host_barplot(species2elms, elm, out_file):
 def distance_heatmap(x_by_y_dict, out_file):
     """ make a heatmap of x vs. y
         using the {} d[x][y] = val
+
+        'steelblue'
     """
 
     tmp_input_file = 'tmp' + str(random.randint(0,100))
@@ -150,7 +152,7 @@ def distance_heatmap(x_by_y_dict, out_file):
         f.write("d<-read.delim('"
                 + tmp_input_file + "', header=T, sep='\\t')\n")
         f.write("png('" + out_file + "')\n")
-        f.write("ggplot(d,aes(SpeciesPair,ELM)) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='white',high='steelblue')\n")
+        f.write("ggplot(d,aes(SpeciesPair,ELM)) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='red',high='steelblue')\n")
         f.write('dev.off()\n')
     os.system('R < ' + tmp_r_file + ' --no-save')
     os.system('rm ' + tmp_r_file + ' ' + tmp_input_file)

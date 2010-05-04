@@ -26,8 +26,10 @@ def getDistance(virus_d, host_d):
                 v.append(0)
     return distance.cosine(host_v, virus_v)
 
-hosts = {'H_sapiens':'M', 'Sus_scrofa':'P', 'Gallus_gallus':'C', 
-         'Equus_caballus':'H', 'Taeniopygia_guttata':'F'}
+hosts = {'H_sapiens':'A', 'Sus_scrofa':'P', 'Gallus_gallus':'C', 
+         'Equus_caballus':'H', 'Taeniopygia_guttata':'F',
+         'M_musculus':'M','R_norvegicus':'R','D_rerio':'Z',
+         'Bos_taurus':'B','Macaca_mulatta':'L','Canis_familiaris':'G'}
 viruses = {'human':'m', 'swine':'p', 'equine':'h',
            'duck':'d', 'chicken':'c'}
 subtypes = {'human':('H1N1', 'H3N2', 'H5N1'),
@@ -64,7 +66,7 @@ with open(tmp_r, 'w') as f:
     f.write("d<-read.delim('"
             + tmp_input + "', header=T, sep='\\t')\n")
     f.write("png('" + out_file + "')\n")
-    f.write("ggplot(d,aes(Host_Host,ELM)) + opts(axis.text.y = theme_blank()) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='red',high='steelblue')\n")
+    f.write("ggplot(d,aes(Host_Host,ELM)) + opts(axis.text.x = theme_blank()) + opts(axis.text.y = theme_blank()) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='red',high='steelblue')\n")
     f.write('dev.off()\n')
 os.system('R < ' + tmp_r + ' --no-save')
 

@@ -7,7 +7,8 @@ import utils, local_settings, os, utils_motif, utils_graph, random, os
 
 def getConservedELMs(virus, subtypes):
     ls = [utils_motif.annotation2protein(os.path.join(local_settings.RESULTSDIR,
-                                                      virus + '.' + subtype + '.elms.70'),
+                                                      virus + '.' + subtype 
+                                                      + '.elms.70.controled'),
                                          {'ELM':True}) 
           for subtype in subtypes[virus]]
     return utils_graph.intersectLists(ls)
@@ -47,18 +48,20 @@ for host in hosts:
     host2elmFreqs[host] = utils.get_seq2count_dict(os.path.join(local_settings.RESULTSDIR,
                                                                 'elmdict_' + host + '.txt'),
                                                    float(0))
-tmp_input = 'tmp_input' + str(random.randint(0,100))
+#tmp_input = 'tmp_input' + str(random.randint(0,100))
+tmp_input = 'plots/for_aydin/cos_host_virus.tab'
 with open(tmp_input, 'w') as f:
     f.write('Virus_Host\tELM\tDistance\n')
     for virus in viruses:
         virus2elmFreqs[virus] = utils.get_seq2count_dict(os.path.join(local_settings.RESULTSDIR,
                                                                       'flu_elmdict_' + virus), float(0))
         for elm in virus2conservedELMs[virus]:
-            for host in hosts:
-                dis = getDistance(virus2elmFreqs[virus][elm], 
-                                  host2elmFreqs[host][elm])
-                f.write('%s\t%s\t%.10f\n'
-                        % (viruses[virus] + hosts[host], elm, dis))
+            if 'FAIL' not in elm:
+                for host in hosts:
+                    dis = getDistance(virus2elmFreqs[virus][elm], 
+                                      host2elmFreqs[host][elm])
+                    f.write('%s\t%s\t%.10f\n'
+                            % (viruses[virus] + hosts[host], elm, dis))
 out_file = 'plots/for_aydin/cos_dis_heatmap.png'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
 with open(tmp_r, 'w') as f:
