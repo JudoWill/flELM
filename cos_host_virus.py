@@ -1,5 +1,7 @@
 """ For conserved virus ELMs, find the cosine distance
     between sequence fraction vectors of virus and host.
+
+    Updated to use HIV and HCV conserved ELMs.
 """
 from scipy.spatial import distance
 from numpy import *
@@ -30,12 +32,14 @@ def getDistance(virus_d, host_d):
 hosts = {'H_sapiens':'M', 'Sus_scrofa':'P', 'Gallus_gallus':'C', 
          'Equus_caballus':'H', 'Taeniopygia_guttata':'F'}
 viruses = {'human':'m', 'swine':'p', 'equine':'h',
-           'duck':'d', 'chicken':'c'}
+           'duck':'d', 'chicken':'c', 'HIV':'a', 'HCV':'l'}
 subtypes = {'human':('H1N1', 'H3N2', 'H5N1'),
             'swine':('H1N1', 'H3N2'),
             'equine':('H3N8',),
             'chicken':('H5N1', 'H9N2'),
-            'duck':('H5N1', 'H9N2')}
+            'duck':('H5N1', 'H9N2'),
+            'HIV':('all',),
+            'HCV':('all',)}
 
 virus2conservedELMs = {}
 for virus in viruses:

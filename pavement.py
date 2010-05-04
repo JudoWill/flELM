@@ -8,6 +8,25 @@ from global_settings import *
 import utils
 
 @task
+def other_virus_elms():
+	"""format HIV/HCV ELMs"""
+
+	sh('python convert_elm_hits.py '
+	   'results/HIV1.clean.elms '
+	   + '> results/flu_elmdict_HIV')
+	sh('python convert_elm_hits.py '
+	   '../../HCVhhp/data/HCV.elms '
+	   + '> results/flu_elmdict_HCV')
+	sh('python get_cons_elms.py '
+	   + 'results/HIV1.clean.elms '
+	   + '70 '
+	   + '> results/HIV.all.elms.70.controled')
+	sh('python get_cons_elms.py '
+	   + '../../HCVhhp/data/HCV.elms '
+	   + '70 '
+	   + '> results/HCV.all.elms.70.controled')
+
+@task
 def get_fail_elms():
 	host_strains = [['human','H1N1'],
 			['human','H3N2'],

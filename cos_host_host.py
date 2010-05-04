@@ -36,7 +36,9 @@ subtypes = {'human':('H1N1', 'H3N2', 'H5N1'),
             'swine':('H1N1', 'H3N2'),
             'equine':('H3N8',),
             'chicken':('H5N1', 'H9N2'),
-            'duck':('H5N1', 'H9N2')}
+            'duck':('H5N1', 'H9N2'),
+            'HIV':('all',),
+            'HCV':('all',)}
 
 virus2conservedELMs = {}
 for virus in viruses:
@@ -54,11 +56,23 @@ tmp_input = 'plots/for_aydin/cos_host_host.tab'
 with open(tmp_input, 'w') as f:
     f.write('Host_Host\tELM\tDistance\n')
     for elm in virus2conservedELMs[virus]:
-        for host1,host2 in itertools.combinations(hosts.keys(),2):
+        counter = 0
+        for host1,host2 in (('H_sapiens', 'Macaca_mulatta'),
+                            ('H_sapiens', 'M_musculus'),
+                            ('H_sapiens', 'R_norvegicus'),
+                            ('H_sapiens', 'Sus_scrofa'),
+                            ('H_sapiens', 'Equus_caballus'),
+                            ('H_sapiens', 'Canis_familiaris'),
+                            ('H_sapiens', 'Bos_taurus'),
+                            ('H_sapiens', 'Gallus_gallus'),
+                            ('H_sapiens', 'Taeniopygia_guttata'),
+                            ('H_sapiens', 'D_rerio')
+                            ):#itertools.combinations(hosts.keys(),2):
             dis = getDistance(host2elmFreqs[host1][elm], 
                               host2elmFreqs[host2][elm])
             f.write('%s\t%s\t%.10f\n'
-                    % (hosts[host1] + hosts[host2], elm, dis))
+                    % (str(counter), elm, dis))
+            counter += 1
 out_file = 'plots/for_aydin/cos_dis_host.png'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
 with open(tmp_r, 'w') as f:
@@ -69,4 +83,5 @@ with open(tmp_r, 'w') as f:
     f.write("ggplot(d,aes(Host_Host,ELM)) + opts(axis.text.x = theme_blank()) + opts(axis.text.y = theme_blank()) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='red',high='steelblue')\n")
     f.write('dev.off()\n')
 os.system('R < ' + tmp_r + ' --no-save')
+
 
