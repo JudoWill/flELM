@@ -128,8 +128,9 @@ def elm_host_barplot(species2elms, elm, out_file):
         f.write("png('" + out_file + "')\n")
         f.write("ggplot(d) + aes(x=Seq,y=NormalizedCount) + geom_bar(aes(fill=Set)) + facet_grid(Set~.) + opts(legend.position='none') + opts(title='" + elm + "')\n")
         f.write('dev.off()\n')
+        f.write('q()\n')
     os.system('R < ' + r_file + ' --no-save')
-    os.system('rm ' + r_file + ' ' + tmp_input)
+    #os.system('rm ' + r_file + ' ' + tmp_input)
 
 def distance_heatmap(x_by_y_dict, out_file):
     """ make a heatmap of x vs. y

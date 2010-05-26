@@ -1,7 +1,6 @@
+""" What are the host distances based on sequence usage. """
 import itertools, sys, os, utils, random
 from collections import defaultdict
-
-suffix = sys.argv[1]
 
 # 'Macaca_mulatta 'R_norvegicus',  'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus', 'Taeniopygia_guttata'
 species = ('H_sapiens', 'Macaca_mulatta', 'R_norvegicus',
@@ -23,15 +22,14 @@ short_names = {'H_sapiens':'Us',
 #'.elm_aa_freq'
 freqs = defaultdict(dict)
 for host in species:
-    with open('results/' + host + suffix + '.elm_aa_freq') as f:
+    with open('results/elmdict_' + host + '.redo') as f:
         for line in f:
-            (elm, fq) = line.strip().split('\t')
-            freqs[host][elm] = float(fq)
+            (elm, seq, count, f) = line.strip().split('\t')
+            freqs[host][elm+':'+seq] = float(f)
 
-#tmp_input = 'tmp_i' + str(random.randint(0,100))
-tmp_input = 'plots/for_aydin_2/elm_freq_dis' + suffix + '.tab'
+tmp_input = 'tmp_i' + str(random.randint(0,100))
 tmp_r = 'tmp_r' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/elm_freq_dis' + suffix + '.png'
+out_file = 'plots/for_aydin_2/elmSeq_usage_dis_redo.png'
 with open(tmp_input, 'w') as f:
     f.write('Host1\tHost2\tDistance\n')
     for i in xrange(len(species)):

@@ -6,9 +6,96 @@ import re, os.path, os, logging, math
 from functools import partial
 from itertools import *
 from collections import defaultdict
-import markov_chain
+import markov_chain, utils_graph, math
+from scipy.spatial import distance
+from numpy import *
 
 import cloud
+
+def seqDistance(virus_d, host_d):
+    seqs = utils_graph.intersectLists([virus_d,
+                                       host_d])
+    sum = float(0)
+    for seq in seqs:
+        sum += virus_d[seq]
+    return sum
+
+norm = lambda x : sqrt(square(x).sum())
+
+def chiDistance(virus_d, host_d, means):
+    """chi distance function
+       http://www.econ.upf.edu/~michael/stanford/maeb4.pdf"""
+
+    dis = float(0)
+    for seq in means:
+        x = float(0)
+        y = float(0)
+        if seq in host_d:
+            x = host_d[seq]
+        if seq in virus_d:
+            y = virus_d[seq]
+        dis += (x-y)**2/means[seq]
+        print (x-y)**2, means[seq]
+    return math.sqrt(dis)    
+
+def renorm(seqs, d):
+    new_d = {}
+    total = float(0)
+    for seq in seqs:
+        if seq in d:
+            total += d[seq]
+    for seq in seqs:
+        if seq in d:
+            new_d[seq] = d[seq]/total
+    return new_d
+
+def klDistance(virus_d, host_d, use_seqs):
+    d1 = float(0)
+    seqs = utils_graph.intersectLists([virus_d,
+                                       use_seqs])
+
+    #print seqs
+    virus_d_rn = renorm(seqs, virus_d)
+    host_d_rn = renorm(seqs, host_d)
+    for seq in virus_d_rn:
+        p_x = virus_d_rn[seq]
+        if seq in host_d_rn:
+            q_x = host_d_rn[seq]
+            d1 += p_x * log(p_x/q_x)
+    if len(seqs.keys()) != 0:
+        return d1
+    else:
+        return NaN
+
+def getDistance(virus_d, host_d):
+    seqs = utils_graph.unionLists([virus_d,
+                                   host_d])
+    #virus_d_rn = renorm(seqs, virus_d)
+    #host_d_rn = renorm(seqs, host_d)
+
+    host_v = []
+    virus_v = []
+    for seq in seqs:
+        for v,d in ( (host_v, host_d),
+                     (virus_v, virus_d) ):
+            if seq in d:
+                v.append(d[seq])
+            else:
+                v.append(float(0))
+
+    # host_norm = norm(host_v)
+    # virus_norm = norm(virus_v)
+    # if host_norm:
+    #     host_u = host_v/host_norm
+    # else:
+    #     host_u = host_v
+    # if virus_norm:
+    #     virus_u = virus_v/virus_norm
+    # else:
+    #     virus_u = virus_v
+    dis = distance.cosine(host_v, virus_v)
+    #print dis, virus_v, host_v
+    return dis
 
 def loadFASTA(fasta_file):
     """ Make a {} from a FASTA file.

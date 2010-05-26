@@ -32,22 +32,30 @@ hits_conserved['human.H5N1'] = human_H5N1_cons
 
 chicken_H5N1_elms = utils_motif.protein2annotation('results/chicken.H5N1.elms', d)
 chicken_H9N2_elms = utils_motif.protein2annotation('results/chicken.H9N2.elms', d)
-chicken_H5N1_cons = utils_motif.protein2annotation('results/chicken.H5N1.elms', d)
-chicken_H9N2_cons = utils_motif.protein2annotation('results/chicken.H9N2.elms', d)
+chicken_H5N1_cons = utils_motif.protein2annotation('results/chicken.H5N1.elms.70', d)
+chicken_H9N2_cons = utils_motif.protein2annotation('results/chicken.H9N2.elms.70', d)
 hits['chicken.H5N1'] = chicken_H5N1_elms
 hits['chicken.H9N2'] = chicken_H9N2_elms
 hits_conserved['chicken.H5N1'] = chicken_H5N1_cons
 hits_conserved['chicken.H9N2'] = chicken_H9N2_cons
 
-# duck_H5N1_elms = utils_motif.protein2annotation('results/duck.H5N1.elms', d)
-# duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms', d)
-# duck = [duck_H5N1_elms, duck_H9N2_elms]
+duck_H5N1_elms = utils_motif.protein2annotation('results/duck.H5N1.elms', d)
+duck_H9N2_elms = utils_motif.protein2annotation('results/duck.H9N2.elms', d)
+duck_H5N1_cons = utils_motif.protein2annotation('results/duck.H5N1.elms.70', d)
+duck_H9N2_cons = utils_motif.protein2annotation('results/duck.H9N2.elms.70', d)
+hits['duck.H5N1'] = duck_H5N1_elms
+hits['duck.H9N2'] = duck_H9N2_elms
+hits_conserved['duck.H5N1'] = duck_H5N1_cons
+hits_conserved['duck.H9N2'] = duck_H9N2_cons
 
 use_elms = {}
 for species in hits_conserved:
     for protein in hits_conserved[species]:
         for elm in hits_conserved[species][protein]:
             use_elms[elm] = True
+protein_counts = {}
+for species in hits:
+    protein_counts[species] = float(len(hits[species]))
 
 counts = {}
 for pig in hits:    
@@ -64,19 +72,22 @@ for pig in hits:
                 if seq not in counts[elm][pig][protein_class]:
                     counts[elm][pig][protein_class][seq] = {}
                 counts[elm][pig][protein_class][seq][protein] = True
-for elm in elms:
+for elm in use_elms:
     line = ''
     for pig in counts[elm]:
         for protein in counts[elm][pig]:
             if protein in hits_conserved[pig]:
                 if elm in hits_conserved[pig][protein]:
                     for seq in counts[elm][pig][protein]:
-                        line += '%s\t%s\t%s\t%d\n' % (pig.split('.')[0], protein + '.' + pig.split('.')[1], 
-                                                      seq, len(counts[elm][pig][protein][seq]))
+                        percent = float(100)*float(len(counts[elm][pig][protein][seq]))/protein_counts[pig]
+                        if percent > float(5):
+                            line += '%s\t%s\t%s\t%s\t%.3f\n' % (pig.split('.')[0], 
+                                                                protein, pig.split('.')[1], 
+                                                                seq, percent)
     if line:
         tmp_input = 'tmp_i' + str(random.randint(0,100))
         with open(tmp_input, 'w') as f:
-            f.write('Species\tProtein\tSeq\tCount\n')
+            f.write('Species\tProtein\tType\tSeq\tCount\n')
             f.write(line)
         r_file = 'tmp_r' + str(random.randint(0,100))
         with open(r_file, 'w') as f:
@@ -84,7 +95,7 @@ for elm in elms:
             f.write("d<-read.delim('"
                     + tmp_input + "', header=T, sep='\\t')\n")
             f.write("png('plots/swine_chick_flu_elms/" + elm + ".png')\n")
-            line = "ggplot(d) + aes(x=Seq,y=Count) + geom_bar(aes(fill=Species)) + facet_grid(Protein~.) + opts(title='" + elm + "')\n"
+            line = "ggplot(d) + aes(x=Seq,y=Count) + geom_bar(aes(fill=Species)) + facet_grid(Protein~Type) + opts(title='" + elm + "')\n"
             f.write(line)
             f.write('dev.off()\n')
         os.system('R < ' + r_file + ' --no-save')

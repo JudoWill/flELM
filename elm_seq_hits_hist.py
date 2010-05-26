@@ -7,17 +7,17 @@ species = ('H_sapiens', 'Macaca_mulatta', 'R_norvegicus',
            'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus',
            'Sus_scrofa', 'Equus_caballus',
            'Gallus_gallus', 'Taeniopygia_guttata')
-short_names = {'H_sapiens':'Us',
-               'Macaca_mulatta':'Chimp',
-               'M_musculus':'Mice',
-               'R_norvegicus':'Rat',
-               'Sus_scrofa':'Pig',
-               'Equus_caballus':'Hrse',
-               'Canis_familiaris':'Cat',
-               'Bos_taurus':'Cow',
-               'Gallus_gallus':'Chick',
-               'D_rerio':'Fish',
-               'Taeniopygia_guttata':'Fnch'}
+short_names = {'H_sapiens':'a_Us',
+               'Macaca_mulatta':'a_Chimp',
+               'M_musculus':'b_Mice',
+               'R_norvegicus':'b_Rat',
+               'Sus_scrofa':'d_Pig',
+               'Equus_caballus':'d_Hrse',
+               'Canis_familiaris':'d_Cat',
+               'Bos_taurus':'d_Cow',
+               'Gallus_gallus':'c_Chick',
+               'D_rerio':'f_Fish',
+               'Taeniopygia_guttata':'c_Fnch'}
 
 r_input = str(random.randint(0,100))
 r = 'r' + str(random.randint(0,100))

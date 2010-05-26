@@ -3,9 +3,10 @@
 
     Updated to use HIV and HCV conserved ELMs.
 """
-from scipy.spatial import distance
-from numpy import *
-import utils, local_settings, os, utils_motif, utils_graph, random, os
+import utils, local_settings, os, utils_motif, utils_graph, random, os, sys, numpy
+from collections import defaultdict
+
+suffix = sys.argv[1]
 
 def getConservedELMs(virus, subtypes):
     ls = [utils_motif.annotation2protein(os.path.join(local_settings.RESULTSDIR,
@@ -15,45 +16,69 @@ def getConservedELMs(virus, subtypes):
           for subtype in subtypes[virus]]
     return utils_graph.intersectLists(ls)
 
-def getDistance(virus_d, host_d):
-    seqs = utils_graph.unionLists([virus_d,
-                                   host_d])
-    host_v = []
-    virus_v = []
-    for seq in seqs:
-        for v,d in ( (host_v, host_d),
-                     (virus_v, virus_d) ):
-            if seq in d:
-                v.append(d[seq])
-            else:
-                v.append(0)
-    return distance.cosine(host_v, virus_v)
-
 hosts = {'H_sapiens':'M', 'Sus_scrofa':'P', 'Gallus_gallus':'C', 
          'Equus_caballus':'H', 'Taeniopygia_guttata':'F'}
 viruses = {'human':'m', 'swine':'p', 'equine':'h',
-           'duck':'d', 'chicken':'c', 'HIV':'a', 'HCV':'l'}
+           'duck':'d', 'chicken':'c'}#, 'HIV':'a', 'HCV':'l'}
 subtypes = {'human':('H1N1', 'H3N2', 'H5N1'),
             'swine':('H1N1', 'H3N2'),
             'equine':('H3N8',),
             'chicken':('H5N1', 'H9N2'),
-            'duck':('H5N1', 'H9N2'),
-            'HIV':('all',),
-            'HCV':('all',)}
+            'duck':('H5N1', 'H9N2')}
+            #'HIV':('all',),
+            #'HCV':('all',)}
 
 virus2conservedELMs = {}
+all_elms = {}
 for virus in viruses:
     virus2conservedELMs[virus] = getConservedELMs(virus, subtypes)
+    for elm in virus2conservedELMs[virus]:
+        all_elms[elm] = True
 
 # load ELM seq fractions
 host2elmFreqs = {}
 virus2elmFreqs = {}
+use_seqs = {}
 for host in hosts:
     host2elmFreqs[host] = utils.get_seq2count_dict(os.path.join(local_settings.RESULTSDIR,
-                                                                'elmdict_' + host + '.txt'),
+                                                                'elmdict_' + host + suffix),
                                                    float(0))
+    for elm in host2elmFreqs[host]:
+        if elm not in use_seqs:
+            use_seqs[elm] = {}
+        for seq in host2elmFreqs[host][elm]:
+            if seq not in use_seqs[elm]:
+                use_seqs[elm][seq] = 0
+            use_seqs[elm][seq] += 1
+
+for elm in use_seqs:
+    rm_ls = []
+    for seq in use_seqs[elm]:
+        if use_seqs[elm][seq] != len(hosts.keys()):
+            rm_ls.append(seq)
+    for seq in rm_ls:
+        del use_seqs[elm][seq]
+
+means = {}
+vars = {}
+for elm in all_elms:
+    means[elm] = {}
+    vars[elm] = {}
+    seq_vals = defaultdict(list)
+    for host in hosts:
+        for seq in host2elmFreqs[host][elm]:
+            seq_vals[seq].append(host2elmFreqs[host][elm][seq])
+    for seq in seq_vals:
+        missing = len(hosts.keys())-len(seq_vals[seq])
+        for m in xrange(missing):
+            seq_vals[seq].append(0)
+    
+        means[elm][seq] = numpy.average(numpy.array(seq_vals[seq]))
+        #inverse variance
+        vars[elm][seq] = numpy.var(numpy.array(seq_vals[seq]))
+
 #tmp_input = 'tmp_input' + str(random.randint(0,100))
-tmp_input = 'plots/for_aydin/cos_host_virus.tab'
+tmp_input = 'plots/for_aydin/cos_host_virus' + suffix + '.tab'
 with open(tmp_input, 'w') as f:
     f.write('Virus_Host\tELM\tDistance\n')
     for virus in viruses:
@@ -62,11 +87,15 @@ with open(tmp_input, 'w') as f:
         for elm in virus2conservedELMs[virus]:
             if 'FAIL' not in elm:
                 for host in hosts:
-                    dis = getDistance(virus2elmFreqs[virus][elm], 
-                                      host2elmFreqs[host][elm])
+                    if elm in use_seqs:
+                        dis = utils.klDistance(virus2elmFreqs[virus][elm], 
+                                               host2elmFreqs[host][elm],
+                                               use_seqs[elm])
+                    else:
+                        dis = numpy.NaN
                     f.write('%s\t%s\t%.10f\n'
                             % (viruses[virus] + hosts[host], elm, dis))
-out_file = 'plots/for_aydin/cos_dis_heatmap.png'
+out_file = 'plots/for_aydin/cos_dis_heatmap' + suffix + '.png'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
 with open(tmp_r, 'w') as f:
     f.write('library(ggplot2)\n')

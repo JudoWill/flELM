@@ -1,3 +1,6 @@
+""" How many of the ELM hits (ignore what sequence was matched)
+    are not expected by chance?  Report # as fraction of 'real' hits.
+"""
 import sys, math, utils
 from collections import defaultdict
 from global_settings import *
@@ -25,22 +28,20 @@ else:
      for seq in flu_gen:
          total_aa += len(seq)
 
-elm2seq2count = defaultdict(dict)
+elm_expected = defaultdict(utils.init_zero)
+elm_obs = defaultdict(utils.init_zero)
 with open(sys.argv[3]) as f:
     for line in f:
         [elm, seq, count, frac] = line.strip().split('\t')
         if seq.find('X') == -1 and seq.find('U') == -1 and seq.find('B') == -1 and seq.find('J') == -1 and seq.find('Z') == -1:
             p = int(math.ceil(prob_of_seq(seq, aa2prob)*float(total_aa)))
-            if int(count) > p:
-                elm2seq2count[elm][seq] = int(count)-p
-for elm in elm2seq2count:
-    total = 0
-    for seq in elm2seq2count[elm]:
-        total += elm2seq2count[elm][seq]
-    for seq in elm2seq2count[elm]:
-        print(elm + '\t' + seq + '\t'
-              + str(elm2seq2count[elm][seq]) + '\t'
-              + str(float(elm2seq2count[elm][seq])/float(total)))
+            elm_expected[elm] += p
+            elm_obs[elm] += int(count)
+for elm in elm_obs:
+    if elm_obs[elm] > elm_expected[elm]:
+        val = float(elm_obs[elm]-elm_expected[elm])/float(elm_obs[elm])
+        print('%s\t%.10f' %
+              (elm, val))
                 
                 
         

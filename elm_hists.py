@@ -8,7 +8,7 @@
     This will output out seq count
     bar graphs for each ELM.
 """
-import utils_plot, sys, os, utils
+import utils_plot, sys, os, utils, global_settings
 from collections import defaultdict
 
 def get_test_data():
@@ -36,7 +36,7 @@ def test_plot():
                                   test_data2, 'virus',
                                   'test.png', 'LIG_TEST')
 
-def main(args):
+def main_old(args):
     file_species_pairs = []
     i = 1
     while i < len(args)-2:
@@ -59,6 +59,25 @@ def main(args):
             utils_plot.elm_host_barplot(species2elms, elm,
                                         os.path.join(plot_dir,
                                                      elm + '.hosts.png'))
+
+def main(args):
+    suffix = sys.argv[1]
+    elms = sys.argv[2:]
+    file_species_pairs = []
+    for g in global_settings.GENOMES:
+        file_species_pairs.append(('results/elmdict_'
+                                   + g + suffix, g))
+    plot_dir = 'plots/for_aydin/'
+
+    species2elms = {}
+    for file, species in file_species_pairs:
+        species2elms[species] = utils.get_seq2count_dict(file, float(0))
+
+    for elm in elms:
+        utils_plot.elm_host_barplot(species2elms, elm,
+                                    os.path.join(plot_dir,
+                                                 elm + '.hosts' 
+                                                 + suffix + '.png'))
 
 if __name__ == '__main__': main(sys.argv)
 

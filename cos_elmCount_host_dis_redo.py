@@ -1,12 +1,15 @@
+""" Find cosine distance between ELM counts that occur
+    more than expected.  This is different from using
+    ELM frequencies.  I'm not using frequencies b/c
+    the counts have already been corrected in a sense.
+"""
 import itertools, sys, os, utils, random
 from collections import defaultdict
 
-suffix = sys.argv[1]
-
-# 'Macaca_mulatta 'R_norvegicus',  'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus', 'Taeniopygia_guttata'
+# 'Macaca_mulatta 'R_norvegicus',  'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus', 'Taeniopygia_guttata', 'Sus_scrofa',
 species = ('H_sapiens', 'Macaca_mulatta', 'R_norvegicus',
            'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus',
-           'Sus_scrofa', 'Equus_caballus',
+            'Equus_caballus',
            'Gallus_gallus', 'Taeniopygia_guttata')
 short_names = {'H_sapiens':'Us',
                'Macaca_mulatta':'Chimp',
@@ -21,17 +24,18 @@ short_names = {'H_sapiens':'Us',
                'Taeniopygia_guttata':'Fnch'}
 
 #'.elm_aa_freq'
-freqs = defaultdict(dict)
+freqs = {}
 for host in species:
-    with open('results/' + host + suffix + '.elm_aa_freq') as f:
+    freqs_single = defaultdict(utils.init_zero)
+    with open('results/elmdict_' + host + '.realFraction') as f:
         for line in f:
             (elm, fq) = line.strip().split('\t')
-            freqs[host][elm] = float(fq)
+            freqs_single[elm] = float(fq)
+    freqs[host] = freqs_single
 
-#tmp_input = 'tmp_i' + str(random.randint(0,100))
-tmp_input = 'plots/for_aydin_2/elm_freq_dis' + suffix + '.tab'
+tmp_input = 'tmp_i' + str(random.randint(0,100))
 tmp_r = 'tmp_r' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/elm_freq_dis' + suffix + '.png'
+out_file = 'plots/for_aydin_2/elm_count_dis_redo.png'
 with open(tmp_input, 'w') as f:
     f.write('Host1\tHost2\tDistance\n')
     for i in xrange(len(species)):

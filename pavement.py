@@ -54,11 +54,13 @@ def get_fail_elms():
 @task
 def elm_aa_freqs():
 	for genome in ('H_sapiens', 'Gallus_gallus', 'Sus_scrofa', 
-		       'Taeniopygia_guttata', 'Equus_caballus'):
+		       'Taeniopygia_guttata', 'Equus_caballus',
+		       'Macaca_mulatta', 'R_norvegicus', 'Canis_familiaris', 
+		       'Bos_taurus', 'D_rerio', 'M_musculus',):
 		sh('python mk_aa_freq.py '
 		   'data/' + genome + '.fa '
-		   + 'results/elmdict_' + genome + '.txt '
-		   + 'results/' + genome + '.init.elm_aa_freq')
+		   + 'results/elmdict_' + genome + '.redo '
+		   + 'results/' + genome + '.redo.elm_aa_freq')
 
 #conserved_elms -c 90
 @task 
@@ -243,6 +245,17 @@ def redo_elmdict():
 	# 	   + org + ' '
 	# 	   + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + ' ')
 	# 	   + '> ' + os.path.join(RESULTSDIR, 'flu_elmdict_' + org + '.redo'))
+
+@task
+def redo_elmdict_realFrac():
+	""" subtract counts expected by chance """
+	
+	for g in GENOMES:
+		sh('python real_fraction.py '
+		   + os.path.join(RESULTSDIR, g + '.aa_freq ')
+		   + os.path.join(DATADIR, g + '.fa ')
+		   + os.path.join(RESULTSDIR, 'elmdict_' + g + '.txt ')
+		   + '> ' + os.path.join(RESULTSDIR, 'elmdict_' + g + '.realFraction'))
 
 @task
 @cmdopts([('cutoff=', 'c', '% cutoff'),])
