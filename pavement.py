@@ -8,6 +8,12 @@ from global_settings import *
 import utils
 
 @task
+def list_tasks():
+    task_list = environment.get_tasks()
+    for task in task_list:
+        print task.shortname 
+
+@task
 def other_virus_elms():
 	"""format HIV/HCV ELMs"""
 
@@ -53,14 +59,11 @@ def get_fail_elms():
 
 @task
 def elm_aa_freqs():
-	for genome in ('H_sapiens', 'Gallus_gallus', 'Sus_scrofa', 
-		       'Taeniopygia_guttata', 'Equus_caballus',
-		       'Macaca_mulatta', 'R_norvegicus', 'Canis_familiaris', 
-		       'Bos_taurus', 'D_rerio', 'M_musculus',):
+	for genome in GENOMES:
 		sh('python mk_aa_freq.py '
 		   'data/' + genome + '.fa '
-		   + 'results/elmdict_' + genome + '.redo '
-		   + 'results/' + genome + '.redo.elm_aa_freq')
+		   + 'results/elmdict_' + genome + '.txt '
+		   + 'results/' + genome + '.init.elm_aa_freq')
 
 #conserved_elms -c 90
 @task 
@@ -165,10 +168,6 @@ def subsample_genomes(options):
 		#only do if missing or FORCING
 		sh('python subsample.py %(arg)s %(name)s' % {'arg':arg, 'name':org})
 
-
-
-
-
 @task
 def elm_hist():
 	""" Plot host histograms of sequence frequencies of at least SEQ_FRAC_CUT """
@@ -224,8 +223,33 @@ def hprdplot():
 	   + '/plots/hprd/')
 
 @task
+def redo_elmdict_2():
+	""" subtract counts expected by chance, allow negatives """
+	
+	for g in GENOMES:
+		sh('python prob_of_seq_wNeg.py '
+		   + os.path.join(RESULTSDIR, g + '.aa_freq ')
+		   + os.path.join(DATADIR, g + '.fa ')
+		   + os.path.join(RESULTSDIR, 'elmdict_' + g + '.txt ')
+		   + '> ' + os.path.join(RESULTSDIR, 'elmdict_' + g + '.redoWNeg'))
+
+@task
+def freqs():
+     for g in GENOMES:
+          ofile = os.path.join(RESULTSDIR, g + '.aa_freq')
+	  if not os.path.exists(ofile):
+	       sh('python get_aa_freq.py '
+		  + os.path.join(DATADIR, g + '.fa ')
+		  + '> ' + ofile)
+	  ofile =  os.path.join(RESULTSDIR, g + '.diAA_freq')
+	  if not os.path.exists(ofile):
+               sh('python get_diAA_freq.py '
+		  + os.path.join(DATADIR, g + '.fa ')
+		  + '> ' + ofile)
+
+@task
 def redo_elmdict():
-	""" subtract counts expected by chance """
+	""" subtract counts expected by chance, no negatives """
 	
 	for g in GENOMES:
 		sh('python get_aa_freq.py '
@@ -255,6 +279,7 @@ def redo_elmdict_realFrac():
 		   + os.path.join(RESULTSDIR, g + '.aa_freq ')
 		   + os.path.join(DATADIR, g + '.fa ')
 		   + os.path.join(RESULTSDIR, 'elmdict_' + g + '.txt ')
+		   + os.path.join(RESULTSDIR, g + '.diAA_freq ')
 		   + '> ' + os.path.join(RESULTSDIR, 'elmdict_' + g + '.realFraction'))
 
 @task
