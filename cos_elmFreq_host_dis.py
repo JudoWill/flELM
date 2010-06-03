@@ -74,16 +74,16 @@ short_names = global_settings.ALIASES#{'H_sapiens':'Us',
 freqs = defaultdict(dict)
 elm2freqs = defaultdict(list)
 for host in species:
-    with open('results/roundup/' + host + suffix + '.elm_aa_freq') as f:
+    with open('results/roundup_all/' + host + suffix + '.elm_aa_freq') as f:
         for line in f:
             (elm, fq) = line.strip().split('\t')
             freqs[host][elm] = float(fq)
             elm2freqs[elm].append(float(fq))
 
 #tmp_input = 'tmp_i' + str(random.randint(0,100))
-tmp_input = 'plots/for_aydin_2/roundup/elm_freq_dis' + suffix + '.tab'
+tmp_input = 'plots/for_aydin_2/roundup_all/elm_freq_dis' + suffix + '.tab'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/roundup/elm_freq_dis' + suffix + '.png'
+out_file = 'plots/for_aydin_2/roundup_all/elm_freq_dis' + suffix + '.png'
 with open(tmp_input, 'w') as f:
     f.write('Host1\tHost2\tDistance\n')
     for i in xrange(len(species)):
@@ -108,7 +108,7 @@ os.system('R < ' + tmp_r + ' --no-save')
 #os.system('rm ' + tmp_r + ' ' + tmp_input)
 
 tmp_labels = 'labels' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/roundup/cos_elmFreq_host_dis.dendrogram' + suffix + '.png'
+out_file = 'plots/for_aydin_2/roundup_all/cos_elmFreq_host_dis.dendrogram' + suffix + '.png'
 species_lines = {}
 for s in species:
     species_lines[s] = ''

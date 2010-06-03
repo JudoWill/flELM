@@ -8,6 +8,49 @@ from global_settings import *
 import utils
 
 @task
+def format_ncbi_for_blast():
+    """redo NCBI file for blast input"""
+
+    for g in GENOMES:
+        sh('formatter.py --infile '
+           + 'data/' + g + '.fa --outdir data/my_roundup/')
+
+@task
+def blast():
+    """blast all genomes for RSD use"""
+
+    for g1,g2 in itertools.combinations(GENOMES,2):
+        for q,s in ((g1,g2), (g2,g1)):
+            sh('Blast_compute.py -q data/' + q
+               + '.fa -s data/' + s + '.fa -o results/BLAST/'
+               + q + '_VS_' + s)
+
+@task
+def xdformat():
+    """mk FASTA databases for blasting w/ Blast_compute.py"""
+
+    for g in GENOMES:
+        sh('xdformat -p data/'
+           + g + '.fa')
+
+@task
+def get_all_roundup_seqs_ncbi():
+    """use NCBI eutils to grab protein seqs for roundup orthologs"""
+
+    for species, name in (("'Homo sapiens'", 'H_sapiens'),
+                          ("'Mus musculus'", 'M_musculus'),
+                          ("'Rattus norvegicus'", 'R_norvegicus'),
+                          ("'Pan troglodytes'", 'Pan_troglodytes'),
+                          ("'Bos taurus'", 'Bos_taurus'),
+                          ("'Taeniopygia guttata'", 'Taeniopygia_guttata'),
+                          ("'Gallus gallus'", 'Gallus_gallus'),
+                          ("'Canis familiaris'", 'Canis_familiaris')):
+        sh('python get_protein_seq_for_gi.py '
+           + 'results/Homo_Mus_Pan_Rat_Bos_Can_Gal_Tae_Dan_Mac.roundup.parsed '
+           + species + ' '
+           + 'data/roundup_all/' + name + '.fa')
+
+@task
 def list_tasks():
     task_list = environment.get_tasks()
     for task in task_list:
@@ -67,11 +110,13 @@ def elm_aa_freqs():
 
 @task
 def elm_aa_freqs_roundup():
-	for genome in ('Macaca_mulatta', 'H_sapiens', 'M_musculus', 'Pan_troglodytes', 'R_norvegicus'):
+	for genome in ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
+                       'R_norvegicus', 'Gallus_gallus', 'Taeniopygia_guttata',
+                       'Canis_familiaris', 'Bos_taurus'):
 		sh('python mk_aa_freq.py '
-		   + 'data/roundup/' + genome + '.fa '
-		   + 'results/roundup/elmdict_' + genome + '.txt '
-		   + 'results/roundup/' + genome + '.init.elm_aa_freq')
+		   + 'data/roundup_all/' + genome + '.fa '
+		   + 'results/roundup_all/elmdict_' + genome + '.init '
+		   + 'results/roundup_all/' + genome + '.init.elm_aa_freq')
 
 
 #conserved_elms -c 90
@@ -154,9 +199,11 @@ def process_elm_roundup(options):
 	c_arg = ''
 	if options.process_elm_roundup.get('picloud', False): c_arg = '-c'
 	
-	for genome in ('Macaca_mulatta', 'H_sapiens', 'M_musculus', 'Pan_troglodytes', 'R_norvegicus'):
-		ofile = os.path.join(RESULTSDIR, 'roundup', 'elmdict_'+genome+'.txt')
-		ifile = os.path.join(DATADIR, 'roundup', genome+'.fa')
+	for genome in ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
+                       'R_norvegicus', 'Gallus_gallus', 'Taeniopygia_guttata',
+                       'Canis_familiaris', 'Bos_taurus'):
+		ofile = os.path.join(RESULTSDIR, 'roundup_all', 'elmdict_'+genome+'.init')
+		ifile = os.path.join(DATADIR, 'roundup_all', genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm_roundup.get('forcenew', False):
 			# only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 

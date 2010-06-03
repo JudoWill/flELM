@@ -34,7 +34,7 @@ with open(outfile, 'w') as outf:
     if len(cluster.keys()) == species:
         for a_species in cluster:
             for ID in cluster[a_species]:
-                outf.write('%s\t%s\t%s' %
+                outf.write('%s\t%s\t%s\n' %
                            (current_cluster, a_species, ID))
 
 # put in database
