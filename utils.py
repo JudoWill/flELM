@@ -2,7 +2,7 @@ from local_settings import *
 from global_settings import *
 from Bio import SeqIO
 from copy import deepcopy
-import re, os.path, os, logging, math
+import re, os.path, os, logging, math, MySQLdb, local_settings
 from functools import partial
 from itertools import *
 from collections import defaultdict
@@ -11,6 +11,48 @@ from scipy.spatial import distance
 from numpy import *
 
 import cloud
+
+def init_mysql(database):
+    conn = MySQLdb.connect(host='localhost',
+                           user=local_settings.MYSQL_USR,
+                           passwd=local_settings.MYSQL_PASS,
+                           db=database)
+    cur = conn.cursor()
+    return (conn, cur)
+
+# def fasta_inter_mysql(database):
+#     """iterator for fasta seqs in database"""
+
+#     (conn, cur) = init_mysql('fasta')
+#     line = 'SELECT * from ' + database
+#     cur.execute(line)
+
+def fasta_iter(afile, getID=None):
+    """iterator for FASTA files
+       You can define your own header parser getID.
+       
+       Ex.
+       D = dict(fasta_itr('empty', getID=lambda line: line.split('|')[1]))
+       print ', '.join(D.keys())"""
+
+    if not getID:
+        getID = lambda line: line[1:].strip()
+    isheader = lambda line: line[0] == '>'
+    with open(afile) as f:
+        for header, group in groupby(f, isheader):
+            if header:
+                line = group.next()
+                ID = getID(line)
+            else:
+                seq = ''.join(line.strip() for line in group)
+                yield ID, seq
+
+
+
+def chunks(ls, n):
+    """Yield n-sized chunks for ls"""
+    for i in xrange(0, len(ls), n):
+        yield ls[i:i+n]
 
 def seqDistance(virus_d, host_d):
     seqs = utils_graph.intersectLists([virus_d,

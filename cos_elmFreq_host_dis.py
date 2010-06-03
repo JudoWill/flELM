@@ -1,10 +1,59 @@
-import itertools, sys, os, utils, random, global_settings
+import itertools, sys, os, utils, random, global_settings, numpy
 from collections import defaultdict
 
+def get_use_ELMs_permissive(host2elm):
+    elms = {}
+    for host in host2elm:
+        for elm in host2elm[host]:
+            elms[elm] = True
+    return elms
+
+def get_use_ELMs_restrictive(host2elm):
+    hosts = len(host2elm.keys())
+    elms = defaultdict(utils.init_zero)
+    for host in host2elm:
+        for elm in host2elm[host]:
+            elms[elm] += 1
+    use_elms = []
+    for elm in elms:
+        if elms[elm] == hosts:
+            use_elms.append(elm)
+    return use_elms
+
+def norm_freqs(elm2freqs, hosts):
+    new_data = {}
+    for elm in elm2freqs:
+        s = sum(elm2freqs[elm])
+        new_data[elm] = [x/s for x in elm2freqs[elm]]
+        l = len(new_data[elm])
+        while l < len(hosts):
+            new_data[elm].append(float(0))
+            l += 1
+    return new_data 
+
+def threshold_vars(normed_elm_freqs, thresh):
+    """variance in numpy corresponds w/ wikipedia"""
+    keep_elms = {}
+    for elm in normed_elm_freqs:
+        v = numpy.var(normed_elm_freqs[elm]) 
+        if v < thresh:
+            keep_elms[elm] = v
+    return keep_elms
+
+
+def threshold_vars_down(normed_elm_freqs, thresh):
+    """variance in numpy corresponds w/ wikipedia"""
+    keep_elms = {}
+    for elm in normed_elm_freqs:
+        v = numpy.var(normed_elm_freqs[elm]) 
+        if v > thresh:
+            keep_elms[elm] = v
+    return keep_elms
+    
 suffix = sys.argv[1]
 
 # 'Macaca_mulatta 'R_norvegicus',  'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus', 'Taeniopygia_guttata'
-species = global_settings.GENOMES#('H_sapiens', 'Macaca_mulatta', 'R_norvegicus',
+species = global_settings.TEST_GENOMES#('H_sapiens', 'Macaca_mulatta', 'R_norvegicus',
 #           'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus',
 #           'Sus_scrofa', 'Equus_caballus',
 #           'Gallus_gallus', 'Taeniopygia_guttata')
@@ -23,18 +72,18 @@ short_names = global_settings.ALIASES#{'H_sapiens':'Us',
 
 #'.elm_aa_freq'
 freqs = defaultdict(dict)
-elms = {}
+elm2freqs = defaultdict(list)
 for host in species:
-    with open('results/' + host + suffix + '.elm_aa_freq') as f:
+    with open('results/roundup/' + host + suffix + '.elm_aa_freq') as f:
         for line in f:
             (elm, fq) = line.strip().split('\t')
-            elms[elm] = True
             freqs[host][elm] = float(fq)
+            elm2freqs[elm].append(float(fq))
 
 #tmp_input = 'tmp_i' + str(random.randint(0,100))
-tmp_input = 'plots/for_aydin_2/elm_freq_dis' + suffix + '.tab'
+tmp_input = 'plots/for_aydin_2/roundup/elm_freq_dis' + suffix + '.tab'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/elm_freq_dis' + suffix + '.png'
+out_file = 'plots/for_aydin_2/roundup/elm_freq_dis' + suffix + '.png'
 with open(tmp_input, 'w') as f:
     f.write('Host1\tHost2\tDistance\n')
     for i in xrange(len(species)):
@@ -59,12 +108,15 @@ os.system('R < ' + tmp_r + ' --no-save')
 #os.system('rm ' + tmp_r + ' ' + tmp_input)
 
 tmp_labels = 'labels' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/cos_elmFreq_host_dis.dendrogram' + suffix + '.png'
+out_file = 'plots/for_aydin_2/roundup/cos_elmFreq_host_dis.dendrogram' + suffix + '.png'
 species_lines = {}
 for s in species:
     species_lines[s] = ''
 
-for elm in elms:
+# don't include ELMs that are not present in all species
+nfreqs = norm_freqs(elm2freqs, species)
+t = threshold_vars(nfreqs, float(10000))
+for elm in t:
     for s in species:
         if elm in freqs[s]:
             species_lines[s] += str(freqs[s][elm]) + '\t'
@@ -77,6 +129,7 @@ with open(tmp_labels, 'w') as f:
     f.write('\t'.join(species) + '\n')
 with open(tmp_r, 'w') as f:
     f.write("source('funcs.R')\n")
+    f.write("library('MASS')\n")
     f.write("d<-read.delim('"
             + tmp_input
             + "',header=FALSE,sep='\\t')\n")
@@ -84,10 +137,22 @@ with open(tmp_r, 'w') as f:
             + tmp_labels
             + "',header=FALSE,sep='\\t')\n")
     f.write('labels<-as.matrix(labels.d)\n')
-    f.write("dist.r<-cos_dist(d)\n")
-    #f.write("dist.r<-dist(d,method='manhattan')\n")
-    f.write("h<-hclust(dist.r,method='complete')\n")
+    #f.write("dist.r<-cos_dist(d)\n")
+    f.write('dn<-norm(d)\n')
+    #f.write("write.matrix(dn,file='plots/for_aydin_2/norm.tab',sep='\t')\n")
+    f.write("dist.r<-dist(d,method='euclidean')\n")
+    f.write("h<-hclust(dist.r,method='average')\n")
     f.write("png('" + out_file + "')\n")
     f.write("plot(h,hang=-1,labels=labels[1,],main='Species Dendrogram')\n")
     f.write('dev.off()\n')
 os.system('R < ' + tmp_r + ' --no-save')
+
+with open('dataf', 'w') as f:
+    for elm in t:
+        f.write(str(t[elm]) + '\n')
+with open('tmpR', 'w') as f:
+    f.write("d<-read.delim('dataf',header=FALSE,sep='\\t')\n")
+    f.write("png('var.png')\n")
+    f.write('plot(density(d[,1]))\n')
+    f.write('dev.off()\n')
+os.system('R < tmpR --no-save')

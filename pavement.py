@@ -61,9 +61,18 @@ def get_fail_elms():
 def elm_aa_freqs():
 	for genome in GENOMES:
 		sh('python mk_aa_freq.py '
-		   'data/' + genome + '.fa '
+		   + 'data/' + genome + '.fa '
 		   + 'results/elmdict_' + genome + '.txt '
 		   + 'results/' + genome + '.init.elm_aa_freq')
+
+@task
+def elm_aa_freqs_roundup():
+	for genome in ('Macaca_mulatta', 'H_sapiens', 'M_musculus', 'Pan_troglodytes', 'R_norvegicus'):
+		sh('python mk_aa_freq.py '
+		   + 'data/roundup/' + genome + '.fa '
+		   + 'results/roundup/elmdict_' + genome + '.txt '
+		   + 'results/roundup/' + genome + '.init.elm_aa_freq')
+
 
 #conserved_elms -c 90
 @task 
@@ -133,6 +142,23 @@ def process_elm(options):
 		ifile = os.path.join(DATADIR, genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
 			#only do if missing or FORCING
+			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
+										  'c':c_arg, 'infile': ifile})
+
+@task
+@cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
+	  ('picloud', 'c', 'Use PiCloud')])
+def process_elm_roundup(options):
+	"""Determines (and writes) the ELM dictionary"""
+	
+	c_arg = ''
+	if options.process_elm_roundup.get('picloud', False): c_arg = '-c'
+	
+	for genome in ('Macaca_mulatta', 'H_sapiens', 'M_musculus', 'Pan_troglodytes', 'R_norvegicus'):
+		ofile = os.path.join(RESULTSDIR, 'roundup', 'elmdict_'+genome+'.txt')
+		ifile = os.path.join(DATADIR, 'roundup', genome+'.fa')
+		if not os.path.exists(ofile) or options.process_elm_roundup.get('forcenew', False):
+			# only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
 										  'c':c_arg, 'infile': ifile})
 
