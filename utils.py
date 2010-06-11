@@ -28,7 +28,7 @@ def init_mysql(database):
 #     cur.execute(line)
 
 def fasta_iter(afile, getID=None):
-    """iterator for FASTA files
+    """generator for FASTA files
        You can define your own header parser getID.
        
        Ex.
@@ -91,23 +91,53 @@ def renorm(seqs, d):
             new_d[seq] = d[seq]/total
     return new_d
 
-def klDistance(virus_d, host_d, use_seqs):
-    d1 = float(0)
-    seqs = utils_graph.intersectLists([virus_d,
-                                       use_seqs])
+def getDistFromCount(counts):
+    s = float(sum(counts))
+    return [float(x)/s for x in counts]
 
-    #print seqs
-    virus_d_rn = renorm(seqs, virus_d)
-    host_d_rn = renorm(seqs, host_d)
-    for seq in virus_d_rn:
-        p_x = virus_d_rn[seq]
-        if seq in host_d_rn:
-            q_x = host_d_rn[seq]
-            d1 += p_x * log(p_x/q_x)
-    if len(seqs.keys()) != 0:
-        return d1
-    else:
-        return NaN
+def klDistance(dist1, dist2):
+    """KL divergence between 2 distributions. No 0 counts."""
+
+    dis = float(0)
+    for p1, p2 in izip(dist1, dist2):
+        if p1:
+            dis += p1 * log(p1/p2)
+    return dis
+
+def jensen_shannon(counts1, counts2):
+    """Find jensen shannon divergence between
+       lists of counts.
+       Make sure the lists count the same
+       features"""
+
+    # make counts into distributions
+    d1 = getDistFromCount(counts1)
+    d2 = getDistFromCount(counts2)
+    davg = [average(x) for x in izip(d1,d2)]
+
+    # find KL divergence from average
+    return average([klDistance(d1, davg),
+                    klDistance(d2, davg)])
+
+def jensen_shannon_dists(d1, d2):
+    """Find jensen shannon divergence between
+       distributions.
+       Make sure the lists count the same
+       features.
+       Use this version to avoid calculating
+       the same distribution many times."""
+
+    davg = [average(x) for x in izip(d1,d2)]
+
+    # find KL divergence from average
+    return average([klDistance(d1, davg),
+                    klDistance(d2, davg)])
+
+
+def test_jensen_shannon():
+    c1=[10,20,30]
+    c2=[15,10,25]
+    print jensen_shannon(c1,c2)
 
 def getDistance(virus_d, host_d):
     seqs = utils_graph.unionLists([virus_d,
@@ -370,6 +400,8 @@ def get_seq2count_dict(elm_file, cutoff):
     return elm2seq2count
 
 def init_zero(): return 0
+
+def dict_init_zero(): return defaultdict(init_zero)
 
 def get_seq2count_dict_for_seqs(elm_file, cutoff, virus2elms2seq):
     """ grab ELM seq frequency data 

@@ -40,7 +40,6 @@ def threshold_vars(normed_elm_freqs, thresh):
             keep_elms[elm] = v
     return keep_elms
 
-
 def threshold_vars_down(normed_elm_freqs, thresh):
     """variance in numpy corresponds w/ wikipedia"""
     keep_elms = {}

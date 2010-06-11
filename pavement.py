@@ -21,8 +21,8 @@ def blast():
 
     for g1,g2 in itertools.combinations(GENOMES,2):
         for q,s in ((g1,g2), (g2,g1)):
-            sh('Blast_compute.py -q data/' + q
-               + '.fa -s data/' + s + '.fa -o results/BLAST/'
+            sh('Blast_compute.py -q data/my_roundup/' + q
+               + '.fa -s data/my_roundup/' + s + '.fa -o results/BLAST/'
                + q + '_VS_' + s)
 
 @task
@@ -117,7 +117,6 @@ def elm_aa_freqs_roundup():
 		   + 'data/roundup_all/' + genome + '.fa '
 		   + 'results/roundup_all/elmdict_' + genome + '.init '
 		   + 'results/roundup_all/' + genome + '.init.elm_aa_freq')
-
 
 #conserved_elms -c 90
 @task 
