@@ -1,3 +1,5 @@
+"""Here"""
+
 from paver.easy import *
 import os, os.path, itertools
 
@@ -17,7 +19,7 @@ def format_ncbi_for_blast():
 
 @task
 def blast():
-    """blast all genomes for RSD use"""
+    """blast all genomes for RSD use. I can't use this b/c I don't have WU BLAST"""
 
     for g1,g2 in itertools.combinations(GENOMES,2):
         for q,s in ((g1,g2), (g2,g1)):
