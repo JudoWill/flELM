@@ -4,6 +4,10 @@
    host and flu.
 
    I'll start with 5 clusters where applicable.
+   I will only cluster the flu data, and find
+   the means of the clusters.
+   Then I will add each human sequence to the
+   best flu cluster.
 """
 import Bio.Cluster
 import Levenshtein
@@ -145,7 +149,6 @@ for host in hosts:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
             elmSeq = elm + ':' + seq
-            all_elmSeqs[elmSeq] = True
             host_counts[host][elmSeq] += int(count)
 
 elm2seq = defaultdict(list)
@@ -154,30 +157,28 @@ for elmSeq in all_elmSeqs:
     elm2seq[elm].append(seq)
 
 num_clusters = 5
-elm2cluster2seq = {}
 for elm in elm2seq:
-    elm2cluster2seq[elm] = defaultdict(dict)
     strings = elm2seq[elm]
     if len(strings) > num_clusters:
         ans, error, nfound = Bio.Cluster.kmedoids(mk_dis_mat(strings),
                                                   nclusters=num_clusters,
                                                   npass=100)
         for seq, cluster in zip(strings, ans):
-            elm2cluster2seq[elm][cluster][seq] = True
             print('%s\t%s\t%d' %
                   (elm, seq, cluster))
-    else:
+    elif len(strings) > 2:
         ans, error, nfound = Bio.Cluster.kmedoids(mk_dis_mat(strings),
                                                   nclusters=2,
                                                   npass=100)
         for seq, cluster in zip(strings, ans):
-            elm2cluster2seq[elm][cluster][seq] = True
             print('%s\t%s\t%d' %
                   (elm, seq, cluster))
+    else:
+        pass
 
-for elm in elm2cluster2seq:
-    print elm, check_clusters(elm2cluster2seq[elm], host_counts,
-                              pre_flu_counts, elm)
+# for elm in elm2cluster2seq:
+#     print elm, check_clusters(elm2cluster2seq[elm], host_counts,
+#                               pre_flu_counts, elm)
 # for s, cluster in zip(strings, ans):
 #     print s, cluster
 
