@@ -1,6 +1,13 @@
-"""Use Jensen-Shannon divergence to make a dendrogram for eukaryotic hosts"""
+"""Make distributions of chicken/human host/flu ELMseq counts"""
 import itertools, sys, os, utils, random, global_settings, numpy
 from collections import defaultdict
+
+def count_0s(ls):
+    count = 0
+    for item in ls:
+        if not item:
+            count += 1
+    return count
 
 def count_flu(protein2counts, all_elmSeqs):
     """Given hits from get_flu_counts, return ELMseq counts"""
@@ -114,10 +121,13 @@ flu_dists = mk_count_dists(flu_vecs)
 host_vecs = mk_count_vecs(host_counts, all_elmSeqs)
 host_dists = mk_count_dists(host_vecs)
 
-js_distances = defaultdict(dict)
-for host in hosts:
-    for flu in flus:
-        js_dis = utils.jensen_shannon_dists(host_dists[host],
-                                            flu_dists[flu])
-        js_distances[host][flu] = js_dis
-        print host, flu, js_dis
+def print_it(name, vec):
+    print name, float(count_0s(vec))/float(len(vec))
+
+print_it('chicken_flu', flu_vecs['chicken'])
+print_it('human flu', flu_vecs['human'])
+print_it('H sapiens', host_vecs['H_sapiens'])
+print_it('Gallus gallus', host_vecs['Gallus_gallus'])
+
+flu_dists['chicken'].sort()
+print flu_dists['chicken'][-3], flu_dists['chicken'][-2], flu_dists['chicken'][-1]

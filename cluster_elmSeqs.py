@@ -1,6 +1,63 @@
-"""Use Jensen-Shannon divergence to make a dendrogram for eukaryotic hosts"""
+"""Host and flu share few ELM sequences,
+   so I'm making clusters of ELM sequences
+   to be able to make comparisons between
+   host and flu.
+
+   I'll start with 5 clusters where applicable.
+"""
+import Bio.Cluster
+import Levenshtein
 import itertools, sys, os, utils, random, global_settings, numpy
 from collections import defaultdict
+
+def mk_dis_mat(strings):
+    """Make distance matrix"""
+
+    dis_mat = []
+    for s1 in strings:
+        for s2 in strings:
+            if s1 == s2:
+                break
+            else:
+                dis = Levenshtein.distance(s1, s2)
+                dis_mat.append(dis)
+    return numpy.array(dis_mat)
+
+def check_clusters(cluster2seq, host_counts, flu_counts, elm):
+    """make sure flu sequences are not in clusters alone"""
+
+    host_seqs = {}
+    for host in host_counts:
+        for elmSeq in host_counts[host]:
+            helm,hseq = elmSeq.split(':')
+            if helm == elm:
+                host_seqs[hseq] = True
+    flu_seqs = {}
+    for flu in flu_counts:
+        for elmSeq in flu_counts[flu]:
+            helm,hseq = elmSeq.split(':')
+            if helm == elm:
+                flu_seqs[hseq] = True
+
+    for cluster in cluster2seq:
+        found_host = False
+        found_flu = False
+        for seq in cluster2seq[cluster]:
+
+            if seq in host_seqs:
+                found_host = True
+            if seq in flu_seqs:
+                found_flu = True
+        if found_flu and not found_host:
+            return False
+    return True
+
+def count_0s(ls):
+    count = 0
+    for item in ls:
+        if not item:
+            count += 1
+    return count
 
 def count_flu(protein2counts, all_elmSeqs):
     """Given hits from get_flu_counts, return ELMseq counts"""
@@ -9,6 +66,7 @@ def count_flu(protein2counts, all_elmSeqs):
     for protein in protein2counts:
         for seq in protein2counts[protein]:
             for elmSeq in protein2counts[protein][seq]:
+                elm, sequence = elmSeq.split(':')
                 counts[elmSeq] += protein2counts[protein][seq][elmSeq]
                 all_elmSeqs[elmSeq] = True
     return counts
@@ -73,32 +131,13 @@ flu_counts = {}
 pre_flu_counts = {}
 host_counts = {}
 all_elmSeqs = {}
+
 for flu in flus:
     pre_flu_counts[flu] = get_flu_counts('results/' + flu + '.H5N1.elms', 
                                          proteins)
 
-# sample protein sequenes from chicken
-new_chicken_counts = {}
-new_chicken_proteins = {}
-for protein in proteins:
-    c = len(pre_flu_counts['human'][protein].keys())
-    new_chicken_proteins[protein] = random.sample(pre_flu_counts['chicken'][protein], c)
-
-for protein in new_chicken_proteins:
-    new_chicken_counts[protein] = {}
-    for seq in new_chicken_proteins[protein]:
-        new_chicken_counts[protein][seq] = pre_flu_counts['chicken'][protein][seq]
-
 flu_counts['human'] = count_flu(pre_flu_counts['human'], all_elmSeqs)
-flu_counts['chicken'] = count_flu(new_chicken_counts, all_elmSeqs)
-    # flu_counts[flu] = defaultdict(utils.init_zero)
-    # with open('results/' + flu + '.H5N1.elms') as f:
-    #     for line in f:
-    #         (protein, st, stp,
-    #          elm, seq, junk) = line.strip().split('\t')
-    #         elmSeq = elm + ':' + seq
-    #         all_elmSeqs[elmSeq] = True
-    #         flu_counts[flu][elmSeq] += 1
+flu_counts['chicken'] = count_flu(pre_flu_counts['chicken'], all_elmSeqs)
 
 for host in hosts:
     host_counts[host] = defaultdict(utils.init_zero)
@@ -109,15 +148,38 @@ for host in hosts:
             all_elmSeqs[elmSeq] = True
             host_counts[host][elmSeq] += int(count)
 
-flu_vecs = mk_count_vecs(flu_counts, all_elmSeqs)
-flu_dists = mk_count_dists(flu_vecs)
-host_vecs = mk_count_vecs(host_counts, all_elmSeqs)
-host_dists = mk_count_dists(host_vecs)
+elm2seq = defaultdict(list)
+for elmSeq in all_elmSeqs:
+    elm, seq = elmSeq.split(':')
+    elm2seq[elm].append(seq)
 
-js_distances = defaultdict(dict)
-for host in hosts:
-    for flu in flus:
-        js_dis = utils.jensen_shannon_dists(host_dists[host],
-                                            flu_dists[flu])
-        js_distances[host][flu] = js_dis
-        print host, flu, js_dis
+num_clusters = 5
+elm2cluster2seq = {}
+for elm in elm2seq:
+    elm2cluster2seq[elm] = defaultdict(dict)
+    strings = elm2seq[elm]
+    if len(strings) > num_clusters:
+        ans, error, nfound = Bio.Cluster.kmedoids(mk_dis_mat(strings),
+                                                  nclusters=num_clusters,
+                                                  npass=100)
+        for seq, cluster in zip(strings, ans):
+            elm2cluster2seq[elm][cluster][seq] = True
+            print('%s\t%s\t%d' %
+                  (elm, seq, cluster))
+    else:
+        ans, error, nfound = Bio.Cluster.kmedoids(mk_dis_mat(strings),
+                                                  nclusters=2,
+                                                  npass=100)
+        for seq, cluster in zip(strings, ans):
+            elm2cluster2seq[elm][cluster][seq] = True
+            print('%s\t%s\t%d' %
+                  (elm, seq, cluster))
+
+for elm in elm2cluster2seq:
+    print elm, check_clusters(elm2cluster2seq[elm], host_counts,
+                              pre_flu_counts, elm)
+# for s, cluster in zip(strings, ans):
+#     print s, cluster
+
+
+

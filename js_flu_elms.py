@@ -1,6 +1,13 @@
-"""Use Jensen-Shannon divergence to make a dendrogram for eukaryotic hosts"""
+"""Print a list of human/chicken ELMs and their patterns"""
 import itertools, sys, os, utils, random, global_settings, numpy
 from collections import defaultdict
+
+def count_0s(ls):
+    count = 0
+    for item in ls:
+        if not item:
+            count += 1
+    return count
 
 def count_flu(protein2counts, all_elmSeqs):
     """Given hits from get_flu_counts, return ELMseq counts"""
@@ -77,47 +84,14 @@ for flu in flus:
     pre_flu_counts[flu] = get_flu_counts('results/' + flu + '.H5N1.elms', 
                                          proteins)
 
-# sample protein sequenes from chicken
-new_chicken_counts = {}
-new_chicken_proteins = {}
-for protein in proteins:
-    c = len(pre_flu_counts['human'][protein].keys())
-    new_chicken_proteins[protein] = random.sample(pre_flu_counts['chicken'][protein], c)
-
-for protein in new_chicken_proteins:
-    new_chicken_counts[protein] = {}
-    for seq in new_chicken_proteins[protein]:
-        new_chicken_counts[protein][seq] = pre_flu_counts['chicken'][protein][seq]
-
 flu_counts['human'] = count_flu(pre_flu_counts['human'], all_elmSeqs)
-flu_counts['chicken'] = count_flu(new_chicken_counts, all_elmSeqs)
-    # flu_counts[flu] = defaultdict(utils.init_zero)
-    # with open('results/' + flu + '.H5N1.elms') as f:
-    #     for line in f:
-    #         (protein, st, stp,
-    #          elm, seq, junk) = line.strip().split('\t')
-    #         elmSeq = elm + ':' + seq
-    #         all_elmSeqs[elmSeq] = True
-    #         flu_counts[flu][elmSeq] += 1
-
-for host in hosts:
-    host_counts[host] = defaultdict(utils.init_zero)
-    with open('results/roundup_all/elmdict_' + host + '.init') as f:
-        for line in f:
-            (elm, seq, count, fq) = line.strip().split('\t')
-            elmSeq = elm + ':' + seq
-            all_elmSeqs[elmSeq] = True
-            host_counts[host][elmSeq] += int(count)
-
-flu_vecs = mk_count_vecs(flu_counts, all_elmSeqs)
-flu_dists = mk_count_dists(flu_vecs)
-host_vecs = mk_count_vecs(host_counts, all_elmSeqs)
-host_dists = mk_count_dists(host_vecs)
-
-js_distances = defaultdict(dict)
-for host in hosts:
-    for flu in flus:
-        js_dis = utils.jensen_shannon_dists(host_dists[host],
-                                            flu_dists[flu])
-        js_distances[host][flu] = js_dis
-        print host, flu, js_dis
+flu_counts['chicken'] = count_flu(pre_flu_counts['chicken'], all_elmSeqs)
+elms = {}
+for elmSeq in all_elmSeqs:
+    elms[elmSeq.split(':')[0]] = True
+with open('elm_expressions.txt') as f:
+    for line in f:
+        sp = line.strip().split('\t')
+        elm = sp[0]
+        if elm in elms:
+            print elm + '\t' + sp[1]
