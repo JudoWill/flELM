@@ -8,7 +8,7 @@ from collections import defaultdict
 # this comes from my scratch experiments
 human_distance_file = '../../scratch/human_flu_distances'
 chicken_distance_file = '../../scratch/chicken_flu_distances'
-both_distance_file = '../../scratch/distances'
+both_distance_file = '../../scratch/test_genomes_distances'
 
 def print_results(elm, clusters, overlap):
     """Print out clustering of ELM sequences.
