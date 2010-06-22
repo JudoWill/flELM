@@ -211,14 +211,14 @@ proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
             'polymerase PB1', 'PB1-F2 protein')
 flu_counts = {}
 seen_seqs = {}
+seen_seqs_ls = []
 for flu in flus:
      pre = get_flu_counts('results/' + flu + '.H5N1.elms', 
                           proteins)
      seen_seqs[flu] = {}
      flu_counts[flu] = count_flu(pre, mapping, seen_seqs[flu])
-
-all_elmSeqs = utils_graph.intersectLists([seen_seqs['human'],
-                                          seen_seqs['chicken']])
+     seen_seqs_ls.append(seen_seqs[flu])
+all_elmSeqs = utils_graph.intersectLists(seen_seqs_ls)
 
 host_counts = {}
 found_seqs = {}
@@ -236,7 +236,8 @@ for host in hosts:
                         host_counts[host][key] += int(count)
                         found_seqs[host][key] = True
 host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
-                                              found_seqs['Gallus_gallus']])
+                                              found_seqs['Gallus_gallus'],
+                                              found_seqs['Taeniopygia_guttata']])
 use_seqs = utils_graph.intersectLists([all_elmSeqs, host_found_seqs])
         
 
@@ -246,7 +247,7 @@ host_dists = mk_count_dists(host_vecs)
 flu_dists = mk_count_dists(flu_vecs)
 
 js_distances = defaultdict(dict)
-for host in ('H_sapiens', 'Gallus_gallus'):
+for host in ('H_sapiens', 'Gallus_gallus', 'Taeniopygia_guttata'):
     for flu in flus:
         js_dis = utils.jensen_shannon_dists(host_dists[host],
                                             flu_dists[flu])
