@@ -51,8 +51,9 @@
 %%                                             %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%               
 
-\def\includegraphic{}
-\def\includegraphics{}
+%\def\includegraphic{}
+%\def\includegraphics{}
+\usepackage[]{graphicx}
 
 \setlength{\topmargin}{0.0cm}
 \setlength{\textheight}{21.5cm}
@@ -155,6 +156,9 @@
         \paragraph*{Results:} We annotate virus and host protein sequences with 153 confirmed peptide motifs, and cluster sequence hits based on edit distance.  For clusters common to all hosts and virus groups, we find distributions of cluster usage for each host and virus group. We take the Jensen-Shannon divergence between distributions for hosts and influenza groups, and find that each influenza group matches best with its correct host.
 
         \paragraph*{Conclusions:} Peptide motif usage differs between hosts and between viruses derived from different hosts. Virus motif usage is most similar to the host from which it was taken.
+
+        \paragraph*{Availability:} The source code and paper, including all revisions, are available at http://github.com/JudoWill/flELM.
+        
 \end{abstract}
 
 \ifthenelse{\boolean{publ}}{\begin{multicols}{2}}{}
@@ -310,16 +314,17 @@ two host organisms or a host organism and an influenza group.
   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Authors contributions}
-    Text for this section \ldots
-
-    
+    All authors contributed conceptually. For specific contributions,
+    see this page: http://github.com/JudoWill/flELM/graphs/impact.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Acknowledgements}
   \ifthenelse{\boolean{publ}}{\small}{}
-  Text for this section \ldots
-
-
+  This study was supported by the National Institutes of Health
+  (NIH) grant number \# 232240 and by the National Science Foundation
+  grant \# 235327. Additional support came from a Drexel University
+  Calhoun Fellowship (WD) and from NIH training grant T32 HG000046
+  (PE).
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  The Bibliography                       %%
@@ -334,7 +339,6 @@ two host organisms or a host organism and an influenza group.
 %%  in the online Instructions for Authors.                %% 
 %%                                                         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 %% {\ifthenelse{\boolean{publ}}{\footnotesize}{\small}
 %%  \bibliographystyle{bmc_article}  % Style BST file
@@ -363,6 +367,12 @@ two host organisms or a host organism and an influenza group.
   \subsection*{Figure 1 - Host ELM sequence usage}
       A short description of the figure content
       should go here.
+
+      \begin{figure}
+      \begin{center}
+      \includegraphics{figs/fig1}
+      \end{center}
+      \end{figure}
 
   \subsection*{Figure 2 - Influenza group ELM sequence usage}
       Figure legend text.
