@@ -2,7 +2,7 @@
    host/flu.  Since host/flu share few ELM sequences, only consider
    flu ELMs & find host ELMs that are closest in edit distance."""
 import itertools, sys, os, utils, random, global_settings, numpy, math
-import Bio.Cluster
+import Bio.Cluster, Levenshtein
 from collections import defaultdict
 
 # this comes from my scratch experiments
@@ -21,15 +21,35 @@ def print_results(elm, clusters, overlap):
                 print('%s\t%d\t%s' %
                       (elm, cluster, seq))
 
+def fix_overlap(elm, mapping, overlap, new_clusters):
+    """Assign sequences in overlap
+       based on edit distance. Assume
+       there are no ties to break."""
+
+    for elmSeq in overlap:
+        dis_cluster = []
+        for cluster in new_clusters:
+            dis = numpy.average([Levenshtein.distance(a_elmSeq.split(':')[1],
+                                                      elmSeq.split(':')[1])
+                                 for a_elmSeq in new_clusters[cluster]])
+            dis_cluster.append([dis, cluster])
+        dis_cluster.sort()
+        best_cluster = dis_cluster[0]
+        #print dis_cluster[0], dis_cluster[1]
+        mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
+
 def mk_mapping(elm, clusters, overlap, mapping):
     """Update a map of sequences to cluster.
        Ignore sequences in overlap that cannot
        be assigned."""
 
+    new_clusters = defaultdict(dict)
     for cluster in clusters:
         for seq in clusters[cluster]:
             if seq not in overlap:
                 mapping[elm][seq] = elm + ':' + str(cluster)
+                new_clusters[cluster][seq] = True
+    fix_overlap(elm, mapping, overlap, new_clusters)
 
 def get_initial_clusters(distance_file):
     """Make a cluster for each flu sequence.
@@ -46,7 +66,7 @@ def get_initial_clusters(distance_file):
             host_elmSeq = elm + ':' + host_seq
             flu_elmSeq = elm + ':' + flu_seq
 
-            if dis < 2:
+            if dis < 3:
                 if elm not in flu_host_elmSeq_mapping:
                     flu_host_elmSeq_mapping[elm] = {}
 
@@ -57,6 +77,7 @@ def get_initial_clusters(distance_file):
                     flu_host_elmSeq_mapping[elm][flu_elmSeq][host_elmSeq] = True
 
                 flu_host_elmSeq_mapping[elm][flu_elmSeq][host_elmSeq] = True
+
     return flu_host_elmSeq_mapping
 
 def get_meta_clusters(flu_host_elmSeq_mapping):

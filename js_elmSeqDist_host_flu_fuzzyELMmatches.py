@@ -19,7 +19,7 @@ def print_results(elm, clusters, overlap):
 # this comes from my scratch experiments
 human_distance_file = '../../scratch/human_flu_distances'
 chicken_distance_file = '../../scratch/chicken_flu_distances'
-both_distance_file = '../../scratch/distances'
+both_distance_file = '../../scratch/test_genomes_distances'
 
 distance_file = both_distance_file
 
@@ -37,7 +37,7 @@ with open(distance_file) as f:
         host_elmSeq = elm + ':' + host_seq
         flu_elmSeq = elm + ':' + flu_seq
         
-        if dis < 2:
+        if dis < 5:
             if elm not in flu_host_elmSeq_best_dis:
                 flu_host_elmSeq_best_dis[elm] = {}
                 flu_host_elmSeq_mapping[elm] = {}
@@ -66,7 +66,7 @@ for elm in flu_host_elmSeq_mapping:
         dis = numpy.average([match/float(x) for x in [len(seq1), len(seq2)]])
         dis_mat.append(dis)
     mat = numpy.array(dis_mat)
-    num_clusters = 5
+    num_clusters = 10
     percent_overlap = float(1)
     while num_clusters > 1 and percent_overlap > float(.1):
         if len(flu_host_elmSeq_mapping[elm]) > num_clusters:
