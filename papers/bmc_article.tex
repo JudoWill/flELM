@@ -3,23 +3,6 @@
 %  bmc_article.tex            ver: 1.05 %
 %                                       %
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                     %%
-%%  LaTeX template for BioMed Central  %%
-%%     journal article submissions     %%
-%%                                     %%
-%%         <27 January 2006>           %%
-%%                                     %%
-%%                                     %%
-%% Uses:                               %%
-%% cite.sty, url.sty, bmc_article.cls  %%
-%% ifthen.sty. multicol.sty		       %%
-%%									   %%
-%%                                     %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                 %%	
 %% For instructions on how to fill out this Tex template           %%
@@ -43,8 +26,6 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \documentclass[10pt]{bmc_article}    
 
-
-
 % Load packages
 \usepackage{cite} % Make references as [1-4], not [1,2,3,4]
 \usepackage{url}  % Formatting web addresses  
@@ -53,8 +34,7 @@
 \usepackage[utf8]{inputenc} %unicode support
 %\usepackage[applemac]{inputenc} %applemac support if unicode package fails
 %\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
-\urlstyle{rm}
- 
+\urlstyle{rm} 
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 %%                                             %%
@@ -69,13 +49,10 @@
 %%  submission process, not included in the    %% 
 %%  submitted article.                         %% 
 %%                                             %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%                     
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%               
 
 \def\includegraphic{}
 \def\includegraphics{}
-
-
 
 \setlength{\topmargin}{0.0cm}
 \setlength{\textheight}{21.5cm}
@@ -103,18 +80,9 @@
 %Publication style settings
 %\newenvironment{bmcformat}{\fussy\setboolean{publ}{true}}{\fussy}
 
-
-
 % Begin ...
 \begin{document}
 \begin{bmcformat}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                          %%
-%% Enter the title of your article here     %%
-%%                                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Predicting the transmission vector of Influenza using linear
   peptide motifs}
@@ -132,7 +100,6 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 \author{Perry Evans\correspondingauthor$^{1,2}$%
        \email{samesense@gmail.com\correspondingauthor - charles@londonzoo.co.uk}%
       \and
@@ -143,7 +110,6 @@
          \email{John RS Smith - john.RS.Smith@cambridge.co.uk}%
       }
       
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
 %% Enter the authors' addresses here        %%
@@ -176,7 +142,6 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 \begin{abstract}
         % Do not use inserted blank lines (ie \\) until main body of text.
         \paragraph*{Background:} Text for this section of the abstract. 
@@ -186,12 +151,7 @@
         \paragraph*{Conclusions:} Text for this section of the abstract \ldots
 \end{abstract}
 
-
-
 \ifthenelse{\boolean{publ}}{\begin{multicols}{2}}{}
-
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -218,34 +178,35 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
 %%%%%%%%%%%%%%%%
 %% Background %%
 %%
 \section*{Background}
- Text for this section.
+Influenza A virus has the ability to infect a number of host
+organisms, including human, chicken, swine, and horse. Nucleotide
+sequences of the 2009 H1N1 pandemic influenza have been shown to have
+a subsitution bias that depends on the host organism in which it
+resides \cite{solovyov2010host}. In this study we examine the
+possibility of a peptide motif usage bias that correlates with host
+organism.
 
+Peptide sequences have been used to profile prokaryotic proteomes, and
+the distances between profiles accuratly recovers the prokaryotic
+phylogeny \cite{jun2010whole}.
 
+Here we demonstrate that the usage of peptide motifs differs between
+influenza groups and host organisms. We show that an influenza group's
+peptide motif profile if closest that of its host.
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Results and Discussion %%
 %%
 \section*{Results and Discussion}
-  \subsection*{Results sub-heading}
-    \subsubsection*{This is a sub-sub-heading}
-      Sub-sub-sub-headings are made with the \textsl{\\subsubsection} command. \pb
-      pb at end of lines ensures correct paragraph spacing.\pb
-	  Text for this sub-sub-section \ldots
-    \subsubsection*{Another sub-sub-sub-heading}
-      Text for this sub-sub-section \ldots
-
-  \subsection*{Another results sub-heading}
-    Text for this sub-section \ldots
-
-  \subsection*{Yet another results sub-heading}
-    Text for this sub-section.  More results \ldots
+  \subsection*{ELM profiles differ between hosts}
+  \subsection*{ELM profiles differ between influenza groups}
+  \subsection*{ELM profiles recover host phylogeny}
+  \subsection*{ELM sequence cluster profiles recover host phylogeny}
+  \subsection*{ELM sequence cluster profiles assign correct host-influenza pairings}
 
 
     
