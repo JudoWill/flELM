@@ -2,7 +2,7 @@
    host/flu.  Since host/flu share few ELM sequences, only consider
    flu ELMs & find host ELMs that are closest in edit distance."""
 import itertools, sys, os, utils, random, global_settings, numpy, math
-import Bio.Cluster, Levenshtein
+import Bio.Cluster, Levenshtein, utils_graph
 from collections import defaultdict
 
 # this comes from my scratch experiments
@@ -203,17 +203,22 @@ def mk_count_dists(vecs):
 
 mapping = get_clusters()    
 hosts = global_settings.TEST_GENOMES
-all_elmSeqs = {}
+#all_elmSeqs = {}
 flus = ('human', 'chicken')
 proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
             'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
             'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
             'polymerase PB1', 'PB1-F2 protein')
 flu_counts = {}
+seen_seqs = {}
 for flu in flus:
      pre = get_flu_counts('results/' + flu + '.H5N1.elms', 
                           proteins)
-     flu_counts[flu] = count_flu(pre, mapping, all_elmSeqs)
+     seen_seqs[flu] = {}
+     flu_counts[flu] = count_flu(pre, mapping, seen_seqs[flu])
+
+all_elmSeqs = utils_graph.intersectLists([seen_seqs['human'],
+                                          seen_seqs['chicken']])
 
 host_counts = {}
 for host in hosts:
@@ -225,8 +230,8 @@ for host in hosts:
             if elm in mapping:
                 if elmSeq in mapping[elm]:
                     key = mapping[elm][elmSeq]
-                    all_elmSeqs[key] = True
-                    host_counts[host][key] += int(count)
+                    if key in all_elmSeqs:
+                        host_counts[host][key] += int(count)
 
 flu_vecs = mk_count_vecs(flu_counts, all_elmSeqs)                   
 host_vecs = mk_count_vecs(host_counts, all_elmSeqs)
