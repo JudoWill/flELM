@@ -73,7 +73,6 @@
 %% returned to the Review style setting.        %%
 %%                                              %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
 
 %Review style settings
 \newenvironment{bmcformat}{\begin{raggedright}\baselineskip20pt\sloppy\setboolean{publ}{false}}{\end{raggedright}\baselineskip20pt\sloppy}
@@ -85,8 +84,8 @@
 \begin{document}
 \begin{bmcformat}
 
-\title{Predicting the transmission vector of Influenza using linear
-  peptide motifs}
+\title{Influenza peptide motif usage is most similar to that of the host
+  organism it infects}
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -151,13 +150,13 @@
 
 \begin{abstract}
         % Do not use inserted blank lines (ie \\) until main body of text.
-        \paragraph*{Background:} Virus proteins harbor host peptide motifs that enable them to carry out necessary steps in their life-cycles by interacting with host proteins. The influenza virus infects many hosts, and its nucleotide sequence has been shown to evolve differently based on the host it infects. Here we examine differential peptide motif usage for inflenza viruses taken from different hosts, and check to see if virus differences correspond with those of its hosts.  
+        \paragraph*{Background:} Virus proteins harbor host peptide motifs that enable them to carry out necessary steps in their life-cycles by interacting with host proteins. The influenza virus infects many hosts, and its nucleotide sequence has been shown to evolve differently based on the host it infects. Here we examine differential peptide motif usage across groups of influenza virus sequences that are taken from the same host, and test the hypothesis that peptide motif usage for a virus group will be most similar to that of its host.
       
-        \paragraph*{Results:} We annotate virus and host protein sequences with 153 confirmed peptide motifs, and cluster sequence hits based on edit distance.  For clusters common to all hosts and virus groups, we find distributions of cluster usage for each host and virus group. We take the Jensen-Shannon divergence between distributions for hosts and influenza groups, and find that each influenza group matches best with its correct host.
+        \paragraph*{Results:} We annotate virus and host protein sequences with 153 confirmed peptide motifs, and cluster sequences matching motifs based on edit distance. For each host or virus group, we find distributions of cluster usage. We take the Jensen-Shannon divergence between distributions for hosts and influenza groups, and find that each influenza group matches best with its correct host.
 
         \paragraph*{Conclusions:} Peptide motif usage differs between hosts and between viruses derived from different hosts. Virus motif usage is most similar to the host from which it was taken.
 
-        \paragraph*{Availability:} The source code and paper, including all revisions, are available at http://github.com/JudoWill/flELM.
+        \paragraph*{Availability:} Source code and paper, including all revisions, are accessible at http://github.com/JudoWill/flELM.
         
 \end{abstract}
 
@@ -314,8 +313,8 @@ two host organisms or a host organism and an influenza group.
   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Authors contributions}
-    All authors contributed conceptually. For specific contributions,
-    see this page: http://github.com/JudoWill/flELM/graphs/impact.
+    All authors contributed conceptually. Specific contributions are
+    available at http://github.com/JudoWill/flELM/graphs/impact.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Acknowledgements}
@@ -365,8 +364,7 @@ two host organisms or a host organism and an influenza group.
 
 \section*{Figures}
   \subsection*{Figure 1 - Host ELM sequence usage}
-      A short description of the figure content
-      should go here.
+      For each host, we show the distribution of ELM sequence counts.
 
       \begin{figure}
       \begin{center}
@@ -374,8 +372,15 @@ two host organisms or a host organism and an influenza group.
       \end{center}
       \end{figure}
 
-  \subsection*{Figure 2 - Influenza group ELM sequence usage}
-      Figure legend text.
+  \subsection*{Figure 2 - Influenza group LIG\_MAPK\_1 sequence usage}
+     For each influenza group, we show the how many sequences match
+     the pattern for the MAPK docking motif.
+
+  \subsection{Figure 3 - Host phylogeny}
+     Using Jensen-Shannon divergence between (A) the distribution of
+     ELM sequence hits or (B) clusters of ELM sequence hits produces
+     the correct phylogeny.
+  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
