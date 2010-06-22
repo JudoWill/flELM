@@ -221,8 +221,10 @@ all_elmSeqs = utils_graph.intersectLists([seen_seqs['human'],
                                           seen_seqs['chicken']])
 
 host_counts = {}
+found_seqs = {}
 for host in hosts:
     host_counts[host] = defaultdict(utils.init_zero)
+    found_seqs[host] = True
     with open('results/roundup_all/elmdict_' + host + '.init') as f:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
@@ -232,9 +234,15 @@ for host in hosts:
                     key = mapping[elm][elmSeq]
                     if key in all_elmSeqs:
                         host_counts[host][key] += int(count)
+                        found_seqs[host][key] = True
+host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
+                                              found_seqs['Gallus_gallus']])
+use_seqs = utils_graph.intersectLists([all_elmSeqs,
+                                       host_found_seqs]])
+        
 
-flu_vecs = mk_count_vecs(flu_counts, all_elmSeqs)                   
-host_vecs = mk_count_vecs(host_counts, all_elmSeqs)
+flu_vecs = mk_count_vecs(flu_counts, use_seqs)                   
+host_vecs = mk_count_vecs(host_counts, use_seqs)
 host_dists = mk_count_dists(host_vecs)
 flu_dists = mk_count_dists(flu_vecs)
 
