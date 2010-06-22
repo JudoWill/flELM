@@ -237,8 +237,7 @@ for host in hosts:
                         found_seqs[host][key] = True
 host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
                                               found_seqs['Gallus_gallus']])
-use_seqs = utils_graph.intersectLists([all_elmSeqs,
-                                       host_found_seqs]])
+use_seqs = utils_graph.intersectLists([all_elmSeqs, host_found_seqs])
         
 
 flu_vecs = mk_count_vecs(flu_counts, use_seqs)                   
