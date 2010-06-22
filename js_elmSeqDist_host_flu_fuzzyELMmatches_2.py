@@ -92,7 +92,7 @@ def get_meta_clusters(flu_host_elmSeq_mapping):
             dis = numpy.average([match/float(x) for x in [len(seq1), len(seq2)]])
             dis_mat.append(dis)
         mat = numpy.array(dis_mat)
-        num_clusters = 10
+        num_clusters = 5
         percent_overlap = float(1)
         while num_clusters > 1 and percent_overlap > float(.1):
             if len(flu_host_elmSeq_mapping[elm]) > num_clusters:
@@ -224,7 +224,7 @@ host_counts = {}
 found_seqs = {}
 for host in hosts:
     host_counts[host] = defaultdict(utils.init_zero)
-    found_seqs[host] = True
+    found_seqs[host] = {}
     with open('results/roundup_all/elmdict_' + host + '.init') as f:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
