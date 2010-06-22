@@ -105,8 +105,14 @@
       \and
          Will Dampier\correspondingauthor$^2$%
          \email{Jane E Doe\correspondingauthor - jane.e.doe@cambridge.co.uk}
+          \and
+         Yichuan Liu\correspondingauthor$^2$%
+         \email{Jane E Doe\correspondingauthor - jane.e.doe@cambridge.co.uk}
+          \and
+         Lyle Ungar\correspondingauthor$^2$%
+         \email{Jane E Doe\correspondingauthor - jane.e.doe@cambridge.co.uk}
        and 
-         Yichuan Liu$^3$%
+         Aydin Tozeren$^3$%
          \email{John RS Smith - john.RS.Smith@cambridge.co.uk}%
       }
       
@@ -144,11 +150,11 @@
 
 \begin{abstract}
         % Do not use inserted blank lines (ie \\) until main body of text.
-        \paragraph*{Background:} Text for this section of the abstract. 
+        \paragraph*{Background:} Virus proteins harbor host peptide motifs that enable them to carry out necessary steps in their life-cycles by interacting with host proteins. The influenza virus infects many hosts, and its nucleotide sequence has been shown to evolve differently based on the host it infects. Here we examine differential peptide motif usage for inflenza viruses taken from different hosts, and check to see if virus differences correspond with those of its hosts.  
       
-        \paragraph*{Results:} Text for this section of the abstract \ldots
+        \paragraph*{Results:} We annotate virus and host protein sequences with 153 confirmed peptide motifs, and cluster sequence hits based on edit distance.  For clusters common to all hosts and virus groups, we find distributions of cluster usage for each host and virus group. We take the Jensen-Shannon divergence between distributions for hosts and influenza groups, and find that each influenza group matches best with its correct host.
 
-        \paragraph*{Conclusions:} Text for this section of the abstract \ldots
+        \paragraph*{Conclusions:} Peptide motif usage differs between hosts and between viruses derived from different hosts. Virus motif usage is most similar to the host from which it was taken.
 \end{abstract}
 
 \ifthenelse{\boolean{publ}}{\begin{multicols}{2}}{}
@@ -190,9 +196,15 @@ resides \cite{solovyov2010host}. In this study we examine the
 possibility of a peptide motif usage bias that correlates with host
 organism.
 
-Peptide sequences have been used to profile prokaryotic proteomes, and
-the distances between profiles accuratly recovers the prokaryotic
-phylogeny \cite{jun2010whole}.
+Virus proteins use many host peptide motifs to interact with host
+proteins to accomplish necessary steps in the viral life-cycle
+\cite{kadaveru13viral}. Host motifs on HIV proteins have been used to
+predict patient response to therapy and interations with host proteins
+\cite{chan2009decoding}.
+
+Peptide sequence usage has been used to profile prokaryotic proteomes,
+and the distances between profiles accuratly recovers the known
+prokaryotic phylogeny \cite{jun2010whole}.
 
 Here we demonstrate that the usage of peptide motifs differs between
 influenza groups and host organisms. We show that an influenza group's
@@ -203,9 +215,13 @@ peptide motif profile if closest that of its host.
 %%
 \section*{Results and Discussion}
   \subsection*{ELM profiles differ between hosts}
+
   \subsection*{ELM profiles differ between influenza groups}
+
   \subsection*{ELM profiles recover host phylogeny}
+
   \subsection*{ELM sequence cluster profiles recover host phylogeny}
+
   \subsection*{ELM sequence cluster profiles assign correct host-influenza pairings}
 
 
@@ -213,7 +229,8 @@ peptide motif profile if closest that of its host.
 
 %%%%%%%%%%%%%%%%%%%%%%
 \section*{Conclusions}
-  Text for this section \ldots
+Here we investigated influenza group peptide biases, and checked to
+see if they corresponded with those of their hosts.
   
 %%%%%%%%%%%%%%%%%%
 \section*{Methods}
@@ -243,6 +260,11 @@ All protein sequences were matched against regular expressions for 153
 eukaryotic linear motifs cataloged in the ELM resource
 \cite{gould2010elm}. Rapid matching was facilitated using cloud
 computing provided by PiCloud.
+
+\subsection*{Phylogenies}
+Phylogenies were constructed using hierarchical clustering with
+average linkage. Distances between groups were found using
+Jensen-Shannon divergence.
 
 \subsection*{Clustering}
 The host orgamisms had hits for all ELM patterns, but the influenza
@@ -338,14 +360,12 @@ two host organisms or a host organism and an influenza group.
 %% Do not use \listoffigures as most will included as separate files
 
 \section*{Figures}
-  \subsection*{Figure 1 - Sample figure title}
+  \subsection*{Figure 1 - Host ELM sequence usage}
       A short description of the figure content
       should go here.
 
-  \subsection*{Figure 2 - Sample figure title}
+  \subsection*{Figure 2 - Influenza group ELM sequence usage}
       Figure legend text.
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
@@ -356,7 +376,7 @@ two host organisms or a host organism and an influenza group.
 %% Use of \listoftables is discouraged.
 %%
 \section*{Tables}
-  \subsection*{Table 1 - Sample table title}
+  \subsection*{Table 1 - Jensen-Shannon divergece between influenza groups and hosts}
     Here is an example of a \emph{small} table in \LaTeX\ using  
     \verb|\tabular{...}|. This is where the description of the table 
     should go. \par \mbox{}
@@ -369,11 +389,6 @@ two host organisms or a host organism and an influenza group.
         A3 & ..  & .  \\ \hline
       \end{tabular}
       }
-  \subsection*{Table 2 - Sample table title}
-    Large tables are attached as separate files but should
-    still be described here.
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
@@ -386,10 +401,6 @@ two host organisms or a host organism and an influenza group.
     Additional file descriptions text (including details of how to
     view the file, if it is in a non-standard format or the file extension).  This might
     refer to a multi-page table or a figure.
-
-  \subsection*{Additional file 2 --- Sample additional file title}
-    Additional file descriptions text.
-
 
 \end{bmcformat}
 \end{document}
