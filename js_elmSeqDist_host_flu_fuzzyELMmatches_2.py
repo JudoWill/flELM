@@ -36,7 +36,11 @@ def fix_overlap(elm, mapping, overlap, new_clusters):
         dis_cluster.sort()
         best_cluster = dis_cluster[0]
         #print dis_cluster[0], dis_cluster[1]
+        #if best_cluster[0] < float(4):
         mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
+        #else: # make new cluster
+        #    mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
+        #    new_clusters[len(new_clusters)+1][elmSeq] = True
 
 def mk_mapping(elm, clusters, overlap, mapping):
     """Update a map of sequences to cluster.
@@ -204,7 +208,7 @@ def mk_count_dists(vecs):
 mapping = get_clusters()    
 hosts = global_settings.TEST_GENOMES
 #all_elmSeqs = {}
-flus = ('human', 'chicken')
+flus = ('chicken', 'human')
 proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
             'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
             'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
@@ -236,8 +240,7 @@ for host in hosts:
                         host_counts[host][key] += int(count)
                         found_seqs[host][key] = True
 host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
-                                              found_seqs['Gallus_gallus'],
-                                              found_seqs['Taeniopygia_guttata']])
+                                              found_seqs['Gallus_gallus']])
 use_seqs = utils_graph.intersectLists([all_elmSeqs, host_found_seqs])
         
 
@@ -247,7 +250,7 @@ host_dists = mk_count_dists(host_vecs)
 flu_dists = mk_count_dists(flu_vecs)
 
 js_distances = defaultdict(dict)
-for host in ('H_sapiens', 'Gallus_gallus', 'Taeniopygia_guttata'):
+for host in ('H_sapiens', 'Gallus_gallus'):
     for flu in flus:
         js_dis = utils.jensen_shannon_dists(host_dists[host],
                                             flu_dists[flu])
@@ -257,8 +260,8 @@ for host in ('H_sapiens', 'Gallus_gallus', 'Taeniopygia_guttata'):
 def print_it(name, vec):
     print name, float(count_0s(vec))/float(len(vec))
 
-print_it('chicken_flu', flu_vecs['chicken'])
-print_it('human flu', flu_vecs['human'])
-print_it('H sapiens', host_vecs['H_sapiens'])
-print_it('Gallus gallus', host_vecs['Gallus_gallus'])
+#print_it('chicken_flu', flu_vecs['chicken'])
+#print_it('human flu', flu_vecs['human'])
+#print_it('H sapiens', host_vecs['H_sapiens'])
+#print_it('Gallus gallus', host_vecs['Gallus_gallus'])
 
