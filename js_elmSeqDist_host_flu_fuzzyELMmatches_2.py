@@ -36,11 +36,11 @@ def fix_overlap(elm, mapping, overlap, new_clusters):
         dis_cluster.sort()
         best_cluster = dis_cluster[0]
         #print dis_cluster[0], dis_cluster[1]
-        #if best_cluster[0] < float(4):
-        mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
-        #else: # make new cluster
-        #    mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
-        #    new_clusters[len(new_clusters)+1][elmSeq] = True
+        if best_cluster[0] < float(4):
+            mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
+        else: # make new cluster
+            mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
+            new_clusters[len(new_clusters)+1][elmSeq] = True
 
 def mk_mapping(elm, clusters, overlap, mapping):
     """Update a map of sequences to cluster.
@@ -102,7 +102,7 @@ def get_meta_clusters(flu_host_elmSeq_mapping):
             if len(flu_host_elmSeq_mapping[elm]) > num_clusters:
                 ans, error, nfound = Bio.Cluster.kmedoids(mat, 
                                                           nclusters=num_clusters, 
-                                                          npass=10)
+                                                          npass=20)
                 clusters = defaultdict(dict)
                 total = {}
                 for flu_seq, cluster_id in zip(flu_host_elmSeq_mapping[elm],
@@ -239,9 +239,12 @@ for host in hosts:
                     if key in all_elmSeqs:
                         host_counts[host][key] += int(count)
                         found_seqs[host][key] = True
+                    else:
+                        host_counts[host][key] += int(count)
+                        found_seqs[host][key] = True
 host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
                                               found_seqs['Gallus_gallus']])
-use_seqs = utils_graph.intersectLists([all_elmSeqs, host_found_seqs])
+use_seqs = utils_graph.unionLists([all_elmSeqs, host_found_seqs])
         
 
 flu_vecs = mk_count_vecs(flu_counts, use_seqs)                   
@@ -260,8 +263,8 @@ for host in ('H_sapiens', 'Gallus_gallus'):
 def print_it(name, vec):
     print name, float(count_0s(vec))/float(len(vec))
 
-#print_it('chicken_flu', flu_vecs['chicken'])
-#print_it('human flu', flu_vecs['human'])
-#print_it('H sapiens', host_vecs['H_sapiens'])
-#print_it('Gallus gallus', host_vecs['Gallus_gallus'])
+print_it('chicken_flu', flu_vecs['chicken'])
+print_it('human flu', flu_vecs['human'])
+print_it('H sapiens', host_vecs['H_sapiens'])
+print_it('Gallus gallus', host_vecs['Gallus_gallus'])
 
