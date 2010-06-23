@@ -2,3 +2,8 @@ data/
 results/
 local_settings.py
 *.pyc
+papers/bmc_article.pdf
+papers/bmc_article.log
+papers/bmc_article.bbl
+papers/bmc_article.aux
+papers/bmc_article.blg
