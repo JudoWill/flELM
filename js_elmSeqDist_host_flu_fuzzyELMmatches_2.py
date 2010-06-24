@@ -219,8 +219,23 @@ seen_seqs_ls = []
 for flu in flus:
      pre = get_flu_counts('results/' + flu + '.H5N1.elms', 
                           proteins)
+     flu_counts_sampled = {}
+     flu_proteins_sampled = {}
+     protein_counts = []
+     for protein in pre:
+         protein_counts.append(len(pre[protein]))
+     m = min(protein_counts)
+     for protein in pre:
+         if m == len(pre[protein]):
+             flu_proteins_sampled[protein] = pre[protein].keys()
+         else:
+             flu_proteins_sampled[protein] = random.sample(pre[protein], m)
+     for protein in flu_proteins_sampled:
+         flu_counts_sampled[protein] = {}
+         for sampled_protein in flu_proteins_sampled[protein]:
+             flu_counts_sampled[protein][sampled_protein] = pre[protein][sampled_protein]
      seen_seqs[flu] = {}
-     flu_counts[flu] = count_flu(pre, mapping, seen_seqs[flu])
+     flu_counts[flu] = count_flu(flu_counts_sampled, mapping, seen_seqs[flu])
      seen_seqs_ls.append(seen_seqs[flu])
 if len(seen_seqs_ls) > 1:
     all_elmSeqs = utils_graph.intersectLists(seen_seqs_ls)
@@ -245,7 +260,7 @@ for host in hosts:
                     # else:
                     #     host_counts[host][key] += int(count)
                     #     found_seqs[host][key] = True
-host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
+host_found_seqs = utils_graph.unionLists([found_seqs['H_sapiens'],
                                           found_seqs['Gallus_gallus']])
 use_seqs = utils_graph.intersectLists([all_elmSeqs, host_found_seqs])
         
