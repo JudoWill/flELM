@@ -4,6 +4,8 @@ data/
 results/
 local_settings.py
 *.pyc
+tmp*
+labels*
 papers/bmc_article.pdf
 papers/bmc_article.log
 papers/bmc_article.bbl

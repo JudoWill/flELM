@@ -36,7 +36,7 @@ def fix_overlap(elm, mapping, overlap, new_clusters):
         dis_cluster.sort()
         best_cluster = dis_cluster[0]
         #print dis_cluster[0], dis_cluster[1]
-        if best_cluster[0] < float(4):
+        if best_cluster[0] < float(2):
             mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
         else: # make new cluster
             mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
@@ -70,7 +70,7 @@ def get_initial_clusters(distance_file):
             host_elmSeq = elm + ':' + host_seq
             flu_elmSeq = elm + ':' + flu_seq
 
-            if dis < 3:
+            if dis < 2:
                 if elm not in flu_host_elmSeq_mapping:
                     flu_host_elmSeq_mapping[elm] = {}
 
@@ -208,7 +208,7 @@ def mk_count_dists(vecs):
 mapping = get_clusters()    
 hosts = global_settings.TEST_GENOMES
 #all_elmSeqs = {}
-flus = ('chicken', 'human')
+flus = ('chicken',)
 proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
             'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
             'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
@@ -222,7 +222,10 @@ for flu in flus:
      seen_seqs[flu] = {}
      flu_counts[flu] = count_flu(pre, mapping, seen_seqs[flu])
      seen_seqs_ls.append(seen_seqs[flu])
-all_elmSeqs = utils_graph.intersectLists(seen_seqs_ls)
+if len(seen_seqs_ls) > 1:
+    all_elmSeqs = utils_graph.intersectLists(seen_seqs_ls)
+else:
+    all_elmSeqs = seen_seqs_ls[0]
 
 host_counts = {}
 found_seqs = {}
@@ -239,12 +242,12 @@ for host in hosts:
                     if key in all_elmSeqs:
                         host_counts[host][key] += int(count)
                         found_seqs[host][key] = True
-                    else:
-                        host_counts[host][key] += int(count)
-                        found_seqs[host][key] = True
+                    # else:
+                    #     host_counts[host][key] += int(count)
+                    #     found_seqs[host][key] = True
 host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
-                                              found_seqs['Gallus_gallus']])
-use_seqs = utils_graph.unionLists([all_elmSeqs, host_found_seqs])
+                                          found_seqs['Gallus_gallus']])
+use_seqs = utils_graph.intersectLists([all_elmSeqs, host_found_seqs])
         
 
 flu_vecs = mk_count_vecs(flu_counts, use_seqs)                   
@@ -263,8 +266,8 @@ for host in ('H_sapiens', 'Gallus_gallus'):
 def print_it(name, vec):
     print name, float(count_0s(vec))/float(len(vec))
 
-print_it('chicken_flu', flu_vecs['chicken'])
-print_it('human flu', flu_vecs['human'])
-print_it('H sapiens', host_vecs['H_sapiens'])
-print_it('Gallus gallus', host_vecs['Gallus_gallus'])
+# print_it('chicken_flu', flu_vecs['chicken'])
+# print_it('human flu', flu_vecs['human'])
+# print_it('H sapiens', host_vecs['H_sapiens'])
+# print_it('Gallus gallus', host_vecs['Gallus_gallus'])
 

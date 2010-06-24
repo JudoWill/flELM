@@ -53,16 +53,14 @@ def fix_overlap(elm, mapping, overlap, new_clusters):
         dis_cluster.sort()
         best_cluster = dis_cluster[0]
         #print dis_cluster[0], dis_cluster[1]
-        #if best_cluster[0] < float(4):
-        mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
-        #else: # make new cluster
-        #    mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
-        #    new_clusters[len(new_clusters)+1][elmSeq] = True
+        if best_cluster[0] < float(2):
+            mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
+        else: # make new cluster
+                mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
+                new_clusters[len(new_clusters)+1][elmSeq] = True
 
-def mk_mapping(elm, clusters, overlap, mapping):
-    """Update a map of sequences to cluster.
-       Ignore sequences in overlap that cannot
-       be assigned."""
+def mk_mapping(elm, clusters, overlap, mapping, unmapped):
+    """Update a map of sequences to cluster."""
 
     new_clusters = defaultdict(dict)
     for cluster in clusters:
@@ -71,6 +69,10 @@ def mk_mapping(elm, clusters, overlap, mapping):
                 mapping[elm][seq] = elm + ':' + str(cluster)
                 new_clusters[cluster][seq] = True
     fix_overlap(elm, mapping, overlap, new_clusters)
+    unmapped_formatted = {}
+    for u in unmapped:
+        unmapped_formatted[elm + ':' + u] = True
+    fix_overlap(elm, mapping, unmapped_formatted, new_clusters)
 
 def get_initial_clusters(distance_file):
     """Make a cluster for each flu sequence.
@@ -79,7 +81,8 @@ def get_initial_clusters(distance_file):
 
     # map each flu elmSeq to a host elmSeq
     flu_host_elmSeq_mapping = {}
-
+    total = defaultdict(dict)
+    mapped = defaultdict(dict)
     with open(distance_file) as f:
         for line in f:
             (elm, flu_seq, host_seq, distance) = line.strip().split('\t')
@@ -87,7 +90,10 @@ def get_initial_clusters(distance_file):
             host_elmSeq = elm + ':' + host_seq
             flu_elmSeq = elm + ':' + flu_seq
 
-            if dis < 1:
+            total[elm][host_seq] = True
+            total[elm][flu_seq] = True
+
+            if dis < 2:
                 if elm not in flu_host_elmSeq_mapping:
                     flu_host_elmSeq_mapping[elm] = {}
 
@@ -98,12 +104,23 @@ def get_initial_clusters(distance_file):
                     flu_host_elmSeq_mapping[elm][flu_elmSeq][host_elmSeq] = True
 
                 flu_host_elmSeq_mapping[elm][flu_elmSeq][host_elmSeq] = True
+                mapped[elm][host_seq] = True
+                mapped[elm][flu_seq] = True
 
-    return flu_host_elmSeq_mapping
+    unmapped = {}
+    for elm in total:
+        if elm in mapped:
+            unmapped[elm] = set(total[elm]) - set(mapped[elm])
+        else:
+            unmapped[elm] = total[elm].keys()
+                                
+    return (flu_host_elmSeq_mapping, unmapped)
 
-def get_meta_clusters(flu_host_elmSeq_mapping):
+def get_meta_clusters(flu_host_elmSeq_mapping, unmapped):
     """Cluster flu sequence clusters based on 
-       overlapping host sequences."""
+       overlapping host sequences.
+       Placed unmapped sequences into clusters
+       as well."""
 
     mapping = defaultdict(dict)
     for elm in flu_host_elmSeq_mapping:
@@ -136,7 +153,7 @@ def get_meta_clusters(flu_host_elmSeq_mapping):
                 percent_overlap = float(len(overlap))/float(len(total))
                 if percent_overlap < float(.1):
                     #print_results(elm, clusters, overlap)
-                    mk_mapping(elm, clusters, overlap, mapping)
+                    mk_mapping(elm, clusters, overlap, mapping, unmapped[elm])
                     break
                 else:
                     num_clusters -= 1
@@ -147,8 +164,8 @@ def get_meta_clusters(flu_host_elmSeq_mapping):
 def get_clusters():
     """Return map of sequences to cluster name"""
 
-    flu_host_elmSeq_mapping = get_initial_clusters(distance_file)
-    mapping = get_meta_clusters(flu_host_elmSeq_mapping)
+    (flu_host_elmSeq_mapping, unmapped) = get_initial_clusters(distance_file)
+    mapping = get_meta_clusters(flu_host_elmSeq_mapping, unmapped)
     return mapping
 
 def count_0s(ls):
@@ -276,9 +293,12 @@ for host in hosts:
                     key = mapping[elm][elmSeq]
                     host_counts[host][key] += int(count)
                     found_seqs[-1][key] = True
-                #else:
-                #    host_counts[host][elmSeq] += int(count)
-                #    found_seqs[-1][elmSeq] = True
+               #  else:
+            #         host_counts[host][elmSeq] += int(count)
+            #         found_seqs[-1][elmSeq] = True
+            # else:
+            #     host_counts[host][elmSeq] += int(count)
+            #     found_seqs[-1][elmSeq] = True
 
 use_seqs = utils_graph.intersectLists(found_seqs)
 host_vecs = mk_count_vecs(host_counts, use_seqs)
