@@ -212,6 +212,31 @@ def process_elm_roundup(options):
 
 @task
 @cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
+	  ('picloud', 'c', 'Use PiCloud')])
+def process_elm_roundup_sampled(options):
+	"""Determines (and writes) the ELM dictionary for a run of sampled sequences from roundup orthologs"""
+	
+        results_dir = 'working/runs/Jun24/'
+	c_arg = ''
+	if options.process_elm_roundup_sampled.get('picloud', False): c_arg = '-c'
+	
+        sh('python sample_from_clusters.py '
+           + 'results/Homo_Mus_Pan_Rat_Bos_Can_Gal_Tae_Dan_Mac.roundup.parsed '
+           + 'data/roundup_all/ '
+           + results_dir)
+        
+	for genome in ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
+                       'R_norvegicus', 'Gallus_gallus', 'Taeniopygia_guttata',
+                       'Canis_familiaris', 'Bos_taurus'):
+		ofile = os.path.join(results_dir, 'elmdict_'+genome+'.init')
+		ifile = os.path.join(results_dir, genome+'.fa')
+		if not os.path.exists(ofile) or options.process_elm_roundup_sampled.get('forcenew', False):
+			# only do if missing or FORCING
+			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
+										  'c':c_arg, 'infile': ifile})
+
+@task
+@cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
 			('picloud', 'c', 'Use PiCloud')])
 def process_flu(options):
 	"""Determines (and writes) the ELM dictionary for inluenza"""

@@ -17,9 +17,12 @@ name2label = {"Homo sapiens": 'H_sapiens',
               "Gallus gallus": 'Gallus_gallus',
               "Canis familiaris": 'Canis_familiaris'}
 
+def getID(line):
+    return line.split('|')[1].strip()
+
 random.seed()
-roundup_file = sys.argv[1]
-fasta_dir = sys.argv[2]
+roundup_file = sys.argv[1] # results/Homo_Mus_Pan_Rat_Bos_Can_Gal_Tae_Dan_Mac.roundup.parsed
+fasta_dir = sys.argv[2] # data/roundup_all/
 
 seqs_w_fasta = defaultdict(dict)
 clusters = {}
@@ -42,7 +45,7 @@ for host in hosts:
               + name2label[host] + '.fa') as f:
         for line in f:
             if line[0] == '>':
-                seqs_w_fasta[host][line.split('|')[1].strip()] = True
+                seqs_w_fasta[host][getID(line)] = True
 # remove seq_ids from roundup that
 # are not in fasta
 for cluster in clusters:
@@ -64,8 +67,38 @@ for cluster in clusters:
 # remove clusters missing hosts
 to_remove = {}
 for cluster in clusters:
-    if len(hosts) != len(clusters[cluster]):
+    if len(set(hosts) & set(clusters[cluster])) != len(hosts):
         to_remove[cluster] = True
 for rm in to_remove:
     del clusters[rm]
+
+# make new fasta file by 
+# sampling one species
+# from each cluster
+outdir = sys.argv[3]
+sampled = {}
+for host in hosts:
+    sampled[host] = {}
+
+for cluster in clusters:
+    for host in clusters[cluster]:
+        if len(clusters[cluster][host]) > 1:
+            sample = random.sample(clusters[cluster][host], 1)[0]
+        else:
+            sample = clusters[cluster][host].keys()[0]
+        sampled[host][sample] = True
+#for host in sampled:
+#    print host, len(sampled[host])
+
+# writed sampled seq_id fasta
+for host in hosts:
+    fasta_itr = utils.fasta_iter(fasta_dir 
+                                 + name2label[host] + '.fa',
+                                 getID)
+    with open(outdir + name2label[host] + '.fa', 'w') as outf:
+        for ID, seq in fasta_itr:
+            if ID in sampled[host]:
+                outf.write('>' + ID + '\n')
+                outf.write(seq + '\n')
 print start_clusters, len(clusters)
+                
