@@ -15,9 +15,7 @@ name2label = {"Homo sapiens": 'H_sapiens',
               "Bos taurus": 'Bos_taurus',
               "Taeniopygia guttata": 'Taeniopygia_guttata',
               "Gallus gallus": 'Gallus_gallus',
-              "Canis familiaris": 'Canis_familiaris',
-              'Macaca mulatta': 'Macaca_mulatta',
-              'Danio rerio': 'D_rerio'}
+              "Canis familiaris": 'Canis_familiaris'}
 
 random.seed()
 roundup_file = sys.argv[1]
@@ -30,12 +28,13 @@ hosts = {}
 with open(roundup_file) as f:
     for line in f:
         (cluster, host, seq_id) = line.strip().split('\t')
-        if cluster not in clusters:
-            clusters[cluster] = {}
-        if host not in clusters[cluster]:
-            clusters[cluster][host] = {}
-        clusters[cluster][host][seq_id] = True
-        hosts[host] = True
+        if host in name2label:
+            if cluster not in clusters:
+                clusters[cluster] = {}
+            if host not in clusters[cluster]:
+                clusters[cluster][host] = {}
+            clusters[cluster][host][seq_id] = True
+            hosts[host] = True
 start_clusters = len(clusters)
 # load fasta file
 for host in hosts:
@@ -52,8 +51,6 @@ for cluster in clusters:
         for seq_id in clusters[cluster][host]:
             if seq_id not in seqs_w_fasta[host]:
                 to_remove[seq_id] = True
-            else:
-                print seq_id, seqs_w_fasta[host].keys()[0]
         for rm in to_remove:
             del clusters[cluster][host][rm]
 # remove hosts with no seq_ids
