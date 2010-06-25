@@ -105,10 +105,6 @@ def mk_count_dists(vecs):
 
 hosts = global_settings.TEST_GENOMES
 flus = ('human', 'chicken')
-proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
-            'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
-            'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
-            'polymerase PB1', 'PB1-F2 protein')
 
 # count elm:seq occurence
 flu_elm2seq = defaultdict(dict)
@@ -116,7 +112,7 @@ pre_flu_counts = {}
 flu_counts = {}
 for flu in flus:
     pre_flu_counts[flu] = get_flu_counts('results/' + flu + '.H5N1.elms', 
-                                         proteins)
+                                         global_settings.FLU_PROTEINS)
 
 flu_counts['human'] = count_flu(pre_flu_counts['human'], flu_elm2seq)
 flu_counts['chicken'] = count_flu(pre_flu_counts['chicken'], flu_elm2seq)

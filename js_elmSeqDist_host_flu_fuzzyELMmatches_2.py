@@ -23,29 +23,16 @@ def print_results(elm, clusters, overlap):
                 print('%s\t%d\t%s' %
                       (elm, cluster, seq))
 
-def count_0s(ls):
-    """How many 0s are in this vector?"""
-
-    count = 0
-    for item in ls:
-        if not item:
-            count += 1
-    return count
-
 mapping = utils.get_clusters(both_distance_file)    
 hosts = global_settings.TEST_GENOMES
 #all_elmSeqs = {}
 flus = ('human',)
-proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
-            'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
-            'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
-            'polymerase PB1', 'PB1-F2 protein')
 flu_counts = {}
 seen_seqs = {}
 seen_seqs_ls = []
 for flu in flus:
      pre = utils.get_flu_counts('results/' + flu + '.H5N1.elms', 
-                                proteins)
+                                global_settings.FLU_PROTEINS)
      flu_counts_sampled = {}
      flu_proteins_sampled = {}
      protein_counts = []

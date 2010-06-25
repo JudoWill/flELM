@@ -3,8 +3,9 @@
 
     R must be installed
 """
-import random, os
+import random, os, itertools, utils
 from global_settings import *
+from collections import defaultdict
 random.seed()
 
 def mk_test_data():
@@ -157,3 +158,54 @@ def distance_heatmap(x_by_y_dict, out_file):
         f.write('dev.off()\n')
     os.system('R < ' + tmp_r_file + ' --no-save')
     os.system('rm ' + tmp_r_file + ' ' + tmp_input_file)
+
+def phylogeny_js(out_file, dists):
+    """Make a dendrogram using Jensen-Shannon divergence."""
+    
+    tmp_input = 'tmp_data'
+    tmp_r = 'tmp_r' + str(random.randint(0,100))
+    tmp_labels = 'labels' + str(random.randint(0,100))
+
+    js_distances = defaultdict(dict)
+    for host1, host2 in itertools.combinations(dists, 2):
+        js_dis = utils.jensen_shannon_dists(dists[host1],
+                                            dists[host2])
+        js_distances[host1][host2] = js_dis
+        js_distances[host2][host1] = js_dis
+
+    with open(tmp_input, 'w') as f:    
+        for host1 in dists:
+            line = ''
+            for host2 in dists:
+                if host1 == host2:
+                    line += '0\t'
+                else:
+                    line += str(js_distances[host1][host2]) + '\t'
+            f.write(line.strip('\t') + '\n')
+
+    with open(tmp_labels, 'w') as f:
+        f.write('\t'.join(dists.keys()) + '\n')
+
+    with open(tmp_r, 'w') as f:
+        f.write("source('funcs.R')\n")
+        f.write("library('MASS')\n")
+        f.write("d<-read.delim('"
+                + tmp_input
+                + "',header=FALSE,sep='\\t')\n")
+        f.write('dist.r<-as.dist(d)\n')
+        f.write("labels.d<-read.delim('"
+                + tmp_labels
+                + "',header=FALSE,sep='\\t')\n")
+        f.write('labels<-as.matrix(labels.d)\n')
+        f.write("h<-hclust(dist.r,method='average')\n")
+        f.write("png('" + out_file + "')\n")
+        f.write("plot(h,hang=-1,labels=labels[1,],main='Species Dendrogram')\n")
+        f.write('dev.off()\n')
+    os.system('R < ' + tmp_r + ' --no-save')
+    os.system('rm ' + ' '.join((tmp_r, tmp_labels, tmp_input)))
+
+def phylogeny_euc():
+    """Make a dendrogram using Euclidean distance."""
+
+    pass
+    

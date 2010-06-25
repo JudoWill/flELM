@@ -514,7 +514,7 @@ def get_fluSeqs_by_serotype(flu_shortname):
     return type2protein2gb2seq
                 
 ############### cluster ELM sequences #############
-def fix_overlap(elm, mapping, overlap, new_clusters):
+def fix_overlap(elm, mapping, overlap, new_clusters, dis_cutoff):
     """Assign sequences in overlap
        based on edit distance. Assume
        there are no ties to break."""
@@ -529,13 +529,13 @@ def fix_overlap(elm, mapping, overlap, new_clusters):
         dis_cluster.sort()
         best_cluster = dis_cluster[0]
         #print dis_cluster[0], dis_cluster[1]
-        if best_cluster[0] < float(3):
+        if best_cluster[0] < dis_cutoff:
             mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
         else: # make new cluster
             mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
             new_clusters[len(new_clusters)+1][elmSeq] = True
 
-def mk_mapping(elm, clusters, overlap, mapping):
+def mk_mapping(elm, clusters, overlap, mapping, dis_cutoff):
     """Update a map of sequences to cluster.
        Ignore sequences in overlap that cannot
        be assigned."""
@@ -546,12 +546,12 @@ def mk_mapping(elm, clusters, overlap, mapping):
             if seq not in overlap:
                 mapping[elm][seq] = elm + ':' + str(cluster)
                 new_clusters[cluster][seq] = True
-    fix_overlap(elm, mapping, overlap, new_clusters)
+    fix_overlap(elm, mapping, overlap, new_clusters, dis_cutoff)
 
-def get_initial_clusters(distance_file):
+def get_initial_clusters(distance_file, dis_cutoff):
     """Make a cluster for each flu sequence.
        Place in the cluster any host sequence
-       below some threshold."""
+       below some threshold (dis_cutoff)."""
 
     # map each flu elmSeq to a host elmSeq
     flu_host_elmSeq_mapping = {}
@@ -563,7 +563,7 @@ def get_initial_clusters(distance_file):
             host_elmSeq = elm + ':' + host_seq
             flu_elmSeq = elm + ':' + flu_seq
 
-            if dis < 2:
+            if dis < dis_cutoff:
                 if elm not in flu_host_elmSeq_mapping:
                     flu_host_elmSeq_mapping[elm] = {}
 
@@ -577,7 +577,7 @@ def get_initial_clusters(distance_file):
 
     return flu_host_elmSeq_mapping
 
-def get_meta_clusters(flu_host_elmSeq_mapping):
+def get_meta_clusters(flu_host_elmSeq_mapping, dis_cutoff):
     """Cluster flu sequence clusters based on 
        overlapping host sequences."""
 
@@ -612,7 +612,7 @@ def get_meta_clusters(flu_host_elmSeq_mapping):
                 percent_overlap = float(len(overlap))/float(len(total))
                 if percent_overlap < float(.1):
                     #print_results(elm, clusters, overlap)
-                    mk_mapping(elm, clusters, overlap, mapping)
+                    mk_mapping(elm, clusters, overlap, mapping, dis_cutoff)
                     break
                 else:
                     num_clusters -= 1
@@ -620,11 +620,15 @@ def get_meta_clusters(flu_host_elmSeq_mapping):
                 break
     return mapping
 
-def get_clusters(distance_file):
-    """Return map of sequences to cluster name"""
+def get_clusters(distance_file, dis_cutoff_init, dis_cutoff_meta):
+    """Return map of sequences to cluster name.
+       dis_cutoff_init decides when to add to the
+       initial clustering.
+       dis_cutoff_meta decides the second clustering"""
 
-    flu_host_elmSeq_mapping = get_initial_clusters(distance_file)
-    mapping = get_meta_clusters(flu_host_elmSeq_mapping)
+    flu_host_elmSeq_mapping = get_initial_clusters(distance_file,
+                                                   dis_cutoff_init)
+    mapping = get_meta_clusters(flu_host_elmSeq_mapping, dis_cutoff_meta)
     return mapping
 
 ############# Make ELM sequence vectors for JS divergence
@@ -691,3 +695,12 @@ def mk_count_dists(vecs):
     for host in vecs:
         dists[host] = getDistFromCount(vecs[host])
     return dists
+
+def count_0s(ls):
+    """How many 0s are in this vector?"""
+
+    count = 0
+    for item in ls:
+        if not item:
+            count += 1
+    return count

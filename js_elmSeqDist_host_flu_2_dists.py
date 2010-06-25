@@ -2,13 +2,6 @@
 import itertools, sys, os, utils, random, global_settings, numpy
 from collections import defaultdict
 
-def count_0s(ls):
-    count = 0
-    for item in ls:
-        if not item:
-            count += 1
-    return count
-
 def count_flu(protein2counts, all_elmSeqs):
     """Given hits from get_flu_counts, return ELMseq counts"""
     
@@ -20,60 +13,8 @@ def count_flu(protein2counts, all_elmSeqs):
                 all_elmSeqs[elmSeq] = True
     return counts
 
-def get_flu_counts(afile, proteins):
-    """Make protein_name -> seq_name -> elm_seq_counts"""
-
-    counts = {}
-    with open(afile) as f:
-        for line in f:
-            (protein, st, stp,
-             elm, seq, junk) = line.strip().split('\t')
-            name = protein.split('.')[-1]
-            elmSeq = elm + ':' + seq
-            if name in proteins:
-                if name not in counts:
-                    counts[name] = {}
-                if protein not in counts[name]:
-                    counts[name][protein] = {}
-                if elmSeq not in counts:
-                    counts[name][protein][elmSeq] = 0
-                counts[name][protein][elmSeq] += 1
-    return counts
-
-def mk_vec(counts, all_elmSeqs):
-    """mk long vector of ELM:seq counts for this host's counts"""
-    
-    vec = []
-    for elmseq in all_elmSeqs:
-        if elmseq in counts:
-            vec.append(counts[elmseq])
-        else:
-            vec.append(float(0))
-    return vec
-
-def mk_count_vecs(counts, all_elmSeqs):
-    """mk long vector of ELM:seq counts for all hosts"""
-
-    vecs = {}
-    for host in counts:
-        vecs[host] = mk_vec(counts[host],
-                            all_elmSeqs)
-    return vecs
-
-def mk_count_dists(vecs):
-    """change count vectors into distributions"""
-
-    dists = {}
-    for host in vecs:
-        dists[host] = utils.getDistFromCount(vecs[host])
-    return dists
-
 hosts = ('H_sapiens', 'Gallus_gallus')
 flus = ('human', 'chicken')
-proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
-            'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
-            'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
-            'polymerase PB1', 'PB1-F2 protein')
 
 # count elm:seq occurence
 flu_counts = {}
@@ -82,7 +23,7 @@ host_counts = {}
 all_elmSeqs = {}
 for flu in flus:
     pre_flu_counts[flu] = get_flu_counts('results/' + flu + '.H5N1.elms', 
-                                         proteins)
+                                         global_settings.FLU_PROTEINS)
 
 # sample protein sequenes from chicken
 new_chicken_counts = {}
@@ -116,10 +57,10 @@ for host in hosts:
             all_elmSeqs[elmSeq] = True
             host_counts[host][elmSeq] += int(count)
 
-flu_vecs = mk_count_vecs(flu_counts, all_elmSeqs)
-flu_dists = mk_count_dists(flu_vecs)
-host_vecs = mk_count_vecs(host_counts, all_elmSeqs)
-host_dists = mk_count_dists(host_vecs)
+flu_vecs = utils.mk_count_vecs(flu_counts, all_elmSeqs)
+flu_dists = utils.mk_count_dists(flu_vecs)
+host_vecs = utils.mk_count_vecs(host_counts, all_elmSeqs)
+host_dists = utils.mk_count_dists(host_vecs)
 
 def print_it(name, vec):
     print name, float(count_0s(vec))/float(len(vec))

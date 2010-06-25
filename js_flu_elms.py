@@ -70,10 +70,6 @@ def mk_count_dists(vecs):
 
 hosts = ('H_sapiens', 'Gallus_gallus')
 flus = ('human', 'chicken')
-proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
-            'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
-            'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
-            'polymerase PB1', 'PB1-F2 protein')
 
 # count elm:seq occurence
 flu_counts = {}
@@ -82,7 +78,7 @@ host_counts = {}
 all_elmSeqs = {}
 for flu in flus:
     pre_flu_counts[flu] = get_flu_counts('results/' + flu + '.H5N1.elms', 
-                                         proteins)
+                                         global_settings.FLU_PROTEINS)
 
 flu_counts['human'] = count_flu(pre_flu_counts['human'], all_elmSeqs)
 flu_counts['chicken'] = count_flu(pre_flu_counts['chicken'], all_elmSeqs)

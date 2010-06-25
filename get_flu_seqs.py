@@ -13,7 +13,7 @@ flu_gen = GetFluSeqs(organism = FLU_NAMES[short_name],
                      source=[strain.lower()])
 seqs = {}
 for seq, protein, gb in flu_gen:
-    if protein in VIRUS_PROTEINS:
+    if protein in FLU_PROTEINS:
         seqs[gb + '.' + protein] = seq
 
 with open('results/' + short_name + '.' + strain + '.fa', 'w') as f:
