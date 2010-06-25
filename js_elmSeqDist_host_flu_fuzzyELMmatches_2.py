@@ -8,7 +8,7 @@ from collections import defaultdict
 # this comes from my scratch experiments
 human_distance_file = '../../scratch/human_flu_distances'
 chicken_distance_file = '../../scratch/chicken_flu_distances'
-both_distance_file = '../../scratch/test_genomes_distances'
+both_distance_file = 'working/runs/Jun24/closest_dis'
 
 def print_results(elm, clusters, overlap):
     """Print out clustering of ELM sequences.
@@ -36,7 +36,7 @@ def fix_overlap(elm, mapping, overlap, new_clusters):
         dis_cluster.sort()
         best_cluster = dis_cluster[0]
         #print dis_cluster[0], dis_cluster[1]
-        if best_cluster[0] < float(2):
+        if best_cluster[0] < float(3):
             mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
         else: # make new cluster
             mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
@@ -208,7 +208,7 @@ def mk_count_dists(vecs):
 mapping = get_clusters()    
 hosts = global_settings.TEST_GENOMES
 #all_elmSeqs = {}
-flus = ('chicken',)
+flus = ('human',)
 proteins = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
             'matrix protein 1', 'nonstructural protein 1', 'matrix protein 2',
             'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
@@ -247,7 +247,7 @@ found_seqs = {}
 for host in hosts:
     host_counts[host] = defaultdict(utils.init_zero)
     found_seqs[host] = {}
-    with open('results/roundup_all/elmdict_' + host + '.init') as f:
+    with open('working/runs/Jun24/elmdict_' + host + '.init') as f:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
             elmSeq = elm + ':' + seq
@@ -260,8 +260,8 @@ for host in hosts:
                     # else:
                     #     host_counts[host][key] += int(count)
                     #     found_seqs[host][key] = True
-host_found_seqs = utils_graph.unionLists([found_seqs['H_sapiens'],
-                                          found_seqs['Gallus_gallus']])
+host_found_seqs = utils_graph.intersectLists([found_seqs['H_sapiens'],
+                                              found_seqs['Gallus_gallus']])
 use_seqs = utils_graph.intersectLists([all_elmSeqs, host_found_seqs])
         
 

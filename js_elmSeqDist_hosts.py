@@ -30,17 +30,17 @@ def mk_count_dists(vecs):
         dists[host] = utils.getDistFromCount(vecs[host])
     return dists
 
-suffix = sys.argv[1]
-
 species = global_settings.TEST_GENOMES
 short_names = global_settings.ALIASES
+
+results = 'working/runs/Jun24/'
 
 # count elm:seq occurence
 counts = {}
 all_elmSeqs = {}
 for host in species:
     counts[host] = defaultdict(utils.init_zero)
-    with open('results/roundup_all/elmdict_' + host + suffix) as f:
+    with open(results + 'elmdict_' + host + '.init') as f:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
             elmSeq = elm + ':' + seq
@@ -53,7 +53,7 @@ host_dists = mk_count_dists(host_vecs)
 tmp_input = 'tmp_data'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
 tmp_labels = 'labels' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/roundup_all/js.dendrogram' + suffix + '.png'
+out_file = results + 'js_hosts_elmSeq_dendrogram.png'
 
 js_distances = defaultdict(dict)
 for host1, host2 in itertools.combinations(species, 2):
@@ -91,5 +91,4 @@ with open(tmp_r, 'w') as f:
     f.write("plot(h,hang=-1,labels=labels[1,],main='Species Dendrogram')\n")
     f.write('dev.off()\n')
 os.system('R < ' + tmp_r + ' --no-save')
-
-
+os.system('rm ' + tmp_r + ' ' + tmp_labels + ' ' + tmp_input)

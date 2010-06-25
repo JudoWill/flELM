@@ -19,7 +19,7 @@ def print_results(elm, clusters, overlap):
 # this comes from my scratch experiments
 human_distance_file = '../../scratch/human_flu_distances'
 chicken_distance_file = '../../scratch/chicken_flu_distances'
-both_distance_file = '../../scratch/test_genomes_distances'
+both_distance_file = 'working/runs/Jun24/closest_dis'
 
 distance_file = both_distance_file
 
@@ -201,7 +201,7 @@ flu_counts['chicken'] = count_flu(new_chicken_counts, all_elmSeqs)
 
 for host in hosts:
     host_counts[host] = defaultdict(utils.init_zero)
-    with open('results/roundup_all/elmdict_' + host + '.init') as f:
+    with open('working/runs/Jun24/elmdict_' + host + '.init') as f:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
             elmSeq = elm + ':' + seq

@@ -4,6 +4,8 @@
 import itertools, utils, global_settings, os, random
 from collections import defaultdict
 
+results_dir = 'working/runs/Jun24/'
+
 def get_host_counts(ls_of_hosts):
     """Count total ELM hits for each
        host in ls_of_hosts.
@@ -13,15 +15,15 @@ def get_host_counts(ls_of_hosts):
     seen_elms = defaultdict(dict)
     for host in ls_of_hosts:
         host_elmCounts[host] = defaultdict(utils.init_zero)
-        with open('results/roundup_all/elmdict_' + host + '.init') as f:
+        with open(results_dir + 'elmdict_' + host + '.init') as f:
             for line in f:
                 (elm, seq, count, fq) = line.strip().split('\t')
                 host_elmCounts[host][elm] += int(count)
                 seen_elms[elm][host] = True
     use_elms = {}
     for elm in seen_elms:
-        if len(seen_elms[elm]) == len(ls_of_hosts):
-            use_elms[elm] = True
+        #if len(seen_elms[elm]) == len(ls_of_hosts):
+        use_elms[elm] = True
     print len(use_elms)
     return (host_elmCounts, use_elms)
 
@@ -61,7 +63,7 @@ host_dists = mk_count_dists(host_vecs)
 tmp_input = 'tmp_data'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
 tmp_labels = 'labels' + str(random.randint(0,100))
-out_file = 'working/js_elm_host_phylogeny.png'
+out_file = 'working/runs/Jun24/js_elm_host_phylogeny.png'
 
 js_distances = defaultdict(dict)
 for host1, host2 in itertools.combinations(host_dists, 2):
@@ -99,3 +101,4 @@ with open(tmp_r, 'w') as f:
     f.write("plot(h,hang=-1,labels=labels[1,],main='Species Dendrogram')\n")
     f.write('dev.off()\n')
 os.system('R < ' + tmp_r + ' --no-save')
+os.system('rm ' + tmp_labels + ' ' + tmp_input + ' ' + tmp_r)
