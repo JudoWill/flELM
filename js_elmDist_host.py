@@ -4,7 +4,7 @@
 import itertools, utils, global_settings, os, random
 from collections import defaultdict
 
-results_dir = 'working/runs/Jun24/'
+results_dir = 'working/runs/Jun25/'
 
 def get_host_counts(ls_of_hosts):
     """Count total ELM hits for each
@@ -22,8 +22,8 @@ def get_host_counts(ls_of_hosts):
                 seen_elms[elm][host] = True
     use_elms = {}
     for elm in seen_elms:
-        #if len(seen_elms[elm]) == len(ls_of_hosts):
-        use_elms[elm] = True
+        if len(seen_elms[elm]) == len(ls_of_hosts):
+            use_elms[elm] = True
     print len(use_elms)
     return (host_elmCounts, use_elms)
 
@@ -63,7 +63,7 @@ host_dists = mk_count_dists(host_vecs)
 tmp_input = 'tmp_data'
 tmp_r = 'tmp_r' + str(random.randint(0,100))
 tmp_labels = 'labels' + str(random.randint(0,100))
-out_file = 'working/runs/Jun24/js_elm_host_phylogeny.png'
+out_file = 'working/runs/Jun25/js_elm_host_phylogeny.png'
 
 js_distances = defaultdict(dict)
 for host1, host2 in itertools.combinations(host_dists, 2):

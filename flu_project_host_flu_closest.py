@@ -36,13 +36,6 @@ def print_closest_distances(elm, flu_strings, host_strings):
             if dis < 4:
                 print elm + '\t' + flu_s + '\t' + host_s + '\t' + str(dis)
 
-def count_0s(ls):
-    count = 0
-    for item in ls:
-        if not item:
-            count += 1
-    return count
-
 def count_flu(protein2counts, elm2seq):
     """Given hits from get_flu_counts, return ELMseq counts"""
     
@@ -119,7 +112,7 @@ flu_counts['chicken'] = count_flu(pre_flu_counts['chicken'], flu_elm2seq)
 
 host_elm2seq = defaultdict(dict)
 for host in hosts:
-    with open('working/runs/Jun24/elmdict_' + host + '.init') as f:
+    with open('working/runs/Jun25/elmdict_' + host + '.init') as f:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
             host_elm2seq[elm][seq] = True

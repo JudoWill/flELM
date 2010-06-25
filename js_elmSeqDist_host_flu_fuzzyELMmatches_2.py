@@ -9,7 +9,7 @@ human_distance_file = '../../scratch/human_flu_distances'
 chicken_distance_file = '../../scratch/chicken_flu_distances'
 both_distance_file = 'working/runs/Jun24/closest_dis'
 
-mapping = utils.get_clusters(both_distance_file, 2, float(3))    
+mapping = utils.get_clusters(both_distance_file, 2, float(2))    
 hosts = global_settings.TEST_GENOMES
 #all_elmSeqs = {}
 flus = ('human','chicken')
@@ -29,7 +29,7 @@ else:
     all_elmSeqs = seen_seqs_ls[0]
 
 host_counts = utils.count_host_elmSeqs(hosts, True, mapping,
-                                       'working/runs/Jun24/')
+                                       'working/runs/Jun25/')
                                                    
 host_found_seqs = utils_graph.intersectLists([host_counts['H_sapiens'],
                                               host_counts['Gallus_gallus']])
