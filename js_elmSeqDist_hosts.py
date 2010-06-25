@@ -23,26 +23,16 @@ if do_clustering:
     dis_file = os.path.join(results_dir, distance_file)
     mapping = utils.get_clusters(dis_file, dis_cutoff_init,
                                  dis_cutoff_meta)
+else:
+    mapping = {}
     
-# count elm:seq occurence
-counts = {}
+counts = utils.count_host_elmSeqs(global_settings.TEST_GENOMES,
+                                  do_clustering, mapping,
+                                  results_dir)
 all_elmSeqs = {}
-for host in global_settings.TEST_GENOMES:
-    counts[host] = defaultdict(utils.init_zero)
-    elm_file = os.path.join(results_dir, 
-                            'elmdict_' + host + '.init')
-    with open(elm_file) as f:
-        for line in f:
-            (elm, seq, count, fq) = line.strip().split('\t')
-            elmSeq = elm + ':' + seq
-            if do_clustering:
-                if elmSeq in mapping[elm]:
-                    key = mapping[elm][elmSeq]
-                    all_elmSeqs[key] = True
-                    counts[host][key] += int(count)
-            else:
-                all_elmSeqs[elmSeq] = True
-                counts[host][elmSeq] += int(count)
+for host in counts:
+    for elmSeq in counts[host]:
+        all_elmSeqs[elmSeq] = True
 
 host_vecs = utils.mk_count_vecs(counts, all_elmSeqs)
 host_dists = utils.mk_count_dists(host_vecs)

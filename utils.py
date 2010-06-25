@@ -9,9 +9,7 @@ from itertools import *
 from collections import defaultdict
 import markov_chain, utils_graph, math
 from scipy.spatial import distance
-from numpy import *
-
-import cloud
+import cloud, random, numpy
 
 def init_mysql(database):
     conn = MySQLdb.connect(host='localhost',
@@ -100,7 +98,7 @@ def klDistance(dist1, dist2):
     dis = float(0)
     for p1, p2 in izip(dist1, dist2):
         if p1:
-            dis += p1 * log(p1/p2)
+            dis += p1 * numpy.log(p1/p2)
     return dis
 
 def jensen_shannon(counts1, counts2):
@@ -112,11 +110,11 @@ def jensen_shannon(counts1, counts2):
     # make counts into distributions
     d1 = getDistFromCount(counts1)
     d2 = getDistFromCount(counts2)
-    davg = [average(x) for x in izip(d1,d2)]
+    davg = [numpy.average(x) for x in izip(d1,d2)]
 
     # find KL divergence from average
-    return average([klDistance(d1, davg),
-                    klDistance(d2, davg)])
+    return numpy.average([klDistance(d1, davg),
+                          klDistance(d2, davg)])
 
 def jensen_shannon_dists(d1, d2):
     """Find jensen shannon divergence between
@@ -126,11 +124,11 @@ def jensen_shannon_dists(d1, d2):
        Use this version to avoid calculating
        the same distribution many times."""
 
-    davg = [average(x) for x in izip(d1,d2)]
+    davg = [numpy.average(x) for x in izip(d1,d2)]
 
     # find KL divergence from average
-    return average([klDistance(d1, davg),
-                    klDistance(d2, davg)])
+    return numpy.average([klDistance(d1, davg),
+                          klDistance(d2, davg)])
 
 def test_jensen_shannon():
     c1=[10,20,30]
@@ -522,8 +520,8 @@ def fix_overlap(elm, mapping, overlap, new_clusters, dis_cutoff):
     for elmSeq in overlap:
         dis_cluster = []
         for cluster in new_clusters:
-            dis = average([Levenshtein.distance(a_elmSeq.split(':')[1],
-                                                elmSeq.split(':')[1])
+            dis = numpy.average([Levenshtein.distance(a_elmSeq.split(':')[1],
+                                                      elmSeq.split(':')[1])
                                  for a_elmSeq in new_clusters[cluster]])
             dis_cluster.append([dis, cluster])
         dis_cluster.sort()
@@ -586,9 +584,10 @@ def get_meta_clusters(flu_host_elmSeq_mapping, dis_cutoff):
         dis_mat = []
         for seq1,seq2 in combinations(flu_host_elmSeq_mapping[elm], 2):
             match = float(len(set(seq1) & set(seq2)))
-            dis = average([match/float(x) for x in [len(seq1), len(seq2)]])
+            dis = numpy.average([match/float(x) for x in 
+                                 [len(seq1), len(seq2)]])
             dis_mat.append(dis)
-        mat = array(dis_mat)
+        mat = numpy.array(dis_mat)
         num_clusters = 5
         percent_overlap = float(1)
         while num_clusters > 1 and percent_overlap > float(.1):
@@ -668,6 +667,33 @@ def get_flu_counts(afile, proteins):
                 counts[name][protein][elmSeq] += 1
     return counts
 
+def count_flu_sampled(flu, elm_file, flu_counts, seen_seqs, mapping):
+    """Sample flu sequences for each flu protein
+       so that all proteins are equally represented.
+       Then do the ELM:seq counts.
+       Accumulate results in flu_counts & seen_seqs"""
+
+    pre = get_flu_counts(elm_file, 
+                         FLU_PROTEINS)
+    flu_counts_sampled = {}
+    flu_proteins_sampled = {}
+    protein_counts = []
+    for protein in pre:
+        protein_counts.append(len(pre[protein]))
+    m = min(protein_counts)
+    for protein in pre:
+        if m == len(pre[protein]):
+            flu_proteins_sampled[protein] = pre[protein].keys()
+        else:
+            flu_proteins_sampled[protein] = random.sample(pre[protein], m)
+    for protein in flu_proteins_sampled:
+        flu_counts_sampled[protein] = {}
+        for sampled_protein in flu_proteins_sampled[protein]:
+            flu_counts_sampled[protein][sampled_protein] = pre[protein][sampled_protein]
+    seen_seqs[flu] = {}
+    flu_counts[flu] = count_flu(flu_counts_sampled, 
+                                mapping, seen_seqs[flu])
+
 def mk_vec(counts, all_elmSeqs):
     """mk long vector of ELM:seq counts for this host's counts"""
     
@@ -704,3 +730,40 @@ def count_0s(ls):
         if not item:
             count += 1
     return count
+
+def print_it(name, vec):
+    print name, float(count_0s(vec))/float(len(vec))
+
+def print_results(elm, clusters, overlap):
+    """Print out clustering of ELM sequences.
+       Ignore sequences in overlap that cannot
+       be assigned."""
+
+    for cluster in clusters:
+        for seq in clusters[cluster]:
+            if seq not in overlap:
+                print('%s\t%d\t%s' %
+                      (elm, cluster, seq))
+
+def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir):
+    """Count elm:seq occurence.
+       Choose to use mapping or not
+       
+       Return host->ELMseq>count."""
+
+    counts = {}
+    for host in hosts:
+        counts[host] = defaultdict(init_zero)
+        elm_file = os.path.join(results_dir, 
+                                'elmdict_' + host + '.init')
+        with open(elm_file) as f:
+            for line in f:
+                (elm, seq, count, fq) = line.strip().split('\t')
+                elmSeq = elm + ':' + seq
+                if do_clustering:
+                    if elmSeq in mapping[elm]:
+                        key = mapping[elm][elmSeq]
+                        counts[host][key] += int(count)
+                else:
+                    counts[host][elmSeq] += int(count)
+    return counts
