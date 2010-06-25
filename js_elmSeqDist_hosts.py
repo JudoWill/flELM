@@ -2,34 +2,6 @@
 import itertools, sys, os, utils, random, global_settings, numpy
 from collections import defaultdict
 
-def mk_vec(counts, all_elmSeqs):
-    """mk long vector of ELM:seq counts for this host's counts"""
-    
-    vec = []
-    for elmseq in all_elmSeqs:
-        if elmseq in counts:
-            vec.append(counts[elmseq])
-        else:
-            vec.append(float(0))
-    return vec
-
-def mk_count_vecs(counts, all_elmSeqs):
-    """mk long vector of ELM:seq counts for all hosts"""
-
-    vecs = {}
-    for host in counts:
-        vecs[host] = mk_vec(counts[host],
-                            all_elmSeqs)
-    return vecs
-
-def mk_count_dists(vecs):
-    """change count vectors into distributions"""
-
-    dists = {}
-    for host in vecs:
-        dists[host] = utils.getDistFromCount(vecs[host])
-    return dists
-
 species = global_settings.TEST_GENOMES
 short_names = global_settings.ALIASES
 
@@ -47,8 +19,8 @@ for host in species:
             all_elmSeqs[elmSeq] = True
             counts[host][elmSeq] += int(count)
 
-host_vecs = mk_count_vecs(counts, all_elmSeqs)
-host_dists = mk_count_dists(host_vecs)
+host_vecs = utils.mk_count_vecs(counts, all_elmSeqs)
+host_dists = utils.mk_count_dists(host_vecs)
 
 tmp_input = 'tmp_data'
 tmp_r = 'tmp_r' + str(random.randint(0,100))

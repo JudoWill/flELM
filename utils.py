@@ -1,6 +1,7 @@
 from local_settings import *
 from global_settings import *
 from Bio import SeqIO
+import Bio.Cluster, Levenshtein
 from copy import deepcopy
 import re, os.path, os, logging, math, MySQLdb, local_settings
 from functools import partial
@@ -46,8 +47,6 @@ def fasta_iter(afile, getID=None):
             else:
                 seq = ''.join(line.strip() for line in group)
                 yield ID, seq
-
-
 
 def chunks(ls, n):
     """Yield n-sized chunks for ls"""
@@ -132,7 +131,6 @@ def jensen_shannon_dists(d1, d2):
     # find KL divergence from average
     return average([klDistance(d1, davg),
                     klDistance(d2, davg)])
-
 
 def test_jensen_shannon():
     c1=[10,20,30]
@@ -515,3 +513,181 @@ def get_fluSeqs_by_serotype(flu_shortname):
             type2protein2gb2seq[serotype][protein][gb] = fasta[key]
     return type2protein2gb2seq
                 
+############### cluster ELM sequences #############
+def fix_overlap(elm, mapping, overlap, new_clusters):
+    """Assign sequences in overlap
+       based on edit distance. Assume
+       there are no ties to break."""
+
+    for elmSeq in overlap:
+        dis_cluster = []
+        for cluster in new_clusters:
+            dis = average([Levenshtein.distance(a_elmSeq.split(':')[1],
+                                                elmSeq.split(':')[1])
+                                 for a_elmSeq in new_clusters[cluster]])
+            dis_cluster.append([dis, cluster])
+        dis_cluster.sort()
+        best_cluster = dis_cluster[0]
+        #print dis_cluster[0], dis_cluster[1]
+        if best_cluster[0] < float(3):
+            mapping[elm][elmSeq] = elm + ':' + str(best_cluster[1])
+        else: # make new cluster
+            mapping[elm][elmSeq] = elm + ':' + str(len(new_clusters)+1)
+            new_clusters[len(new_clusters)+1][elmSeq] = True
+
+def mk_mapping(elm, clusters, overlap, mapping):
+    """Update a map of sequences to cluster.
+       Ignore sequences in overlap that cannot
+       be assigned."""
+
+    new_clusters = defaultdict(dict)
+    for cluster in clusters:
+        for seq in clusters[cluster]:
+            if seq not in overlap:
+                mapping[elm][seq] = elm + ':' + str(cluster)
+                new_clusters[cluster][seq] = True
+    fix_overlap(elm, mapping, overlap, new_clusters)
+
+def get_initial_clusters(distance_file):
+    """Make a cluster for each flu sequence.
+       Place in the cluster any host sequence
+       below some threshold."""
+
+    # map each flu elmSeq to a host elmSeq
+    flu_host_elmSeq_mapping = {}
+
+    with open(distance_file) as f:
+        for line in f:
+            (elm, flu_seq, host_seq, distance) = line.strip().split('\t')
+            dis = int(distance)
+            host_elmSeq = elm + ':' + host_seq
+            flu_elmSeq = elm + ':' + flu_seq
+
+            if dis < 2:
+                if elm not in flu_host_elmSeq_mapping:
+                    flu_host_elmSeq_mapping[elm] = {}
+
+                if flu_elmSeq not in flu_host_elmSeq_mapping[elm]:
+                    flu_host_elmSeq_mapping[elm][flu_elmSeq] = {}
+
+                if host_elmSeq not in  flu_host_elmSeq_mapping[elm][flu_elmSeq]:
+                    flu_host_elmSeq_mapping[elm][flu_elmSeq][host_elmSeq] = True
+
+                flu_host_elmSeq_mapping[elm][flu_elmSeq][host_elmSeq] = True
+
+    return flu_host_elmSeq_mapping
+
+def get_meta_clusters(flu_host_elmSeq_mapping):
+    """Cluster flu sequence clusters based on 
+       overlapping host sequences."""
+
+    mapping = defaultdict(dict)
+    for elm in flu_host_elmSeq_mapping:
+        dis_mat = []
+        for seq1,seq2 in combinations(flu_host_elmSeq_mapping[elm], 2):
+            match = float(len(set(seq1) & set(seq2)))
+            dis = average([match/float(x) for x in [len(seq1), len(seq2)]])
+            dis_mat.append(dis)
+        mat = array(dis_mat)
+        num_clusters = 5
+        percent_overlap = float(1)
+        while num_clusters > 1 and percent_overlap > float(.1):
+            if len(flu_host_elmSeq_mapping[elm]) > num_clusters:
+                ans, error, nfound = Bio.Cluster.kmedoids(mat, 
+                                                          nclusters=num_clusters, 
+                                                          npass=20)
+                clusters = defaultdict(dict)
+                total = {}
+                for flu_seq, cluster_id in zip(flu_host_elmSeq_mapping[elm],
+                                               ans):
+                    clusters[cluster_id][flu_seq] = True
+                    total[flu_seq] = True
+                    for host_seq in flu_host_elmSeq_mapping[elm][flu_seq]:
+                        clusters[cluster_id][host_seq] = True  
+                        total[host_seq] = True
+                overlap = {}
+                for cluster1, cluster2 in combinations(clusters, 2):
+                    for gene in set(clusters[cluster1]) & set(clusters[cluster2]):
+                        overlap[gene] = True
+                percent_overlap = float(len(overlap))/float(len(total))
+                if percent_overlap < float(.1):
+                    #print_results(elm, clusters, overlap)
+                    mk_mapping(elm, clusters, overlap, mapping)
+                    break
+                else:
+                    num_clusters -= 1
+            else:
+                break
+    return mapping
+
+def get_clusters(distance_file):
+    """Return map of sequences to cluster name"""
+
+    flu_host_elmSeq_mapping = get_initial_clusters(distance_file)
+    mapping = get_meta_clusters(flu_host_elmSeq_mapping)
+    return mapping
+
+############# Make ELM sequence vectors for JS divergence
+
+def count_flu(protein2counts, mapping, all_elmSeqs):
+    """Given hits from get_flu_counts, return ELMseq counts"""
+    
+    counts = defaultdict(init_zero)
+    for protein in protein2counts:
+        for seq in protein2counts[protein]:
+            for elmSeq in protein2counts[protein][seq]:
+                elm = elmSeq.split(':')[0]
+                if elm in mapping:
+                    if elmSeq in mapping[elm]:
+                        key = mapping[elm][elmSeq]
+                        counts[key] += protein2counts[protein][seq][elmSeq]
+                        all_elmSeqs[key] = True
+    return counts
+
+def get_flu_counts(afile, proteins):
+    """Make protein_name -> seq_name -> elm_seq_counts"""
+
+    counts = {}
+    with open(afile) as f:
+        for line in f:
+            (protein, st, stp,
+             elm, seq, junk) = line.strip().split('\t')
+            name = protein.split('.')[-1]
+            elmSeq = elm + ':' + seq
+            if name in proteins:
+                if name not in counts:
+                    counts[name] = {}
+                if protein not in counts[name]:
+                    counts[name][protein] = {}
+                if elmSeq not in counts:
+                    counts[name][protein][elmSeq] = 0
+                counts[name][protein][elmSeq] += 1
+    return counts
+
+def mk_vec(counts, all_elmSeqs):
+    """mk long vector of ELM:seq counts for this host's counts"""
+    
+    vec = []
+    for elmseq in all_elmSeqs:
+        if elmseq in counts:
+            vec.append(counts[elmseq])
+        else:
+            vec.append(float(0))
+    return vec
+
+def mk_count_vecs(counts, all_elmSeqs):
+    """mk long vector of ELM:seq counts for all hosts"""
+
+    vecs = {}
+    for host in counts:
+        vecs[host] = mk_vec(counts[host],
+                            all_elmSeqs)
+    return vecs
+
+def mk_count_dists(vecs):
+    """change count vectors into distributions"""
+
+    dists = {}
+    for host in vecs:
+        dists[host] = getDistFromCount(vecs[host])
+    return dists
