@@ -1,5 +1,3 @@
-"""Here"""
-
 from paver.easy import *
 import os, os.path, itertools
 
@@ -231,6 +229,31 @@ def process_elm_roundup_sampled(options):
 		ofile = os.path.join(results_dir, 'elmdict_'+genome+'.init')
 		ifile = os.path.join(results_dir, genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm_roundup_sampled.get('forcenew', False):
+			# only do if missing or FORCING
+			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
+										  'c':c_arg, 'infile': ifile})
+
+@task
+@cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
+	  ('picloud', 'c', 'Use PiCloud')])
+def process_elm_roundup_single(options):
+	"""Determines (and writes) the ELM dictionary for single roundup ortholog clusters"""
+	
+        results_dir = 'working/runs/Jun25/'
+	c_arg = ''
+	if options.process_elm_roundup_single.get('picloud', False): c_arg = '-c'
+	
+        sh('python get_single_clusters.py '
+           + 'results/Homo_Mus_Pan_Rat_Bos_Can_Gal_Tae_Dan_Mac.roundup.parsed '
+           + 'data/roundup_all/ '
+           + results_dir)
+        
+	for genome in ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
+                       'R_norvegicus', 'Gallus_gallus', 'Taeniopygia_guttata',
+                       'Canis_familiaris', 'Bos_taurus'):
+		ofile = os.path.join(results_dir, 'elmdict_'+genome+'.init')
+		ifile = os.path.join(results_dir, genome+'.fa')
+		if not os.path.exists(ofile) or options.process_elm_roundup_single.get('forcenew', False):
 			# only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
 										  'c':c_arg, 'infile': ifile})
