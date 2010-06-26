@@ -214,7 +214,7 @@ def process_elm_roundup(options):
 def process_elm_roundup_sampled(options):
 	"""Determines (and writes) the ELM dictionary for a run of sampled sequences from roundup orthologs"""
 	
-        results_dir = 'working/runs/Jun24/'
+        results_dir = 'working/runs/Jun25_2/'
 	c_arg = ''
 	if options.process_elm_roundup_sampled.get('picloud', False): c_arg = '-c'
 	
