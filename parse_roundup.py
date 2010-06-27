@@ -38,12 +38,12 @@ with open(outfile, 'w') as outf:
                            (current_cluster, a_species, ID))
 
 # put in database
-(conn, cur) = utils.init_mysql('roundup')
-table_name = 'Homo_Mus_Mac_Pan_Rat_5'
-line = "CREATE TABLE " + table_name + "(cluster_id INT, species CHAR(30), seq_id CHAR(50))"
-cur.execute(line)
-line = "LOAD DATA LOCAL INFILE '" + outfile + "' INTO TABLE " + table_name + " FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n'"
-cur.execute(line)
-conn.commit()
-cur.close()
-conn.close()
+# (conn, cur) = utils.init_mysql('roundup')
+# table_name = 'Homo_Mus_Mac_Pan_Rat_5'
+# line = "CREATE TABLE " + table_name + "(cluster_id INT, species CHAR(30), seq_id CHAR(50))"
+# cur.execute(line)
+# line = "LOAD DATA LOCAL INFILE '" + outfile + "' INTO TABLE " + table_name + " FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n'"
+# cur.execute(line)
+# conn.commit()
+# cur.close()
+# conn.close()

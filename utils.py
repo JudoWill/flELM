@@ -632,19 +632,23 @@ def get_clusters(distance_file, dis_cutoff_init, dis_cutoff_meta):
 
 ############# Make ELM sequence vectors for JS divergence
 
-def count_flu(protein2counts, mapping, all_elmSeqs):
+def count_flu(protein2counts, mapping, all_elmSeqs, do_clusters):
     """Given hits from get_flu_counts, return ELMseq counts"""
     
     counts = defaultdict(init_zero)
     for protein in protein2counts:
         for seq in protein2counts[protein]:
             for elmSeq in protein2counts[protein][seq]:
-                elm = elmSeq.split(':')[0]
-                if elm in mapping:
-                    if elmSeq in mapping[elm]:
-                        key = mapping[elm][elmSeq]
-                        counts[key] += protein2counts[protein][seq][elmSeq]
-                        all_elmSeqs[key] = True
+                if do_clusters:
+                    elm = elmSeq.split(':')[0]
+                    if elm in mapping:
+                        if elmSeq in mapping[elm]:
+                            key = mapping[elm][elmSeq]
+                            counts[key] += protein2counts[protein][seq][elmSeq]
+                            all_elmSeqs[key] = True
+                else:
+                    counts[elmSeq] += protein2counts[protein][seq][elmSeq]
+                    all_elmSeqs[elmSeq] = True
     return counts
 
 def get_flu_counts(afile, proteins):
@@ -667,7 +671,7 @@ def get_flu_counts(afile, proteins):
                 counts[name][protein][elmSeq] += 1
     return counts
 
-def count_flu_sampled(flu, elm_file, flu_counts, seen_seqs, mapping):
+def count_flu_sampled(flu, elm_file, flu_counts, seen_seqs, mapping, do_clusters):
     """Sample flu sequences for each flu protein
        so that all proteins are equally represented.
        Then do the ELM:seq counts.
@@ -692,7 +696,8 @@ def count_flu_sampled(flu, elm_file, flu_counts, seen_seqs, mapping):
             flu_counts_sampled[protein][sampled_protein] = pre[protein][sampled_protein]
     seen_seqs[flu] = {}
     flu_counts[flu] = count_flu(flu_counts_sampled, 
-                                mapping, seen_seqs[flu])
+                                mapping, seen_seqs[flu],
+                                do_clusters)
 
 def mk_vec(counts, all_elmSeqs):
     """mk long vector of ELM:seq counts for this host's counts"""

@@ -51,6 +51,22 @@ def get_all_roundup_seqs_ncbi():
            + 'data/roundup_all/' + name + '.fa')
 
 @task
+def get_paper_roundup_seqs_ncbi():
+    """use NCBI eutils to grab protein seqs for roundup orthologs"""
+
+    for species, name in (("'Homo sapiens'", 'H_sapiens'),
+                          ("'Mus musculus'", 'M_musculus'),
+                          ("'Pan troglodytes'", 'Pan_troglodytes'),
+                          ("'Sus scrofa'", 'Sus_scrofa'),
+                          ("'Taeniopygia guttata'", 'Taeniopygia_guttata'),
+                          ("'Gallus gallus'", 'Gallus_gallus'),
+                          ("'Equus caballus'", 'Equus_caballus')):
+        sh('python get_protein_seq_for_gi.py '
+           + 'results/roundup_paper/roundup.parsed '
+           + species + ' '
+           + 'data/roundup_paper/' + name + '.fa')
+
+@task
 def list_tasks():
     task_list = environment.get_tasks()
     for task in task_list:

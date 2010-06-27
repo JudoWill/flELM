@@ -199,7 +199,7 @@ def phylogeny_js(out_file, dists):
         f.write('labels<-as.matrix(labels.d)\n')
         f.write("h<-hclust(dist.r,method='average')\n")
         f.write("png('" + out_file + "')\n")
-        f.write("plot(h,hang=-1,labels=labels[1,],main='Species Dendrogram')\n")
+        f.write("plot(h,hang=-1,labels=labels[1,],main='Host Phylogeny')\n")
         f.write('dev.off()\n')
     os.system('R < ' + tmp_r + ' --no-save')
     os.system('rm ' + ' '.join((tmp_r, tmp_labels, tmp_input)))
