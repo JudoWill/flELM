@@ -6,12 +6,12 @@
     Create Homo_Mus_Mac_Pan_Rat_5 table in 
     database roundup
 """
-import sys, utils
+import sys, utils, global_settings
 from collections import defaultdict
 
 roundup_file = sys.argv[1]
-species = int(sys.argv[2])
-outfile = sys.argv[3]
+species = int(len(global_settings.MAMMALS))
+outfile = sys.argv[2]
 
 cluster = defaultdict(dict)
 current_cluster = ''
@@ -28,8 +28,9 @@ with open(outfile, 'w') as outf:
                 cluster = defaultdict(dict)
             elif 'Genome' not in line and line.strip() != '' and current_cluster:
                 sp = line.split('\t')
-                if sp[0].strip() != '-':
-                    cluster[sp[1]][sp[0]] = True
+                if sp[1] in global_settings.MAMMALS:
+                    if sp[0].strip() != '-':
+                        cluster[sp[1]][sp[0]] = True
     # catch the last one
     if len(cluster.keys()) == species:
         for a_species in cluster:
