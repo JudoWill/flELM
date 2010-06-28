@@ -5,8 +5,8 @@ FLU_PROTEINS = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
                 'polymerase PB1', 'PB1-F2 protein')
 
 TEST_GENOMES = ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
-                'R_norvegicus', 'Gallus_gallus', 'Taeniopygia_guttata',
-                'Canis_familiaris', 'Bos_taurus')
+                'Gallus_gallus', 'Taeniopygia_guttata',
+                'Sus_scrofa', 'Equus_caballus')
 
 GENOMES = ('M_musculus', 'Bos_taurus','Canis_familiaris','D_rerio',
            'Equus_caballus', 'Gallus_gallus', 'H_sapiens',

@@ -215,10 +215,10 @@ def process_elm_roundup(options):
 	if options.process_elm_roundup.get('picloud', False): c_arg = '-c'
 	
 	for genome in ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
-                       'R_norvegicus', 'Gallus_gallus', 'Taeniopygia_guttata',
-                       'Canis_familiaris', 'Bos_taurus'):
-		ofile = os.path.join(RESULTSDIR, 'roundup_all', 'elmdict_'+genome+'.init')
-		ifile = os.path.join(DATADIR, 'roundup_all', genome+'.fa')
+                       'Sus_scrofa', 'Gallus_gallus', 'Taeniopygia_guttata',
+                       'Equus_caballus'):
+		ofile = os.path.join(RESULTSDIR, 'roundup_paper', 'elmdict_'+genome+'.init')
+		ifile = os.path.join(DATADIR, 'roundup_paper', genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm_roundup.get('forcenew', False):
 			# only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
