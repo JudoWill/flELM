@@ -77,7 +77,7 @@ def ProcessFile(filename):
 			#if c > 3000: break
 
 	label = filename.split(os.sep)[-1]
-	elm_dict = ReadELMs_nocompile('elm_expressions.clean')
+	elm_dict = ReadELMs_nocompile('elm_expressions.txt')
 
 	count_dict = defaultdict(int)
 	elm_count = defaultdict(int)

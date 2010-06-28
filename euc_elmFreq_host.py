@@ -49,40 +49,25 @@ def threshold_vars_down(normed_elm_freqs, thresh):
             keep_elms[elm] = v
     return keep_elms
     
-suffix = sys.argv[1]
+suffix = '.init'
+results_dir = sys.argv[1]
+out_file = sys.argv[2]
 
-# 'Macaca_mulatta 'R_norvegicus',  'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus', 'Taeniopygia_guttata'
-species = global_settings.TEST_GENOMES#('H_sapiens', 'Macaca_mulatta', 'R_norvegicus',
-#           'Canis_familiaris', 'Bos_taurus', 'D_rerio', 'M_musculus',
-#           'Sus_scrofa', 'Equus_caballus',
-#           'Gallus_gallus', 'Taeniopygia_guttata')
-
-short_names = global_settings.ALIASES#{'H_sapiens':'Us',
-               # 'Macaca_mulatta':'Chimp',
-               # 'M_musculus':'Mice',
-               # 'R_norvegicus':'Rat',
-               # 'Sus_scrofa':'Pig',
-               # 'Equus_caballus':'Hrse',
-               # 'Canis_familiaris':'Cat',
-               # 'Bos_taurus':'Cow',
-               # 'Gallus_gallus':'Chick',
-               # 'D_rerio':'Fish',
-               # 'Taeniopygia_guttata':'Fnch'}
+species = global_settings.TEST_GENOMES
+short_names = global_settings.ALIASES
 
 #'.elm_aa_freq'
 freqs = defaultdict(dict)
 elm2freqs = defaultdict(list)
 for host in species:
-    with open('results/roundup_all/' + host + suffix + '.elm_aa_freq') as f:
+    with open(results_dir + host + suffix + '.elm_aa_freq') as f:
         for line in f:
             (elm, fq) = line.strip().split('\t')
             freqs[host][elm] = float(fq)
             elm2freqs[elm].append(float(fq))
 
-#tmp_input = 'tmp_i' + str(random.randint(0,100))
-tmp_input = 'plots/for_aydin_2/roundup_all/elm_freq_dis' + suffix + '.tab'
+tmp_input = 'tmp_i' + str(random.randint(0,100))
 tmp_r = 'tmp_r' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/roundup_all/elm_freq_dis' + suffix + '.png'
 with open(tmp_input, 'w') as f:
     f.write('Host1\tHost2\tDistance\n')
     for i in xrange(len(species)):
@@ -95,19 +80,18 @@ with open(tmp_input, 'w') as f:
                            short_names[host2], 
                            utils.getDistance(freqs[host1], 
                                              freqs[host2])))
-with open(tmp_r, 'w') as f:
-        f.write('library(ggplot2)\n')
-        f.write("d<-read.delim('"
-                + tmp_input + "', header=T, sep='\\t')\n")
-        f.write("png('" + out_file + "')\n")
-        f.write("ggplot(d,aes(Host1,Host2)) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='white',high='steelblue')\n")
-        f.write('dev.off()\n')
-        f.write('q()\n')
-os.system('R < ' + tmp_r + ' --no-save')
+# with open(tmp_r, 'w') as f:
+#         f.write('library(ggplot2)\n')
+#         f.write("d<-read.delim('"
+#                 + tmp_input + "', header=T, sep='\\t')\n")
+#         f.write("png('" + out_file + "')\n")
+#         f.write("ggplot(d,aes(Host1,Host2)) + geom_tile(aes(fill=Distance),colour='white') + scale_fill_gradient(low='white',high='steelblue')\n")
+#         f.write('dev.off()\n')
+#         f.write('q()\n')
+# os.system('R < ' + tmp_r + ' --no-save')
 #os.system('rm ' + tmp_r + ' ' + tmp_input)
 
 tmp_labels = 'labels' + str(random.randint(0,100))
-out_file = 'plots/for_aydin_2/roundup_all/cos_elmFreq_host_dis.dendrogram' + suffix + '.png'
 species_lines = {}
 for s in species:
     species_lines[s] = ''
@@ -142,16 +126,16 @@ with open(tmp_r, 'w') as f:
     f.write("dist.r<-dist(d,method='euclidean')\n")
     f.write("h<-hclust(dist.r,method='average')\n")
     f.write("png('" + out_file + "')\n")
-    f.write("plot(h,hang=-1,labels=labels[1,],main='Species Dendrogram')\n")
+    f.write("plot(h,hang=-1,labels=labels[1,],main='Host ELM freq euc Phylogeny')\n")
     f.write('dev.off()\n')
 os.system('R < ' + tmp_r + ' --no-save')
 
-with open('dataf', 'w') as f:
-    for elm in t:
-        f.write(str(t[elm]) + '\n')
-with open('tmpR', 'w') as f:
-    f.write("d<-read.delim('dataf',header=FALSE,sep='\\t')\n")
-    f.write("png('var.png')\n")
-    f.write('plot(density(d[,1]))\n')
-    f.write('dev.off()\n')
-os.system('R < tmpR --no-save')
+# with open('dataf', 'w') as f:
+#     for elm in t:
+#         f.write(str(t[elm]) + '\n')
+# with open('tmpR', 'w') as f:
+#     f.write("d<-read.delim('dataf',header=FALSE,sep='\\t')\n")
+#     f.write("png('var.png')\n")
+#     f.write('plot(density(d[,1]))\n')
+#     f.write('dev.off()\n')
+# os.system('R < tmpR --no-save')

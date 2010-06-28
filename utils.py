@@ -750,9 +750,10 @@ def print_results(elm, clusters, overlap):
                 print('%s\t%d\t%s' %
                       (elm, cluster, seq))
 
-def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir):
+def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir, use_elms):
     """Count elm:seq occurence.
        Choose to use mapping or not
+       Only look at ELMs in use_elms
        
        Return host->ELMseq>count."""
 
@@ -764,11 +765,12 @@ def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir):
         with open(elm_file) as f:
             for line in f:
                 (elm, seq, count, fq) = line.strip().split('\t')
-                elmSeq = elm + ':' + seq
-                if do_clustering:
-                    if elmSeq in mapping[elm]:
-                        key = mapping[elm][elmSeq]
-                        counts[host][key] += int(count)
-                else:
-                    counts[host][elmSeq] += int(count)
+                if elm in use_elms:
+                    elmSeq = elm + ':' + seq
+                    if do_clustering:
+                        if elmSeq in mapping[elm]:
+                            key = mapping[elm][elmSeq]
+                            counts[host][key] += int(count)
+                    else:
+                        counts[host][elmSeq] += int(count)
     return counts

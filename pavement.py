@@ -8,6 +8,30 @@ from global_settings import *
 import utils
 
 @task
+def find_best_elms():
+    """Look for highest ELM frequency that recovers host phylogeny"""
+
+    results_dir = 'working/Jun28/'
+    cut = '.00001'
+    use_elms_file = results_dir + 'use_elms' + cut
+
+    sh('python threshold_elms.py '
+       + cut + ' '
+       + results_dir + ' '
+       + '> ' + use_elms_file)
+    sh('python js_elmDist_host.py '
+       + results_dir + ' '
+       + results_dir + 'js_host_elmDist_phylogeny' + cut + '.png '
+       + 'F '
+       + use_elms_file)
+    sh('python js_elmSeqDist_hosts.py '
+       + 'NA '
+       + results_dir + ' '
+       + 'js_host_elmSeqDist_phylogeny' + cut + '.png '
+       + '2 3 '
+       + use_elms_file)
+
+@task
 def format_ncbi_for_blast():
     """redo NCBI file for blast input"""
 
@@ -118,21 +142,19 @@ def get_fail_elms():
 
 @task
 def elm_aa_freqs():
-	for genome in GENOMES:
-		sh('python mk_aa_freq.py '
-		   + 'data/' + genome + '.fa '
-		   + 'results/elmdict_' + genome + '.txt '
-		   + 'results/' + genome + '.init.elm_aa_freq')
+    for genome in TEST_GENOMES:
+        sh('python mk_aa_freq.py '
+           + 'data/roundup_paper/' + genome + '.fa '
+           + 'working/Jun28/elmdict_' + genome + '.init '
+           + 'working/Jun28/' + genome + '.init.elm_aa_freq')
 
 @task
 def elm_aa_freqs_roundup():
-	for genome in ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
-                       'R_norvegicus', 'Gallus_gallus', 'Taeniopygia_guttata',
-                       'Canis_familiaris', 'Bos_taurus'):
-		sh('python mk_aa_freq.py '
-		   + 'data/roundup_all/' + genome + '.fa '
-		   + 'results/roundup_all/elmdict_' + genome + '.init '
-		   + 'results/roundup_all/' + genome + '.init.elm_aa_freq')
+	for genome in TEST_GENOMES:
+            sh('python mk_aa_freq.py '
+               + 'data/roundup_paper/' + genome + '.fa '
+               + 'results/roundup_all/elmdict_' + genome + '.init '
+               + 'results/roundup_all/' + genome + '.init.elm_aa_freq')
 
 #conserved_elms -c 90
 @task 
@@ -214,10 +236,8 @@ def process_elm_roundup(options):
 	c_arg = ''
 	if options.process_elm_roundup.get('picloud', False): c_arg = '-c'
 	
-	for genome in ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
-                       'Sus_scrofa', 'Gallus_gallus', 'Taeniopygia_guttata',
-                       'Equus_caballus'):
-		ofile = os.path.join(RESULTSDIR, 'roundup_paper', 'elmdict_'+genome+'.init')
+	for genome in TEST_GENOMES:
+		ofile = os.path.join('working', 'Jun28', 'elmdict_'+genome+'.init')
 		ifile = os.path.join(DATADIR, 'roundup_paper', genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm_roundup.get('forcenew', False):
 			# only do if missing or FORCING
