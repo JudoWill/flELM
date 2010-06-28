@@ -53,7 +53,7 @@ suffix = '.init'
 results_dir = sys.argv[1]
 out_file = sys.argv[2]
 
-species = global_settings.TEST_GENOMES
+species = global_settings.MAMMALS2
 short_names = global_settings.ALIASES
 
 #'.elm_aa_freq'

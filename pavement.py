@@ -91,6 +91,20 @@ def get_paper_roundup_seqs_ncbi():
            + 'data/roundup_paper/' + name + '.fa')
 
 @task
+def get_mammal_roundup_seqs_ncbi():
+    """use NCBI eutils to grab protein seqs for roundup orthologs"""
+
+    for species, name in (("'Homo sapiens'", 'H_sapiens'),
+                          ("'Mus musculus'", 'M_musculus'),
+                          ("'Pan troglodytes'", 'Pan_troglodytes'),
+                          ("'Sus scrofa'", 'Sus_scrofa'),
+                          ("'Equus caballus'", 'Equus_caballus')):
+        sh('python get_protein_seq_for_gi.py '
+           + 'working/Jun28_mammals/mammal_roundup_clusters '
+           + species + ' '
+           + 'working/Jun28_mammals/' + name + '.fa')
+
+@task
 def list_tasks():
     task_list = environment.get_tasks()
     for task in task_list:
@@ -142,11 +156,11 @@ def get_fail_elms():
 
 @task
 def elm_aa_freqs():
-    for genome in TEST_GENOMES:
+    for genome in MAMMALS2:
         sh('python mk_aa_freq.py '
-           + 'data/roundup_paper/' + genome + '.fa '
-           + 'working/Jun28/elmdict_' + genome + '.init '
-           + 'working/Jun28/' + genome + '.init.elm_aa_freq')
+           + 'working/Jun28_mammals/' + genome + '.fa '
+           + 'working/Jun28_mammals/elmdict_' + genome + '.init '
+           + 'working/Jun28_mammals/' + genome + '.init.elm_aa_freq')
 
 @task
 def elm_aa_freqs_roundup():
@@ -236,9 +250,9 @@ def process_elm_roundup(options):
 	c_arg = ''
 	if options.process_elm_roundup.get('picloud', False): c_arg = '-c'
 	
-	for genome in TEST_GENOMES:
-		ofile = os.path.join('working', 'Jun28', 'elmdict_'+genome+'.init')
-		ifile = os.path.join(DATADIR, 'roundup_paper', genome+'.fa')
+	for genome in MAMMALS2:
+		ofile = os.path.join('working', 'Jun28_mammals', 'elmdict_'+genome+'.init')
+		ifile = os.path.join('working', 'Jun28_mammals', genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm_roundup.get('forcenew', False):
 			# only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
