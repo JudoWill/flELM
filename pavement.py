@@ -155,13 +155,27 @@ def get_fail_elms():
 			   + c + '.controled')
 
 @task
-def elm_aa_freqs():
-    for genome in MAMMALS2:
-        sh('python mk_aa_freq.py '
-           + 'working/Jun28_mammals/' + genome + '.fa '
-           + 'working/Jun28_mammals/elmdict_' + genome + '.init '
-           + 'working/Jun28_mammals/' + genome + '.init.elm_aa_freq')
+def host_elms():
+    """Find host ELM freqs and redo freqs"""
 
+    for genome in GENOMES:
+        sh('python get_aa_freq.py '
+           + 'data/' + genome + '.fa '
+           + '> working/Jun28_startOver/' + genome + '.aa_freq')
+        sh('python mk_aa_freq.py '
+           + 'data/' + genome + '.fa '
+           + 'working/Jun28_startOver/elmdict_' + genome + '.init '
+           + 'working/Jun28_startOver/' + genome + '.init.elm_aa_freq')
+        sh('python prob_of_seq.py '
+           + os.path.join('working', 'Jun28_startOver', genome + '.aa_freq ')
+           + os.path.join(DATADIR, genome + '.fa ')
+           + os.path.join('working', 'Jun28_startOver', 'elmdict_' + genome + '.init ')
+           + '> ' + os.path.join('working', 'Jun28_startOver', 'elmdict_' + genome + '.redo'))
+        sh('python mk_aa_freq.py '
+           + 'data/' + genome + '.fa '
+           + 'working/Jun28_startOver/elmdict_' + genome + '.redo '
+           + 'working/Jun28_startOver/' + genome + '.redo.elm_aa_freq')
+        
 @task
 def elm_aa_freqs_roundup():
 	for genome in TEST_GENOMES:
@@ -234,7 +248,7 @@ def process_elm(options):
 	if options.process_elm.get('picloud', False): c_arg = '-c'
 	
 	for genome in GENOMES:
-		ofile = os.path.join(RESULTSDIR, 'elmdict_'+genome+'.txt')
+		ofile = os.path.join('working', 'Jun28_startOver', 'elmdict_'+genome+'.txt')
 		ifile = os.path.join(DATADIR, genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
 			#only do if missing or FORCING
@@ -426,12 +440,15 @@ def redo_elmdict():
 	for g in GENOMES:
 		sh('python get_aa_freq.py '
 		   + os.path.join(DATADIR, g + '.fa ')
-		   + '> ' + os.path.join(RESULTSDIR, g + '.aa_freq'))
+		   + '> ' + os.path.join('working', 'Jun28_startOver', g + '.init.aa_freq'))
 		sh('python prob_of_seq.py '
-		   + os.path.join(RESULTSDIR, g + '.aa_freq ')
+		   + os.path.join('working', 'Jun28_startOver', g + '.aa_freq ')
 		   + os.path.join(DATADIR, g + '.fa ')
-		   + os.path.join(RESULTSDIR, 'elmdict_' + g + '.txt ')
+		   + os.path.join('working', 'Jun28_startOver', 'elmdict_' + g + '.init ')
 		   + '> ' + os.path.join(RESULTSDIR, 'elmdict_' + g + '.redo'))
+                sh('python get_aa_freq.py '
+		   + os.path.join(DATADIR, g + '.fa ')
+		   + '> ' + os.path.join('working', 'Jun28_startOver', g + '.redo.aa_freq'))
 
 	# for org in FLU_NAMES:
 	# 	sh('python get_flu_aa_freq.py '

@@ -13,6 +13,9 @@ MAMMALS = ('Homo sapiens', 'Mus musculus', 'Pan troglodytes',
 MAMMALS2 = ('H_sapiens', 'M_musculus', 'Macaca_mulatta', 
            'Sus_scrofa', 'Equus_caballus')
 
+MAMMALS3 = ('H_sapiens', 'M_musculus', 'Macaca_mulatta', 
+           'Sus_scrofa', 'Equus_caballus', 'Gallus_gallus')
+
 GENOMES = ('M_musculus', 'Bos_taurus','Canis_familiaris','D_rerio',
            'Equus_caballus', 'Gallus_gallus', 'H_sapiens',
            'Macaca_mulatta', 'R_norvegicus', 'Sus_scrofa',

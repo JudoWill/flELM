@@ -16,7 +16,7 @@ def get_host_freqs(ls_of_hosts, use_elms):
     seen_elms = defaultdict(dict)
     for host in ls_of_hosts:
         fname = os.path.join(results_dir,
-                             host + '.init.elm_aa_freq')
+                             host + '.redo.elm_aa_freq')
         with open(fname) as f:
             for line in f:
                 (elm, freq) = line.strip().split('\t')
@@ -38,7 +38,7 @@ def get_host_counts(ls_of_hosts, use_elms):
     seen_elms = defaultdict(dict)
     for host in ls_of_hosts:
         host_elmCounts[host] = defaultdict(utils.init_zero)
-        with open(results_dir + 'elmdict_' + host + '.init') as f:
+        with open(results_dir + 'elmdict_' + host + '.redo') as f:
             for line in f:
                 (elm, seq, count, fq) = line.strip().split('\t')
                 if elm in use_elms:
@@ -57,7 +57,7 @@ with open(use_elms_file) as f:
         (elm, stuff) = line.strip().split('\t')
         use_elms[elm] = True
 
-hosts = global_settings.TEST_GENOMES
+hosts = global_settings.GENOMES
 if use_freqs == 'T':
     host_elmCounts, elms = get_host_freqs(hosts, use_elms)
 else:
