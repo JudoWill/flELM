@@ -49,7 +49,7 @@ def threshold_vars_down(normed_elm_freqs, thresh):
             keep_elms[elm] = v
     return keep_elms
     
-suffix = '.init'
+suffix = '.redo'
 results_dir = sys.argv[1]
 out_file = sys.argv[2]
 

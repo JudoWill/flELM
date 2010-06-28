@@ -10,7 +10,7 @@ TEST_GENOMES = ('H_sapiens', 'M_musculus', 'Pan_troglodytes',
 
 MAMMALS = ('Homo sapiens', 'Mus musculus', 'Pan troglodytes', 
            'Sus scrofa', 'Equus caballus')
-MAMMALS2 = ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
+MAMMALS2 = ('H_sapiens', 'M_musculus', 'Macaca_mulatta', 
            'Sus_scrofa', 'Equus_caballus')
 
 GENOMES = ('M_musculus', 'Bos_taurus','Canis_familiaris','D_rerio',
