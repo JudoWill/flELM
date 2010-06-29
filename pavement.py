@@ -8,6 +8,27 @@ from global_settings import *
 import utils
 
 @task
+def individual_elms():
+    """Make host phylogeny for each ELM"""
+
+    elms = {}
+    with open('elm_expressions.txt') as f:
+        for line in f:
+            elm, exp = line.strip().split('\t')
+            elms[elm] = True
+
+    for elm in elms:
+        with open('tmpELM', 'w') as f:
+            f.write(elm + '\tstuff\n')
+        try:
+            sh('python js_elmSeqDist_hosts.py '
+               + 'NA '
+               + 'working/runs/Jun25/ '
+               + elm + '.png '
+               + '0 0 tmpELM')
+        except: pass
+
+@task
 def find_best_elms():
     """Look for highest ELM frequency that recovers host phylogeny"""
 
@@ -158,23 +179,23 @@ def get_fail_elms():
 def host_elms():
     """Find host ELM freqs and redo freqs"""
 
-    for genome in GENOMES:
+    for genome in TEST_GENOMES:
         sh('python get_aa_freq.py '
-           + 'data/' + genome + '.fa '
-           + '> working/Jun28_startOver/' + genome + '.aa_freq')
+           + 'data/roundup_paper/' + genome + '.fa '
+           + '> working/Jun28/' + genome + '.aa_freq')
         sh('python mk_aa_freq.py '
-           + 'data/' + genome + '.fa '
-           + 'working/Jun28_startOver/elmdict_' + genome + '.init '
-           + 'working/Jun28_startOver/' + genome + '.init.elm_aa_freq')
+           + 'data/roundup_paper/' + genome + '.fa '
+           + 'working/Jun28/elmdict_' + genome + '.init '
+           + 'working/Jun28/' + genome + '.init.elm_aa_freq')
         sh('python prob_of_seq.py '
-           + os.path.join('working', 'Jun28_startOver', genome + '.aa_freq ')
-           + os.path.join(DATADIR, genome + '.fa ')
-           + os.path.join('working', 'Jun28_startOver', 'elmdict_' + genome + '.init ')
-           + '> ' + os.path.join('working', 'Jun28_startOver', 'elmdict_' + genome + '.redo'))
+           + os.path.join('working', 'Jun28', genome + '.aa_freq ')
+           + os.path.join('data', 'roundup_paper', genome + '.fa ')
+           + os.path.join('working', 'Jun28', 'elmdict_' + genome + '.init ')
+           + '> ' + os.path.join('working', 'Jun28', 'elmdict_' + genome + '.redo'))
         sh('python mk_aa_freq.py '
-           + 'data/' + genome + '.fa '
-           + 'working/Jun28_startOver/elmdict_' + genome + '.redo '
-           + 'working/Jun28_startOver/' + genome + '.redo.elm_aa_freq')
+           + 'data/roundup_paper/' + genome + '.fa '
+           + 'working/Jun28/elmdict_' + genome + '.redo '
+           + 'working/Jun28/' + genome + '.redo.elm_aa_freq')
         
 @task
 def elm_aa_freqs_roundup():

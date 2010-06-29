@@ -7,6 +7,9 @@ FLU_PROTEINS = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
 TEST_GENOMES = ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
                 'Gallus_gallus', 'Taeniopygia_guttata',
                 'Sus_scrofa', 'Equus_caballus')
+TEST_GENOMES2 = ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
+                'Gallus_gallus', 'Taeniopygia_guttata',
+                'Bos_taurus', 'Canis_familiaris')
 
 MAMMALS = ('Homo sapiens', 'Mus musculus', 'Pan troglodytes', 
            'Sus scrofa', 'Equus caballus')

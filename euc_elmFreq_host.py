@@ -49,11 +49,11 @@ def threshold_vars_down(normed_elm_freqs, thresh):
             keep_elms[elm] = v
     return keep_elms
     
-suffix = '.redoWNeg'
+suffix = '.redo'
 results_dir = sys.argv[1]
 out_file = sys.argv[2]
 
-species = global_settings.MAMMALS3
+species = global_settings.TEST_GENOMES
 short_names = global_settings.ALIASES
 
 #'.elm_aa_freq'
