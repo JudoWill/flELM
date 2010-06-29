@@ -33,7 +33,7 @@ if do_clustering:
 else:
     mapping = {}
     
-counts = utils.count_host_elmSeqs(global_settings.TEST_GENOMES2,
+counts = utils.count_host_elmSeqs(global_settings.TEST_GENOMES,
                                   do_clustering, mapping,
                                   results_dir, use_elms)
 all_elmSeqs = {}

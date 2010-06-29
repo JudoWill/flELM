@@ -23,10 +23,11 @@ def individual_elms():
         try:
             sh('python js_elmSeqDist_hosts.py '
                + 'NA '
-               + 'working/runs/Jun25/ '
+               + 'working/Jun29/ '
                + elm + '.png '
                + '0 0 tmpELM')
         except: pass
+    sh('rm tmpELM')
 
 @task
 def find_best_elms():
@@ -268,9 +269,9 @@ def process_elm(options):
 	c_arg = ''
 	if options.process_elm.get('picloud', False): c_arg = '-c'
 	
-	for genome in GENOMES:
-		ofile = os.path.join('working', 'Jun28_startOver', 'elmdict_'+genome+'.txt')
-		ifile = os.path.join(DATADIR, genome+'.fa')
+	for genome in TEST_GENOMES:
+		ofile = os.path.join('working', 'Jun29', 'elmdict_'+genome+'.init')
+		ifile = os.path.join('working', 'Jun29', genome+'.fa')
 		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
 			#only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
