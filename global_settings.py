@@ -47,4 +47,18 @@ PROTEIN_ALIAS = {'nuclear export protein':'nonstructural protein 2',
                  'matrix protein M1':'matrix protein 1',
                  'M1 protein':'matrix protein 1'}
 
+AA_SUB_8 = {'L':'l', 'V':'l', 'I':'l', 'M':'l', 'C':'l',
+          'A':'a', 'G':'a',
+          'S':'s', 'T':'s',
+          'P':'P',
+          'F':'f', 'Y':'f', 'W':'f',
+          'E':'e', 'D':'e', 'N':'e', 'Q':'e',
+          'K':'k', 'R':'k',
+          'H':'H'}
+
+AA_SUB_4 = {'L':'l', 'V':'l', 'I':'l', 'M':'l', 'C':'l',
+          'A':'a', 'G':'a', 'S':'a', 'T':'a', 'P':'a',
+          'F':'f', 'Y':'f', 'W':'f',
+          'E':'e', 'D':'e', 'N':'e', 'Q':'e', 'K':'e', 'R':'e', 'H':'e'}
+
 SEQ_FRAC_CUT = '.05'

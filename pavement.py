@@ -7,6 +7,15 @@ from local_settings import *
 from global_settings import *
 import utils
 
+@task 
+def simplify_elmdicts():
+    """Substitute residues for properties"""
+
+    for host in TEST_GENOMES:
+        sh('python simplify_elmdict.py '
+           + 'working/Jun29/elmdict_' + host + '.init '
+           + '> working/Jun30/elmdict_' + host + '.simple')
+
 @task
 def individual_elms():
     """Make host phylogeny for each ELM"""
@@ -23,9 +32,9 @@ def individual_elms():
         try:
             sh('python js_elmSeqDist_hosts.py '
                + 'NA '
-               + 'working/Jun29/ '
+               + 'working/Jun30/ '
                + elm + '.commonSeqs.png '
-               + '0 0 tmpELM')
+               + "0 0 tmpELM '.simple'")
         except: pass
     sh('rm tmpELM')
 
@@ -492,6 +501,30 @@ def redo_elmdict_realFrac():
 		   + os.path.join(RESULTSDIR, 'elmdict_' + g + '.txt ')
 		   + os.path.join(RESULTSDIR, g + '.diAA_freq ')
 		   + '> ' + os.path.join(RESULTSDIR, 'elmdict_' + g + '.realFraction'))
+
+
+@task
+def simplify_flu_elms():
+    """Subs flu residues for properties"""
+
+    host_strains = [['human','H1N1'],
+                    ['human','H3N2'],
+                    ['human','H5N1'],
+                    
+                    ['swine','H3N2'],
+                    ['swine','H1N1'],
+                    
+                    ['equine','H3N8'],
+                    
+                    ['chicken','H9N2'],
+                    ['chicken','H5N1'],
+                    
+                    ['duck','H9N2'],
+                    ['duck','H5N1']]
+    for host, strain in host_strains:
+        sh('python simplify_flu_elms.py '
+           + 'results/' + host + '.' + strain + '.elms '
+           + '> working/Jun30/' + host  + '.' + strain + '.simpleELMs')
 
 @task
 @cmdopts([('cutoff=', 'c', '% cutoff'),])

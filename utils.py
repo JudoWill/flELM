@@ -11,6 +11,14 @@ import markov_chain, utils_graph, math
 from scipy.spatial import distance
 import cloud, random, numpy
 
+def mk_sub(seq):
+    """Make substitutions based on
+       residue properties"""
+    
+    new_seq = ''.join([AA_SUB_4[c] 
+                       for c in seq])
+    return new_seq
+
 def init_mysql(database):
     conn = MySQLdb.connect(host='localhost',
                            user=local_settings.MYSQL_USR,
@@ -750,7 +758,7 @@ def print_results(elm, clusters, overlap):
                 print('%s\t%d\t%s' %
                       (elm, cluster, seq))
 
-def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir, use_elms):
+def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir, use_elms, suffix):
     """Count elm:seq occurence.
        Choose to use mapping or not
        Only look at ELMs in use_elms
@@ -761,7 +769,7 @@ def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir, use_elms):
     for host in hosts:
         counts[host] = defaultdict(init_zero)
         elm_file = os.path.join(results_dir, 
-                                'elmdict_' + host + '.init')
+                                'elmdict_' + host + suffix)
         with open(elm_file) as f:
             for line in f:
                 (elm, seq, count, fq) = line.strip().split('\t')

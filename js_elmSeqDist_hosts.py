@@ -15,6 +15,7 @@ out_file = sys.argv[3] # js_hosts_elmSeq_dendrogram_new.png
 dis_cutoff_init = int(sys.argv[4]) # 2
 dis_cutoff_meta = float(sys.argv[5]) # 3
 use_elms_file = sys.argv[6]
+suffix = sys.argv[7]
 
 use_elms = {}
 with open(use_elms_file) as f:
@@ -35,15 +36,16 @@ else:
     
 counts = utils.count_host_elmSeqs(global_settings.TEST_GENOMES,
                                   do_clustering, mapping,
-                                  results_dir, use_elms)
+                                  results_dir, use_elms, suffix)
 
 ls = []
 for host in counts:
     ls.append(counts[host])
-all_elmSeqs = utils_graph.intersectLists(ls)
-#for host in counts:
- #   for elmSeq in counts[host]:
-#        all_elmSeqs[elmSeq] = True
+all_elmSeqs = {}
+#all_elmSeqs = utils_graph.intersectLists(ls)
+for host in counts:
+    for elmSeq in counts[host]:
+        all_elmSeqs[elmSeq] = True
 
 host_vecs = utils.mk_count_vecs(counts, all_elmSeqs)
 host_dists = utils.mk_count_dists(host_vecs)
