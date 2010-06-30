@@ -33,7 +33,7 @@ def individual_elms():
             sh('python js_elmSeqDist_hosts.py '
                + 'NA '
                + 'working/Jun30/ '
-               + elm + '.commonSeqs.png '
+               + elm + '.simpleELMs.png '
                + "0 0 tmpELM '.simple'")
         except: pass
     sh('rm tmpELM')

@@ -98,7 +98,10 @@ def renorm(seqs, d):
 
 def getDistFromCount(counts):
     s = float(sum(counts))
-    return [float(x)/s for x in counts]
+    if s == float(0):
+        return [float(0) for x in counts]
+    else:
+        return [float(x)/s for x in counts]
 
 def klDistance(dist1, dist2):
     """KL divergence between 2 distributions. No 0 counts."""

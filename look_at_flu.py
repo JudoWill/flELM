@@ -9,8 +9,10 @@ seen_seqs = {}
 seen_seqs_ls = []
 flus = ('human', 'chicken')
 for flu in flus:
-    flu_elm_file = os.path.join('results/',
-                                flu + '.H5N1.elms')
+    flu_elm_file = os.path.join('working/Jun30/',
+                                flu + '.H5N1.simpleELMs')
+    # flu_elm_file = os.path.join('working/Jun30/',
+    #                             flu + '.H5N1.simpleELMs')
     utils.count_flu_sampled(flu, flu_elm_file, flu_counts,
                             seen_seqs, {}, False)
     use_seqs = {}
@@ -25,12 +27,15 @@ for flu in flus:
 #for flu in flu_counts:
 #    for elmSeq in 
 
-use_seqs_pre = utils_graph.intersectLists(seen_seqs_ls)
+use_seqs_pre = utils_graph.unionLists(seen_seqs_ls)
 
-counts = utils.count_host_elmSeqs(('H_sapiens',),
+counts = utils.count_host_elmSeqs(('Gallus_gallus','H_sapiens'),
                                   False, {},
-                                  'working/Jun29/', {use_elm:True})
-use_seqs = utils_graph.intersectLists([use_seqs_pre, counts['H_sapiens']])
+                                  'working/Jun30/', {use_elm:True},
+                                  '.simple')
+
+use_seqs = utils_graph.unionLists([use_seqs_pre, counts['Gallus_gallus'],
+                                   counts['H_sapiens']])
 host_vecs = utils.mk_count_vecs(counts, use_seqs)
 host_dists = utils.mk_count_dists(host_vecs)
 flu_vecs = utils.mk_count_vecs(flu_counts, use_seqs)  
@@ -40,10 +45,15 @@ flu_dists = utils.mk_count_dists(flu_vecs)
 #     print sum(flu_dists[flu])
 # sys.exit(0)
 
-for seq, human, chicken in zip(use_seqs, flu_dists['human'],
-                               flu_dists['chicken']):
-    print seq + '\t' + str(human) + '\t' + str(chicken)
-
+for hhuman, hchicken, fh, cf in zip(host_dists['Gallus_gallus'],
+                                    host_dists['H_sapiens'],
+                                    flu_dists['human'],
+                                    flu_dists['chicken']):
+    print str(hhuman) + '\t' + str(hchicken) + '\t' + str(fh) + '\t' + str(cf)
+for host in host_dists:
+    for flu in flu_dists:
+        print host, flu, utils.jensen_shannon_dists(host_dists[host],
+                                                    flu_dists[flu])
 # for flu in flu_counts:
 #     for elmSeq in flu_counts[flu]:
 #         elm, seq = elmSeq.split(':')

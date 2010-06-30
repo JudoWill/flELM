@@ -8,5 +8,4 @@ with open(sys.argv[1]) as f:
         (protein, st, stp, elm, seq, ELM) = line.strip().split('\t')
         if 'X' not in seq and 'B' not in seq and 'Z' not in seq and 'J' not in seq:
             print('\t'.join((protein, st, stp, 
-                             elm, utils.mk_sub(seq), ELM)) 
-                  + '\n')
+                             elm, utils.mk_sub(seq), ELM)))
