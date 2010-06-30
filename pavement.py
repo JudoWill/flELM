@@ -16,7 +16,7 @@ def individual_elms():
         for line in f:
             elm, exp = line.strip().split('\t')
             elms[elm] = True
-
+            
     for elm in elms:
         with open('tmpELM', 'w') as f:
             f.write(elm + '\tstuff\n')
@@ -24,7 +24,7 @@ def individual_elms():
             sh('python js_elmSeqDist_hosts.py '
                + 'NA '
                + 'working/Jun29/ '
-               + elm + '.png '
+               + elm + '.commonSeqs.png '
                + '0 0 tmpELM')
         except: pass
     sh('rm tmpELM')

@@ -6,7 +6,7 @@
    argument. Otherwise, enter a closest flu 
    distance file computed by flu_project_host_flu_closest.py.
 """
-import itertools, sys, os, utils, random, global_settings, numpy, utils_plot
+import itertools, sys, os, utils, random, global_settings, numpy, utils_plot, utils_graph
 from collections import defaultdict
 
 distance_file = sys.argv[1] # closest_dis
@@ -36,10 +36,14 @@ else:
 counts = utils.count_host_elmSeqs(global_settings.TEST_GENOMES,
                                   do_clustering, mapping,
                                   results_dir, use_elms)
-all_elmSeqs = {}
+
+ls = []
 for host in counts:
-    for elmSeq in counts[host]:
-        all_elmSeqs[elmSeq] = True
+    ls.append(counts[host])
+all_elmSeqs = utils_graph.intersectLists(ls)
+#for host in counts:
+ #   for elmSeq in counts[host]:
+#        all_elmSeqs[elmSeq] = True
 
 host_vecs = utils.mk_count_vecs(counts, all_elmSeqs)
 host_dists = utils.mk_count_dists(host_vecs)

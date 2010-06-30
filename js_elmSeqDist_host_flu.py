@@ -1,5 +1,5 @@
 """Use Jensen-Shannon divergence to make a dendrogram for eukaryotic hosts"""
-import itertools, sys, os, utils, random, global_settings, numpy
+import itertools, sys, os, utils, random, global_settings, numpy, utils_graph
 from collections import defaultdict
 
 def mk_vec(counts, all_elmSeqs):
@@ -30,8 +30,8 @@ def mk_count_dists(vecs):
         dists[host] = utils.getDistFromCount(vecs[host])
     return dists
 
-hosts = ('H_sapiens', 'Gallus_gallus')
-flus = ('human', 'chicken')
+hosts = ('Sus_scrofa', 'Gallus_gallus')
+flus = ('swine', 'chicken', 'human', 'duck', 'equine')
 
 # count elm:seq occurence
 flu_counts = {}
@@ -39,22 +39,27 @@ host_counts = {}
 all_elmSeqs = {}
 for flu in flus:
     flu_counts[flu] = defaultdict(utils.init_zero)
-    with open('results/flu_elmdict_' + flu) as f:
+    with open('results/' + flu + '.H9N2.elms') as f:
         for line in f:
-            (elm, seq, count, fq) = line.strip().split('\t')
+            (protein, st, stp, elm, seq, junk) = line.strip().split('\t')
             elmSeq = elm + ':' + seq
-            all_elmSeqs[elmSeq] = True
-            flu_counts[flu][elmSeq] += int(count)
-
+            if elm == 'TRG_ENDOCYTIC_2':
+                all_elmSeqs[elmSeq] = True
+                flu_counts[flu][elmSeq] += 1
+print flu_counts
+host_all_Seqs = {}
 for host in hosts:
     host_counts[host] = defaultdict(utils.init_zero)
-    with open('results/roundup_all/elmdict_' + host + '.init') as f:
+    with open('working/Jun29/elmdict_' + host + '.init') as f:
         for line in f:
             (elm, seq, count, fq) = line.strip().split('\t')
             elmSeq = elm + ':' + seq
-            all_elmSeqs[elmSeq] = True
-            host_counts[host][elmSeq] += int(count)
-
+            if elm == 'TRG_ENDOCYTIC_2':
+                #all_elmSeqs[elmSeq] = True
+                host_all_Seqs[elmSeq] = True
+                host_counts[host][elmSeq] += int(count)
+print len(utils_graph.intersectLists([host_all_Seqs,
+                                      all_elmSeqs]))
 flu_vecs = mk_count_vecs(flu_counts, all_elmSeqs)
 flu_dists = mk_count_dists(flu_vecs)
 host_vecs = mk_count_vecs(host_counts, all_elmSeqs)
