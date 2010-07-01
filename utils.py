@@ -9,7 +9,50 @@ from itertools import *
 from collections import defaultdict
 import markov_chain, utils_graph, math
 from scipy.spatial import distance
-import cloud, random, numpy
+import cloud, random, numpy, utils_motif
+
+def init_zero(): return 0
+
+def count_cons(use_files, protein_counts_pass, f, d, new_f):
+     protein_counts = defaultdict(dict)
+     proteinName2motif = utils_motif.protein2annotation(f, d)
+     for proteinName in proteinName2motif:
+         protein = proteinName.split('.')[1]
+         if protein in FLU_PROTEINS_LTD:
+             protein_counts[protein][proteinName] = True
+     for protein in protein_counts:
+         if len(protein_counts[protein]) > 100:
+             use_files[new_f] = True
+             protein_counts_pass[protein][new_f] = True
+
+def get_cons_elms(dir, hosts, years, strains, per):
+    """Find ELMs that are consered at some per
+       for all host/strain/year combinations w/
+       at least 100 sequences"""
+
+    d = {'ELM':True}
+    use_files = {}
+    protein_counts_pass = defaultdict(dict)
+    for host in hosts:
+        for year in years:
+            for strain in strains:
+                f = os.path.join(dir, '.'.join((host, strain, str(year))) + '.elms')
+                new_f = os.path.join(dir, '.'.join((host, strain, str(year))) + '.elms.' + per)
+                try:
+                    count_cons(use_files, protein_counts_pass, f, d, new_f)
+                             #print host, year, strain
+                except: pass
+    for f in use_files:
+        use_files[f] = utils_motif.protein2annotation(f, d)
+#    pass_elms = 
+    for protein in protein_counts_pass:
+        elm_counts_local = defaultdict(init_zero)
+        for f in protein_counts_pass[protein]:
+            for elm in use_files[f][protein]:
+                elm_counts_local[elm] += 1
+        for elm in elm_counts_local:
+            if len(protein_counts_pass[protein]) == elm_counts_local[elm]:
+                print protein + '\t' + elm
 
 def mk_sub(seq):
     """Make substitutions based on
@@ -389,8 +432,8 @@ def DictFromGen(GEN, label = None, chunk_size = 10, stop_count = None):
 	logging.info('Creating output dictionary')
 	outdict = {}
 	for key, count in count_dict.iteritems():
-		elm, spec = key
-		outdict[key] = (count, float(count) / float(elm_count[elm]))
+            elm, spec = key
+            outdict[key] = (count, float(count) / float(elm_count[elm]))
 
 	return outdict		
 		
@@ -406,7 +449,7 @@ def get_seq2count_dict(elm_file, cutoff):
                 elm2seq2count[elm][seq] = frac
     return elm2seq2count
 
-def init_zero(): return 0
+
 
 def dict_init_zero(): return defaultdict(init_zero)
 

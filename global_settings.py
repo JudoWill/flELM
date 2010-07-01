@@ -4,6 +4,14 @@ FLU_PROTEINS = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
                 'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
                 'polymerase PB1', 'PB1-F2 protein')
 
+FLU_PROTEINS_LTD = ('hemagglutinin',
+                    'matrix protein 1',
+                    'matrix protein 2',
+                    'neuraminidase',
+                    'nonstructural protein 1',
+                    'nonstructural protein 2',
+                    'nucleocapsid protein')
+
 TEST_GENOMES = ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
                 'Gallus_gallus', 'Taeniopygia_guttata',
                 'Sus_scrofa', 'Equus_caballus')
