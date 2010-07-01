@@ -527,6 +527,30 @@ def simplify_flu_elms():
            + '> working/Jul1/' + host  + '.' + strain + '.simpleELMs')
 
 @task
+def simplify_flu_elms_2():
+    """Subs flu residues for properties"""
+
+    host_strains = [['human','H1N1'],
+                    ['human','H3N2'],
+                    ['human','H5N1'],
+                    
+                    ['swine','H3N2'],
+                    ['swine','H1N1'],
+                    
+                    ['equine','H3N8'],
+                    
+                    ['chicken','H9N2'],
+                    ['chicken','H5N1'],
+                    
+                    ['duck','H9N2'],
+                    ['duck','H5N1']]
+    for host, strain in host_strains:
+        for year in xrange(2000, 2011):
+            sh('python simplify_flu_elms.py '
+               + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms '
+               + '> working/Jul1_year/' + host  + '.' + strain + '.' + str(year) + '.simpleELMs')
+
+@task
 @cmdopts([('cutoff=', 'c', '% cutoff'),])
 def conserved_elms():
 	"""Find ELMs conserved on strains"""
@@ -550,7 +574,7 @@ def conserved_elms():
 	for host, strain in host_strains:
 		sh('python get_flu_seqs.py '
 		   + host + ' '
-		   + strain)
+		   + strain + ' NA results')
 		sh('python matchELMpattern.py '
 		   + 'elm_expressions.txt '
 		   + 'results/' + host + '.' + strain + '.fa '
@@ -561,6 +585,46 @@ def conserved_elms():
 		   + cut + ' '
 		   + '1> results/' + host + '.' + strain + '.elms.' + cut + ' '
 		   + '2> results/' + host + '.' + strain + '.elms.conservation')
+
+@task
+@cmdopts([('cutoff=', 'c', '% cutoff'),])
+def conserved_elms_2():
+	"""Find ELMs conserved on strains"""
+
+	cut = options.conserved_elms.get('cutoff')
+	host_strains = [['human','H1N1'],
+			['human','H3N2'],
+			['human','H5N1'],
+
+			['swine','H3N2'],
+			['swine','H1N1'],
+
+			['equine','H3N8'],
+			
+			['chicken','H9N2'],
+			['chicken','H5N1'],
+
+			['duck','H9N2'],
+			['duck','H5N1']]
+
+	for host, strain in host_strains:
+            for year in xrange(2000, 2011):
+		sh('python get_flu_seqs.py '
+		   + host + ' '
+		   + strain + ' '
+                   + str(year) + ' '
+                   + 'working/Jul1_year/')
+		sh('python matchELMpattern.py '
+		   + 'elm_expressions.txt '
+		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.fa '
+		   + '> ' + 'working/Jul1_year/' + host + '.' 
+                   + strain + '.' + str(year) + '.elms')
+		sh('python getConserved.py '
+		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms '
+		   + 'ELM '
+		   + cut + ' '
+		   + '1> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
+		   + '2> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
 			
 @task
 def conserved_elms_2():

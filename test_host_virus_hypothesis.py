@@ -1,7 +1,8 @@
 """ For the input ELMs, take the JS
     divergence for chicken/human H5N1
     to human & chicken. For which ELMs
-    does the hypothesis holds."""
+    does the hypothesis holds. Sample equally
+    from flus to avoid biases. """
 import sys, utils, os, utils_graph
 from collections import defaultdict
 
@@ -17,8 +18,12 @@ flus = ('human', 'chicken')
 for flu in flus:
     # flu_elm_file = os.path.join('results',
     #                             flu + '.H5N1.elms')
-    flu_elm_file = os.path.join('working/Jul1/',
-                                flu + '.H5N1.simpleELMs')
+    if 'human' in flu:
+        flu_elm_file = os.path.join('working/Jul1_year',
+                                    flu + '.H3N2.2008.elms')
+    else:
+        flu_elm_file = os.path.join('working/Jul1_year/',
+                                    flu + '.H5N1.2006.elms')
     utils.count_flu_sampled(flu, flu_elm_file, flu_counts,
                             seen_seqs, {}, False)
     for elmseq in seen_seqs[flu]:
@@ -27,8 +32,8 @@ for flu in flus:
 
 counts = utils.count_host_elmSeqs(('Gallus_gallus','H_sapiens'),
                                   False, {},
-                                  'working/Jul1/', working_elms,
-                                  '.simple')
+                                  'working/Jun29/', working_elms,
+                                  '.init')
 
 for elm in working_elms:
     use_seqs = elm2seqs[elm]
@@ -39,15 +44,15 @@ for elm in working_elms:
     
     flu = flu_dists['human']
     human_score_H =  utils.jensen_shannon_dists(host_dists['H_sapiens'],
-                                              flu)
-    chicken_score_H =  utils.jensen_shannon_dists(host_dists['Gallus_gallus'],
                                                 flu)
+    chicken_score_H =  utils.jensen_shannon_dists(host_dists['Gallus_gallus'],
+                                                  flu)
     
     flu = flu_dists['chicken']
     human_score_C =  utils.jensen_shannon_dists(host_dists['H_sapiens'],
-                                              flu)
-    chicken_score_C =  utils.jensen_shannon_dists(host_dists['Gallus_gallus'],
                                                 flu)
+    chicken_score_C =  utils.jensen_shannon_dists(host_dists['Gallus_gallus'],
+                                                  flu)
 
-    if human_score_C < chicken_score_C and human_score_H > chicken_score_H:
+    if human_score_C > chicken_score_C and human_score_H < chicken_score_H:
         print elm
