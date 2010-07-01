@@ -17,7 +17,7 @@ flus = ('human', 'chicken')
 for flu in flus:
     # flu_elm_file = os.path.join('results',
     #                             flu + '.H5N1.elms')
-    flu_elm_file = os.path.join('working/Jun30/',
+    flu_elm_file = os.path.join('working/Jul1/',
                                 flu + '.H5N1.simpleELMs')
     utils.count_flu_sampled(flu, flu_elm_file, flu_counts,
                             seen_seqs, {}, False)
@@ -27,7 +27,7 @@ for flu in flus:
 
 counts = utils.count_host_elmSeqs(('Gallus_gallus','H_sapiens'),
                                   False, {},
-                                  'working/Jun30/', working_elms,
+                                  'working/Jul1/', working_elms,
                                   '.simple')
 
 for elm in working_elms:
@@ -49,5 +49,5 @@ for elm in working_elms:
     chicken_score_C =  utils.jensen_shannon_dists(host_dists['Gallus_gallus'],
                                                 flu)
 
-    if human_score_C > chicken_score_C and human_score_H < chicken_score_H:
+    if human_score_C < chicken_score_C and human_score_H > chicken_score_H:
         print elm

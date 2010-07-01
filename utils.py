@@ -15,7 +15,7 @@ def mk_sub(seq):
     """Make substitutions based on
        residue properties"""
     
-    new_seq = ''.join([AA_SUB_4[c] 
+    new_seq = ''.join([AA_SUB_2[c] 
                        for c in seq])
     return new_seq
 

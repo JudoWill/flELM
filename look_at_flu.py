@@ -7,10 +7,14 @@ use_elm = sys.argv[1]
 flu_counts = {}
 seen_seqs = {}
 seen_seqs_ls = []
-flus = ('human', 'chicken')
+flus = ('chicken','human')
 for flu in flus:
-    flu_elm_file = os.path.join('working/Jun30/',
-                                flu + '.H5N1.simpleELMs')
+    if flu == 'human':
+        flu_elm_file = os.path.join('working/Jul1',
+                                    flu + '.H1N1.simpleELMs')
+    else:
+        flu_elm_file = os.path.join('working/Jul1',
+                                    flu + '.H5N1.simpleELMs')
     # flu_elm_file = os.path.join('working/Jun30/',
     #                             flu + '.H5N1.simpleELMs')
     utils.count_flu_sampled(flu, flu_elm_file, flu_counts,
@@ -19,7 +23,7 @@ for flu in flus:
     for elmSeq in seen_seqs[flu]:
         elm, seq = elmSeq.split(':')
         if elm == use_elm:
-            if flu_counts[flu][elmSeq] > 50:
+            if flu_counts[flu][elmSeq] > 0:
                 use_seqs[elmSeq] = True
     seen_seqs_ls.append(use_seqs)
 
@@ -31,10 +35,10 @@ use_seqs_pre = utils_graph.unionLists(seen_seqs_ls)
 
 counts = utils.count_host_elmSeqs(('Gallus_gallus','H_sapiens'),
                                   False, {},
-                                  'working/Jun30/', {use_elm:True},
+                                  'working/Jul1/', {use_elm:True},
                                   '.simple')
 
-use_seqs = utils_graph.unionLists([use_seqs_pre, counts['Gallus_gallus'],
+use_seqs = utils_graph.intersectLists([use_seqs_pre, counts['Gallus_gallus'],
                                    counts['H_sapiens']])
 host_vecs = utils.mk_count_vecs(counts, use_seqs)
 host_dists = utils.mk_count_dists(host_vecs)
@@ -45,11 +49,11 @@ flu_dists = utils.mk_count_dists(flu_vecs)
 #     print sum(flu_dists[flu])
 # sys.exit(0)
 
-for hhuman, hchicken, fh, cf in zip(host_dists['Gallus_gallus'],
-                                    host_dists['H_sapiens'],
-                                    flu_dists['human'],
-                                    flu_dists['chicken']):
-    print str(hhuman) + '\t' + str(hchicken) + '\t' + str(fh) + '\t' + str(cf)
+for seq, hhuman, hchicken, hf, cf in zip(use_seqs, host_dists['Gallus_gallus'],
+                                         host_dists['H_sapiens'],
+                                         flu_dists['human'],
+                                         flu_dists['chicken']):
+    print seq + '\t' + str(hhuman) + '\t' + str(hchicken) + '\t' + str(hf) + '\t' + str(cf)
 for host in host_dists:
     for flu in flu_dists:
         print host, flu, utils.jensen_shannon_dists(host_dists[host],

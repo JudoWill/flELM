@@ -14,7 +14,7 @@ def simplify_elmdicts():
     for host in TEST_GENOMES:
         sh('python simplify_elmdict.py '
            + 'working/Jun29/elmdict_' + host + '.init '
-           + '> working/Jun30/elmdict_' + host + '.simple')
+           + '> working/Jul1/elmdict_' + host + '.simple')
 
 @task
 def individual_elms():
@@ -524,7 +524,7 @@ def simplify_flu_elms():
     for host, strain in host_strains:
         sh('python simplify_flu_elms.py '
            + 'results/' + host + '.' + strain + '.elms '
-           + '> working/Jun30/' + host  + '.' + strain + '.simpleELMs')
+           + '> working/Jul1/' + host  + '.' + strain + '.simpleELMs')
 
 @task
 @cmdopts([('cutoff=', 'c', '% cutoff'),])
