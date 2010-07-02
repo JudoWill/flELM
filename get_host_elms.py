@@ -14,7 +14,7 @@ dir = 'working/Jul1_year'
 years = range(2000,2011,1)
 
 if host == 'mammal':
-    hosts = ('human', 'swine', 'equine')
+    hosts = ('human',)
     strains = ('H1N1', 'H3N2', 'H5N1', 'H3N8')
 elif host == 'bird':
     hosts = ('duck', 'chicken')
@@ -24,12 +24,12 @@ d = {'ELM':True}
 suffix = '.elms'
 utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_elms, suffix)
 
-# d = {'ELMseq':True}
-# suffix = '.elmseqs'
-# utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_seqs, suffix)
+d = {'ELMseq':True}
+suffix = '.elmseqs'
+utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_seqs, suffix)
 
-# d = {'ELMseq':True}
-# suffix = '.simpleelmseqs'
-# utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_simpleELMseqs, suffix)
+d = {'ELMseq':True}
+suffix = '.simpleelmseqs'
+utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_simpleELMseqs, suffix)
 
                               

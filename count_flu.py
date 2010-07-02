@@ -4,7 +4,7 @@ d = {}
 with open('data/influenza.fa') as f:
     for line in f:
         if '>' in line:
-            if 'equine' in line:
+            if 'chicken' in line:
                 if 'Influenza A' in line:
                     protein = '_'.join(line.split('|')[-1].split('[')[0].strip().lower().split())
                     type = line.split('/')[-1].split('(')[-1].split(')')[0]
