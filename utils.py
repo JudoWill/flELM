@@ -21,38 +21,45 @@ def count_cons(use_files, protein_counts_pass, f, d, new_f):
          if protein in FLU_PROTEINS_LTD:
              protein_counts[protein][proteinName] = True
      for protein in protein_counts:
-         if len(protein_counts[protein]) > 100:
+         if len(protein_counts[protein]) > 20:
              use_files[new_f] = True
              protein_counts_pass[protein][new_f] = True
 
-def get_cons_elms(dir, hosts, years, strains, per):
+def get_cons_elms(dir, hosts, years, strains, per, d, out_file, suffix):
     """Find ELMs that are consered at some per
        for all host/strain/year combinations w/
        at least 100 sequences"""
 
-    d = {'ELM':True}
+    d1 = {'ELM':True}
+    d2 = d
     use_files = {}
     protein_counts_pass = defaultdict(dict)
     for host in hosts:
         for year in years:
             for strain in strains:
                 f = os.path.join(dir, '.'.join((host, strain, str(year))) + '.elms')
-                new_f = os.path.join(dir, '.'.join((host, strain, str(year))) + '.elms.' + per)
+                new_f = os.path.join(dir, '.'.join((host, strain, str(year))) + suffix + '.' + per)
                 try:
-                    count_cons(use_files, protein_counts_pass, f, d, new_f)
+                    count_cons(use_files, protein_counts_pass, f, d1, new_f)
                              #print host, year, strain
                 except: pass
     for f in use_files:
-        use_files[f] = utils_motif.protein2annotation(f, d)
+        use_files[f] = utils_motif.protein2annotation(f, d2)
 #    pass_elms = 
-    for protein in protein_counts_pass:
-        elm_counts_local = defaultdict(init_zero)
-        for f in protein_counts_pass[protein]:
-            for elm in use_files[f][protein]:
-                elm_counts_local[elm] += 1
-        for elm in elm_counts_local:
-            if len(protein_counts_pass[protein]) == elm_counts_local[elm]:
-                print protein + '\t' + elm
+    print 'BREAK'
+    with open(out_file, 'w') as afile:
+         for protein in protein_counts_pass:
+              print protein + '\t' + str(len(protein_counts_pass[protein])) + '\t' + str([x.split('/')[2].split('.')[0:3] for x in protein_counts_pass[protein].keys()])
+              # elm_counts_local = defaultdict(init_zero)
+              # for f in protein_counts_pass[protein]:
+              #      if protein in use_files[f]:
+              #           for elm in use_files[f][protein]:
+              #                elm_counts_local[elm] += 1
+              # for elm in elm_counts_local:
+              #      if len(protein_counts_pass[protein]) == elm_counts_local[elm]:
+              #           afile.write(protein + '\t' + elm + '\n')
+              #      #else:
+              #      #     afile.write(protein + '\t' + elm + '\tFAIL\t' + str(elm_counts_local[elm]) + '\t' + elm + '\n')
 
 def mk_sub(seq):
     """Make substitutions based on

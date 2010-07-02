@@ -7,6 +7,20 @@ from local_settings import *
 from global_settings import *
 import utils
 
+@task
+def get_mammal_bird_elms():
+    """Find ELMs conserved on all mammal
+       or bird flu proteins"""
+
+    sh('python get_host_elms.py '
+       + 'working/Jul1_year/mammal_elms '
+       + "working/Jul1_year/mammal_elmseqs "
+       + 'working/Jul1_year/mammal_simpleelmseqs mammal')
+    sh('python get_host_elms.py '
+       + 'working/Jul1_year/bird_elms '
+       + "working/Jul1_year/bird_elmseqs "
+       + 'working/Jul1_year/bird_simpleelmseqs bird')
+
 @task 
 def simplify_elmdicts():
     """Substitute residues for properties"""
@@ -591,7 +605,7 @@ def conserved_elms():
 def conserved_elms_2():
 	"""Find ELMs conserved on strains"""
 
-	cut = options.conserved_elms.get('cutoff')
+	cut = options.conserved_elms_2.get('cutoff')
 	host_strains = [['human','H1N1'],
 			['human','H3N2'],
 			['human','H5N1'],
@@ -625,9 +639,45 @@ def conserved_elms_2():
 		   + cut + ' '
 		   + '1> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
 		   + '2> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
+
+@task
+@cmdopts([('cutoff=', 'c', '% cutoff'),])
+def conserved_elms_3():
+	"""Find ELM seqs conserved on strains"""
+
+	cut = options.conserved_elms_3.get('cutoff')
+	host_strains = [['human','H1N1'],
+			['human','H3N2'],
+			['human','H5N1'],
+
+			['swine','H3N2'],
+			['swine','H1N1'],
+
+			['equine','H3N8'],
+			
+			['chicken','H9N2'],
+			['chicken','H5N1'],
+
+			['duck','H9N2'],
+			['duck','H5N1']]
+
+	for host, strain in host_strains:
+            for year in xrange(2000, 2011):
+		sh('python getConservedELMseqs.py '
+		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms '
+		   + 'ELM '
+		   + cut + ' '
+		   + '1> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elmseqs.' + cut + ' '
+		   + '2> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elmseqs.conservation')
+                sh('python getConservedELMseqs.py '
+		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.simpleELMs '
+		   + 'ELM '
+		   + cut + ' '
+		   + '1> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.simpleelmseqs.' + cut + ' '
+		   + '2> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.simpleelmseqs.conservation')
 			
 @task
-def conserved_elms_2():
+def conserved_elms_2_old():
 	for host in ['human', 'swine', 'equine', 'chicken']:
 		sh('python mk_freq.py '
 		   + 'results/' + host + '.H9N2.elms.90 '
