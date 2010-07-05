@@ -2,7 +2,9 @@
    each uniq seq is on in bird
    and human strains"""
 from collections import defaultdict
-import utils, os
+import utils, os, sys
+
+use_host = sys.argv[1]
 
 def get_annotations(afile):
     d = defaultdict(dict)
@@ -11,6 +13,16 @@ def get_annotations(afile):
             protein, elm = line.strip().split('\t')
             d[protein][elm] = True
     return d
+
+def get_important(ls1, ls2):
+    """Get annotations important on flu"""
+
+    elms = {}
+    for ls in (ls1, ls2):
+        for protein in ls:
+            for elm in ls[protein]:
+                elms[protein + ':' + elm] = True
+    return elms
 
 def get_uniq(uniq, ls1, ls2):
     for protein in ls1:
@@ -38,7 +50,7 @@ dir = 'working/Jul1_year'
 years = range(2000,2011,1)
 
 # bird
-birds = ('duck', 'chicken')
+birds = ('chicken','duck')
 strains = ('H9N2', 'H5N1')
 seq_percents_bird = defaultdict(list)
 total_bird = 0
@@ -73,7 +85,15 @@ bird_elmseqs = get_annotations(bird_elmseqs_file)
 
 uniq = {}
 get_uniq(uniq, human_elmseqs, bird_elmseqs)
-#get_uniq(uniq, bird_elmseqs, human_elmseqs)
+get_uniq(uniq, bird_elmseqs, human_elmseqs)
+impt_elms = get_important(human_elmseqs, bird_elmseqs)
+# uniq = {}
+if use_host == 'mammal':
+#     get_uniq(uniq, human_elmseqs, bird_elmseqs)
+    sp = seq_percents_human
+elif use_host == 'bird':
+#     get_uniq(uniq, bird_elmseqs, human_elmseqs)
+    sp = seq_percents_bird
 
 # for elmseq in seq_percents_bird:
 #     if elmseq in uniq:
@@ -84,7 +104,7 @@ chicken_host_file = 'working/Jun29/elmdict_Gallus_gallus.init'
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
-for elmseq in seq_percents_bird:
+for elmseq in sp:
     if elmseq in uniq:
         key = ':'.join(elmseq.split(':')[1:])
         human_host = 0

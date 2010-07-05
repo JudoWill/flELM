@@ -58,8 +58,8 @@ def get_cons_elms(dir, hosts, years, strains, per, d, out_file, suffix):
               for elm in elm_counts_local:
                    if len(protein_counts_pass[protein]) == elm_counts_local[elm]:
                         afile.write(protein + '\t' + elm + '\n')
-              #      #else:
-              #      #     afile.write(protein + '\t' + elm + '\tFAIL\t' + str(elm_counts_local[elm]) + '\t' + elm + '\n')
+              # #      #else:
+              # #      #     afile.write(protein + '\t' + elm + '\tFAIL\t' + str(elm_counts_local[elm]) + '\t' + elm + '\n')
 
 def mk_sub(seq):
     """Make substitutions based on
