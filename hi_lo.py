@@ -1,6 +1,9 @@
 """Split flu %s into high and low
    look at distributions of host
-   for these sequences"""
+   for these sequences.
+
+   This is bad b/c of line 112.  It shoudl
+   check the sequence, but it checks protein name + elm + sequence"""
 from collections import defaultdict
 import utils, os, sys
 

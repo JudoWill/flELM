@@ -105,28 +105,51 @@ chicken_host_file = 'working/Jun29/elmdict_Gallus_gallus.init'
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
-with open('working/hi', 'w') as hi:
-    for elmseq in uniq_bird:
-        #'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
-        if sum(seq_percents_bird[elmseq])/float(total_bird) - sum(seq_percents_human[elmseq])/float(total_human) > float(20):
-            dels = elmseq.split(':')
-            new_seq = utils.mk_sub(dels[2])
-            key = dels[1] + ':' + dels[2]
-            #frac = 0
-            if key in chicken_host_freqs:
-                frac = chicken_host_freqs[key]
-                hi.write(str(frac) + '\n')
+if sys.argv[1] == 'bird':
+    with open('working/hi', 'w') as hi:
+        for elmseq in uniq_bird:
+            #'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
+            if sum(seq_percents_bird[elmseq])/float(total_bird) - sum(seq_percents_human[elmseq])/float(total_human) > float(20):
+                dels = elmseq.split(':')
+                new_seq = utils.mk_sub(dels[2])
+                key = dels[1] + ':' + dels[2]
+                #frac = 0
+                if key in chicken_host_freqs:
+                    frac = chicken_host_freqs[key]
+                    hi.write(str(frac) + '\n')
 
-with open('working/low', 'w') as low:
-    for elmseq in uniq_human:
-        # 'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
-        if sum(seq_percents_human[elmseq])/float(total_human) - sum(seq_percents_bird[elmseq])/float(total_bird) > float(30):
-             dels = elmseq.split(':')
-             new_seq = utils.mk_sub(dels[2])
-             key = dels[1] + ':' + dels[2]
-             if key in chicken_host_freqs:
-                 frac = chicken_host_freqs[key]
-                 low.write(str(frac) + '\n')
+    with open('working/low', 'w') as low:
+        for elmseq in uniq_human:
+            # 'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
+            if sum(seq_percents_human[elmseq])/float(total_human) - sum(seq_percents_bird[elmseq])/float(total_bird) > float(30):
+                 dels = elmseq.split(':')
+                 new_seq = utils.mk_sub(dels[2])
+                 key = dels[1] + ':' + dels[2]
+                 if key in chicken_host_freqs:
+                     frac = chicken_host_freqs[key]
+                     low.write(str(frac) + '\n')
+elif sys.argv[1] == 'human':
+    with open('working/hi', 'w') as hi:
+        for elmseq in uniq_human:
+            if sum(seq_percents_human[elmseq])/float(total_human) - sum(seq_percents_bird[elmseq])/float(total_bird) > float(30):
+                dels = elmseq.split(':')
+                new_seq = utils.mk_sub(dels[2])
+                key = dels[1] + ':' + dels[2]
+                #frac = 0
+                if key in human_host_freqs:
+                    frac = human_host_freqs[key]
+                    cfrac = human_host_freqs[key]
+                    hi.write(str(frac) + '\t' + str(cfrac) + '\n')
+    with open('working/low', 'w') as low:
+        for elmseq in uniq_bird:
+            if sum(seq_percents_bird[elmseq])/float(total_bird) - sum(seq_percents_human[elmseq])/float(total_human) > float(40):
+                 dels = elmseq.split(':')
+                 new_seq = utils.mk_sub(dels[2])
+                 key = dels[1] + ':' + dels[2]
+                 if key in human_host_freqs:
+                     frac = human_host_freqs[key]
+                     cfrac = human_host_freqs[key]
+                     low.write(str(frac) + '\t' + str(cfrac) + '\n')
 
    
 
