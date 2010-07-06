@@ -28,7 +28,7 @@ def simplify_elmdicts():
     for host in TEST_GENOMES:
         sh('python simplify_elmdict.py '
            + 'working/Jun29/elmdict_' + host + '.init '
-           + '> working/Jul1/elmdict_' + host + '.simple')
+           + '> working/Jun29/elmdict_' + host + '.simple')
 
 @task
 def individual_elms():

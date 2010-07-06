@@ -1,8 +1,6 @@
-"""Find the average # of proteins
-   each uniq seq is on in bird
-   and human strains. Look for
-   a correlation between host and
-   flu."""
+"""Split flu %s into high and low
+   look at distributions of host
+   for these sequences"""
 from collections import defaultdict
 import utils, os, sys
 
@@ -67,8 +65,7 @@ for bird in birds:
 
 # human
 hosts = ('human',)
-'H1N1', 'H3N2', 'H3N8'
-strains = ('H5N1', )
+strains = ('H5N1', 'H1N1', 'H3N2', 'H3N8')
 seq_percents_human = defaultdict(list)
 total_human = 0
 for host in hosts:
@@ -107,20 +104,26 @@ chicken_host_file = 'working/Jun29/elmdict_Gallus_gallus.simple'
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
-for elmseq in uniq:
-    dels = elmseq.split(':')
-    new_seq = utils.mk_sub(dels[2])
-    key = dels[1] + ':' + new_seq
-    human_host = 0
-    chicken_host = 0
-    if key in chicken_host_freqs:
-        chicken_host = chicken_host_freqs[key]
-    if key in human_host_freqs:
-        human_host = human_host_freqs[key]
-    bird_flu_frac = sum(seq_percents_bird[elmseq])/float(total_bird)
-    human_flu_frac = sum(seq_percents_human[elmseq])/float(total_human)
-    if human_host != 0:
-        print elmseq + '\t' + str(bird_flu_frac/human_flu_frac) + '\t' + str(chicken_host/human_host)
+with open('working/hi', 'w') as hi:
+    with open('working/low', 'w') as low:
+        for elmseq in uniq:
+            if 'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq:
+                per = sp[elmseq]
+                dels = elmseq.split(':')
+                new_seq = utils.mk_sub(dels[2])
+                key = dels[1] + ':' + new_seq
+                human_host = 0
+                chicken_host = 0
+                if key in chicken_host_freqs:
+                    chicken_host = chicken_host_freqs[key]
+                if key in human_host_freqs:
+                    human_host = human_host_freqs[key]
+                bird_flu_frac = sum(seq_percents_bird[elmseq])/float(total_bird)
+                human_flu_frac = sum(seq_percents_human[elmseq])/float(total_human)
+                if bird_flu_frac >= float(80):
+                    hi.write(str(chicken_host) + '\n')
+                else:
+                    low.write(str(chicken_host) + '\n')
 
 
 # human_freqs = get_freqs(freq_file_human)

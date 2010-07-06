@@ -1,8 +1,6 @@
-"""Find the average # of proteins
-   each uniq seq is on in bird
-   and human strains. Look for
-   a correlation between host and
-   flu."""
+"""Do sequences uniq to either flu
+   show a preference for hi/low
+   distributions"""
 from collections import defaultdict
 import utils, os, sys
 
@@ -52,7 +50,7 @@ dir = 'working/Jul1_year'
 years = range(2000,2011,1)
 
 # bird
-birds = ('chicken',)
+birds = ('chicken','duck')
 strains = ('H9N2', 'H5N1')
 seq_percents_bird = defaultdict(list)
 total_bird = 0
@@ -67,8 +65,7 @@ for bird in birds:
 
 # human
 hosts = ('human',)
-'H1N1', 'H3N2', 'H3N8'
-strains = ('H5N1', )
+strains = ('H5N1', 'H1N1', 'H3N2', 'H3N8')
 seq_percents_human = defaultdict(list)
 total_human = 0
 for host in hosts:
@@ -86,9 +83,10 @@ bird_elmseqs_file = 'working/Jul1_year/bird_elmseqs'
 human_elmseqs = get_annotations(human_elmseqs_file)
 bird_elmseqs = get_annotations(bird_elmseqs_file)
 
-uniq = {}
-get_uniq(uniq, human_elmseqs, bird_elmseqs)
-get_uniq(uniq, bird_elmseqs, human_elmseqs)
+uniq_human = {}
+uniq_bird = {}
+get_uniq(uniq_human, human_elmseqs, bird_elmseqs)
+get_uniq(uniq_bird, bird_elmseqs, human_elmseqs)
 impt_elms = get_important(human_elmseqs, bird_elmseqs)
 # uniq = {}
 if use_host == 'mammal':
@@ -102,52 +100,34 @@ elif use_host == 'bird':
 #     if elmseq in uniq:
 #         print elmseq + '\t' + str(sum(seq_percents_bird[elmseq])/float(total_bird)) + '\t' + str(sum(seq_percents_human[elmseq])/float(total_human))
 
-human_host_file = 'working/Jun29/elmdict_H_sapiens.simple'
-chicken_host_file = 'working/Jun29/elmdict_Gallus_gallus.simple'
+human_host_file = 'working/Jun29/elmdict_H_sapiens.init'
+chicken_host_file = 'working/Jun29/elmdict_Gallus_gallus.init'
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
-for elmseq in uniq:
-    dels = elmseq.split(':')
-    new_seq = utils.mk_sub(dels[2])
-    key = dels[1] + ':' + new_seq
-    human_host = 0
-    chicken_host = 0
-    if key in chicken_host_freqs:
-        chicken_host = chicken_host_freqs[key]
-    if key in human_host_freqs:
-        human_host = human_host_freqs[key]
-    bird_flu_frac = sum(seq_percents_bird[elmseq])/float(total_bird)
-    human_flu_frac = sum(seq_percents_human[elmseq])/float(total_human)
-    if human_host != 0:
-        print elmseq + '\t' + str(bird_flu_frac/human_flu_frac) + '\t' + str(chicken_host/human_host)
+with open('working/hi', 'w') as hi:
+    for elmseq in uniq_bird:
+        #'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
+        if sum(seq_percents_bird[elmseq])/float(total_bird) - sum(seq_percents_human[elmseq])/float(total_human) > float(20):
+            dels = elmseq.split(':')
+            new_seq = utils.mk_sub(dels[2])
+            key = dels[1] + ':' + dels[2]
+            #frac = 0
+            if key in chicken_host_freqs:
+                frac = chicken_host_freqs[key]
+                hi.write(str(frac) + '\n')
 
+with open('working/low', 'w') as low:
+    for elmseq in uniq_human:
+        # 'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
+        if sum(seq_percents_human[elmseq])/float(total_human) - sum(seq_percents_bird[elmseq])/float(total_bird) > float(30):
+             dels = elmseq.split(':')
+             new_seq = utils.mk_sub(dels[2])
+             key = dels[1] + ':' + dels[2]
+             if key in chicken_host_freqs:
+                 frac = chicken_host_freqs[key]
+                 low.write(str(frac) + '\n')
 
-# human_freqs = get_freqs(freq_file_human)
-# chicken_freqs = get_freqs(freq_file_chicken)
-# v1 = []
-# v2 = []
-# for key in human_freqs:
-#     if key in uniq and key in chicken_freqs:
-#         hf = human_freqs[key]
-#         cf = chicken_freqs[key]
-#         if abs(hf-cf) > 5:
-#             sp = key.split(':')
-#             elmseq = sp[1] + ':' + sp[2]
-#             hhf = 0
-#             chf = 0
-#             if elmseq in human_host_freqs:
-#                 hhf = human_host_freqs[elmseq]
-#             if elmseq in chicken_host_freqs:
-#                 chf = chicken_host_freqs[elmseq]
-#             if chf != 0 and hhf != 0:
-#                 v1.append(hf/cf)
-#                 v2.append(float(hhf)/float(chf))
-#                 print key
-# print utils_stats.pcc(v1,v2)
-# with open('working/vals', 'w') as f:
-#     for a,b in zip(v1,v2):
-#         f.write(str(a) + '\t' + str(b) + '\n')
-
+   
 
 
