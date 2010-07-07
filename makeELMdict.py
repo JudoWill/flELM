@@ -43,7 +43,7 @@ def ReadELMs_nocompile(filename):
 	return outdict
 
 
-def ProcessFile(filename):
+def ProcessFile(filename, elm_file_name):
 	"""Finds the frequencey of ELM instances in a FASTA file.
 
 	Returns a defaultdict key-ed by ('ELM_NAME', 'ELM_SEQ') and has a value of
@@ -77,7 +77,7 @@ def ProcessFile(filename):
 			#if c > 3000: break
 
 	label = filename.split(os.sep)[-1]
-	elm_dict = ReadELMs_nocompile('elm_expressions.txt')
+	elm_dict = ReadELMs_nocompile(elm_file_name)#'elm_expressions.txt'
 
 	count_dict = defaultdict(int)
 	elm_count = defaultdict(int)
@@ -130,7 +130,7 @@ if __name__ == '__main__':
 	cloud.setkey(CLOUD_KEY, CLOUD_SECRET)
 	if not options.usecloud: cloud.start_simulator()
 	
-	outdata = ProcessFile(args[0])
+	outdata = ProcessFile(args[0], args[1])
 	print 'writting data'
 	counter = 0
 	with open(options.outfile, 'w') as handle:

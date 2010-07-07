@@ -20,9 +20,10 @@ def check_phylogeny(dis):
 
 results_dir = sys.argv[1]
 suffix = sys.argv[2]
+elmfile = sys.argv[3]
 
 elms = {}
-with open('elm_expressions.txt') as f:
+with open(elmfile) as f:
     for line in f:
         elm, exp = line.strip().split('\t')
         elms[elm] = True

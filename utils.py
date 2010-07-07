@@ -365,7 +365,7 @@ def ReadELMs_nocompile(filename):
 
 
 		
-def DictFromGen(GEN, label = None, chunk_size = 10, stop_count = None):		
+def DictFromGen(GEN, elmfile, label = None, chunk_size = 10, stop_count = None):		
 	"""Creates a dictionary of ELM frequencies from a generator"""
 	
 	
@@ -394,7 +394,7 @@ def DictFromGen(GEN, label = None, chunk_size = 10, stop_count = None):
 					m = reg.search(seq, m.start()+1)
 		return count_dict
 
-	elm_dict = ReadELMs_nocompile('elm_expressions.txt')
+	elm_dict = ReadELMs_nocompile(elmfile)
 	jids = []
 	
 	for chunk in ChunkGen(GEN, chunk_size, stop_count):

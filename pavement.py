@@ -8,6 +8,27 @@ from global_settings import *
 import utils
 
 @task
+def rewrite_simple_elmdict():
+    """After reducing the aminoacid space, and scanning reduced fasta, I need to redo the elmdicts produced"""
+
+    for g in TEST_GENOMES:
+        sh('python rewrite_simple_elmdict.py '
+           + os.path.join('working', 'Jul7', 'elmdict_' + g + '.init ')
+           + '> ' + os.path.join('working', 'Jul7', 'elmdict_' + g + '.RWinit'))
+
+@task
+def mk_simple_elm_patterns():
+    """Look at elmdict hits, and make new simple patterns from them"""
+
+    sh('python mk_simple_patterns.py '
+       + 'working/Jun29/ '
+       + 'working/Jul7/use_elms '
+       + '> working/Jul7/simple_patterns')
+    sh('python mk_simple_fasta.py '
+       + 'working/Jun29/ '
+       + 'working/Jul7/')
+
+@task
 def get_mammal_bird_elms():
     """Find ELMs conserved on all mammal
        or bird flu proteins"""
@@ -293,12 +314,14 @@ def process_elm(options):
 	if options.process_elm.get('picloud', False): c_arg = '-c'
 	
 	for genome in TEST_GENOMES:
-		ofile = os.path.join('working', 'Jun29', 'elmdict_'+genome+'.init')
-		ifile = os.path.join('working', 'Jun29', genome+'.fa')
+		ofile = os.path.join('working', 'Jul7', 'elmdict_'+genome+'.init')
+		ifile = os.path.join('working', 'Jul7', genome+'.fa')
+                elmfile = os.path.join('working', 'Jul7', 'simple_patterns')
 		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
 			#only do if missing or FORCING
-			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s' % {'out':ofile, 
-										  'c':c_arg, 'infile': ifile})
+			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s %(elm)s' % {'out':ofile, 
+                                                                                          'c':c_arg, 'infile': ifile,
+                                                                                          'elm': elmfile})
 
 @task
 @cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
