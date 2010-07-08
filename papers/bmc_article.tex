@@ -223,10 +223,6 @@ peptide motif profile if closest that of its host.
 
   \subsection*{ELM profiles recover host phylogeny}
 
-  \subsection*{ELM sequence cluster profiles recover host phylogeny}
-
-  \subsection*{ELM sequence cluster profiles assign correct host-influenza pairings}
-
 %%%%%%%%%%%%%%%%%%%%%%
 \section*{Conclusions}
 Here we investigated influenza group peptide biases, and checked to
@@ -241,10 +237,12 @@ NCBI. Host organisms in NCBI have different degrees of protein
 coverage. To standardize host and influenza sequence comparisons, we
 used ortholgs common to all host species. Roundup
 \cite{deluca2006roundup} was used with default settings to determine
-common ortholgos for human, chimpanzee, mouse, rat, cow, dog, chicken
-and zebra finch. Roundup did not provide orthologs for horse or pig,
-so these were determined using the reciprocal smallest distance
-\cite{wall2003detecting}.
+ortholog clusters for human, chimpanzee, mouse, rat, cow, dog, pig,
+horse, chicken and zebra finch proteins. We desired clusters with one
+protein from each species. When one species had more than one protein
+in an ortholog cluster, we picked one of these based on protein
+length. The protien whose length was closest to the average length of
+proteins from the other species was chosen.
 
 NCBI influenza protein sequences are tagged with the host organism
 they were taken from. For this study, we used influenza A sequences
@@ -254,60 +252,29 @@ hemagglutinin, neuraminidase, nucleocapsid protein, matrix protein 1,
 matrix protein 2, nonstructural protein 1, nonstructural protein 2,
 polymerase PB1, polymerase PA, polymerase PB2, or PB1-F2 protein. We
 organized influenza sequences into groups based on the host organism
-with which there were tagged.
+with which there were tagged and curation year.
 
 All protein sequences were matched against regular expressions for 153
 eukaryotic linear motifs cataloged in the ELM resource
 \cite{gould2010elm}. Rapid matching was facilitated using cloud
-computing provided by PiCloud.
+computing provided by PiCloud. The host orgamisms had hits for all ELM
+patterns, but the influenza sequences only had hits for XXX. The
+sequences matched by the ELM patterns were not identical for host and
+influenza. Most of the sequence matches on influenza were not present
+on host orgamisms. Influenza and host sequences had few ELM sequence
+hits in common. For these reasons, we reduced the twenty letter
+alphabet to a two letter alphabet representing hydrophobic/small and
+hydrophilic properties \cite{murphy2000simplified}. We converted host
+ELM sequence hits to simplified two letter alphabet, and used the
+results as patterns for their respective ELMs. These simplified
+patterns were then matched against the influenza protein sequences.
 
 \subsection*{Phylogenies}
-Phylogenies were constructed using hierarchical clustering with
-average linkage. Distances between groups were found using
-Jensen-Shannon divergence.
+For each of the 153 ELMs, phylogenies were constructed from ELM
+sequence hits using hierarchical clustering with average
+linkage. Distances were found using Jensen-Shannon divergence for ELM
+sequence distributions.
 
-\subsection*{Clustering}
-The host orgamisms had hits for all ELM patterns, but the influenza
-sequences only had hits for XXX. The sequences matched by the ELM
-patterns were not identical for host and influenza. Most of the
-sequence matches on influenza were not present on host orgamisms. For
-this reason, we decided to cluster ELM sequence matches based on the
-Levenshtein distance \cite{levenshteiti1966binary}, which is the
-minimun number of edits required to transform one sequence into
-another.
-
-For each ELM whose pattern matched an influenza sequence, we clustered
-all host and influenza pattern matches in two steps.  In the first
-step, we made clusters for each inflenza pattern match, and added to
-these clusters any host organism match that was at most two edits away
-from the influenza string. This led to many overlapping clusters. In
-the second step, we used k-medoids to cluster the overlapping clusters
-using the common sequences between two clusters as a distance
-metric. 
-
-It was possible that the resulting meta-clusters shared host
-ELM sequences. In the second step of clustering, we chose k to be as
-large as possible, but constrained it so that the number of
-overlapping sequences between to meta-clusters was small than ten
-percent of the total sequences beings clustered. The sequences that
-were common to two or more clusters were removed from the
-meta-clusters and reassigned based on averge linkage.
-
-Our clustering method uses three arbitrary cutoffs. In the first
-clustering step, we assign host ELM sequences to clusters based on an
-edit distance less than two. In the second clustering step, we choose
-a ten percent threshold to limit the sequences shared by two
-meta-clusters.
-
-\subsection*{Comparing ELM sequence cluster distributions}
-With our ELM sequence clusters established, we found distributions of
-cluster memebership for all host organisms and influenza groups.  We
-standardized these ELM sequence cluster profiles by only considering
-ELM sequence clusters with members that appears in all hosts and all
-influenza groups. We used Jensen-Shannon divergence
-\cite{lin1991divergence} to compare ELM sequence profiles taken from
-two host organisms or a host organism and an influenza group.
-  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Authors contributions}
     All authors contributed conceptually. Specific contributions are

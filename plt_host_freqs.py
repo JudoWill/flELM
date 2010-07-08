@@ -1,9 +1,9 @@
 """ Make a plot of host ELM sequence frequencies
     for uniq influenza ELM sequences."""
 from collections import defaultdict
-import utils, os, sys, utils_graph
+import utils, os, utils_graph
 
-good_elms = utils_graph.getNodes('working/Jul1/good_elms_bird_mammal')
+good_elms = utils_graph.getNodes('working/Jul7/good_phylogeny_elms')
 
 def write_file(fname, uniq, this_host_freqs, that_host_freqs, this, that):
     used = {}
@@ -79,7 +79,7 @@ dir = 'working/Jul1_year'
 years = range(2000,2011,1)
 
 # bird
-birds = ('chicken',)
+birds = ('chicken','duck')
 strains = ('H9N2', 'H5N1')
 seq_percents_bird = defaultdict(list)
 total_bird = 0
@@ -122,15 +122,16 @@ impt_elms = get_important(human_elmseqs, bird_elmseqs)
 #     if elmseq in uniq:
 #         print elmseq + '\t' + str(sum(seq_percents_bird[elmseq])/float(total_bird)) + '\t' + str(sum(seq_percents_human[elmseq])/float(total_human))
 
-human_host_file = 'working/Jun29/elmdict_H_sapiens.simple'
-chicken_host_file = 'working/Jun29/elmdict_Gallus_gallus.simple'
+#human_host_file = 'working/Jun29/elmdict_H_sapiens.simple'
+#chicken_host_file = 'working/Jun29/elmdict_Gallus_gallus.simple'
+
+human_host_file = 'working/Jul7/elmdict_H_sapiens.RWinit'
+chicken_host_file = 'working/Jul7/elmdict_Gallus_gallus.RWinit'
+
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
-
-
-
               
-write_file('working/human_plt_host_freqs', uniq_human, human_host_freqs, 
+write_file('working/human_plt_host_freqs_RW', uniq_human, human_host_freqs, 
            chicken_host_freqs, 'Human', 'Chicken')
-write_file('working/chicken_plt_host_freqs', uniq_bird, chicken_host_freqs, 
+write_file('working/chicken_plt_host_freqs_RW', uniq_bird, chicken_host_freqs, 
            human_host_freqs, 'Chicken', 'Human')

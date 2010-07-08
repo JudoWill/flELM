@@ -10,23 +10,43 @@ import utils
 @task
 def rewrite_simple_elmdict():
     """After reducing the aminoacid space, and scanning reduced fasta, I need to redo the elmdicts produced"""
-
+    
     for g in TEST_GENOMES:
         sh('python rewrite_simple_elmdict.py '
            + os.path.join('working', 'Jul7', 'elmdict_' + g + '.init ')
            + '> ' + os.path.join('working', 'Jul7', 'elmdict_' + g + '.RWinit'))
-
+        
 @task
 def mk_simple_elm_patterns():
-    """Look at elmdict hits, and make new simple patterns from them"""
+    """Look at elmdict hits, and make new simple patterns from them, and make new fasta"""
 
     sh('python mk_simple_patterns.py '
        + 'working/Jun29/ '
        + 'working/Jul7/use_elms '
        + '> working/Jul7/simple_patterns')
-    sh('python mk_simple_fasta.py '
-       + 'working/Jun29/ '
-       + 'working/Jul7/')
+    for g in TEST_GENOMES:
+        sh('python mk_simple_fasta.py '
+           + 'working/Jun29/' + g + '.fa '
+           + 'working/Jul7/' + g + '.fa')
+    host_strains = [['human','H1N1'],
+                    ['human','H3N2'],
+                    ['human','H5N1'],
+                    
+                    ['swine','H3N2'],
+                    ['swine','H1N1'],
+                    
+                    ['equine','H3N8'],
+                    
+                    ['chicken','H9N2'],
+                    ['chicken','H5N1'],
+                    
+                    ['duck','H9N2'],
+                    ['duck','H5N1']]
+    for host, strain in host_strains:
+        for year in xrange(2000, 2011):
+            sh('python mk_simple_fasta.py '
+               + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.fa '
+               + 'working/Jul7/' + host + '.' + strain + '.' + str(year) + '.fa')
 
 @task
 def get_mammal_bird_elms():
@@ -34,13 +54,13 @@ def get_mammal_bird_elms():
        or bird flu proteins"""
 
     sh('python get_host_elms.py '
-       + 'working/Jul1_year/mammal_elms '
-       + "working/Jul1_year/mammal_elmseqs "
-       + 'working/Jul1_year/mammal_simpleelmseqs mammal')
+       + 'working/Jul7/mammal_elms '
+       + "working/Jul7/mammal_elmseqs "
+       + 'working/Jul7/mammal_simpleelmseqs mammal')
     sh('python get_host_elms.py '
-       + 'working/Jul1_year/bird_elms '
-       + "working/Jul1_year/bird_elmseqs "
-       + 'working/Jul1_year/bird_simpleelmseqs bird')
+       + 'working/Jul7/bird_elms '
+       + "working/Jul7/bird_elmseqs "
+       + 'working/Jul7/bird_simpleelmseqs bird')
 
 @task 
 def simplify_elmdicts():
@@ -629,39 +649,38 @@ def conserved_elms_2():
 	"""Find ELMs conserved on strains"""
 
 	cut = options.conserved_elms_2.get('cutoff')
-	host_strains = [['human','H1N1'],
-			['human','H3N2'],
-			['human','H5N1'],
+	host_strains = [#['human','H1N1']],
+			 ['human','H3N2'],
+			 ['human','H5N1'],
 
-			['swine','H3N2'],
-			['swine','H1N1'],
+			 ['swine','H3N2'],
+			 ['swine','H1N1'],
 
-			['equine','H3N8'],
+			 ['equine','H3N8'],
 			
-			['chicken','H9N2'],
-			['chicken','H5N1'],
+			 ['chicken','H9N2'],
+			 ['chicken','H5N1'],
 
-			['duck','H9N2'],
-			['duck','H5N1']]
+			 ['duck','H9N2'],
+			 ['duck','H5N1']]
 
 	for host, strain in host_strains:
-            for year in xrange(2000, 2011):
-		sh('python get_flu_seqs.py '
-		   + host + ' '
-		   + strain + ' '
-                   + str(year) + ' '
-                   + 'working/Jul1_year/')
+            for year in xrange(2000, 2010):
+		#sh('python get_flu_seqs.py '
+		#   + host + ' '
+		#   + strain + ' '
+                #   + str(year) + ' '
+                #   + 'working/Jul7/')
 		sh('python matchELMpattern.py '
-		   + 'elm_expressions.txt '
-		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.fa '
-		   + '> ' + 'working/Jul1_year/' + host + '.' 
+		   + 'working/Jul7/simple_patterns '
+		   + 'working/Jul7/' + host + '.' + strain + '.' + str(year) + '.fa '
+		   + '> ' + 'working/Jul7/' + host + '.' 
                    + strain + '.' + str(year) + '.elms')
 		sh('python getConserved.py '
-		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms '
-		   + 'ELM '
+		   + 'working/Jul7/' + host + '.' + strain + '.' + str(year) + '.elms '
 		   + cut + ' '
-		   + '1> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
-		   + '2> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
+		   + '1> working/Jul7/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
+		   + '2> working/Jul7/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
 
 @task
 @cmdopts([('cutoff=', 'c', '% cutoff'),])

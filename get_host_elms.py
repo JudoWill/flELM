@@ -10,7 +10,7 @@ out_file_seqs = sys.argv[2]
 out_file_simpleELMseqs = sys.argv[3]
 host = sys.argv[4] # bird|mammal
 
-dir = 'working/Jul1_year'
+dir = 'working/Jul7'
 years = range(2000,2011,1)
 
 if host == 'mammal':
@@ -24,12 +24,12 @@ d = {'ELM':True}
 suffix = '.elms'
 utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_elms, suffix)
 
-d = {'ELMseq':True}
-suffix = '.elmseqs'
-utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_seqs, suffix)
+# d = {'ELMseq':True}
+# suffix = '.elmseqs'
+# utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_seqs, suffix)
 
-d = {'ELMseq':True}
-suffix = '.simpleelmseqs'
-utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_simpleELMseqs, suffix)
+# d = {'ELMseq':True}
+# suffix = '.simpleelmseqs'
+# utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_simpleELMseqs, suffix)
 
                               

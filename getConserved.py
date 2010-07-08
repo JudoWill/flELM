@@ -11,49 +11,53 @@
 """
 import warnings
 warnings.simplefilter('ignore')
-import sys, utils_motif, utils_scripting
+import sys, utils_scripting
+from collections import defaultdict
 
-def getCounts(protein2annotation):
+def getCounts(annotation_file):
+    """Accumulate total proteins and sequences with hits"""
+
     virus2annotation = {}
-    virus2proteinCount = {}
-    for protein in protein2annotation.keys():
-        protein_split = protein.split('.')
-        subtype = protein_split[0]
-        protein_name = protein_split[-1]
-        if not virus2proteinCount.has_key(protein_name):
-            virus2proteinCount[protein_name] = 0
-        virus2proteinCount[protein_name] += 1
-        for motif in protein2annotation[protein].keys():
-            if not virus2annotation.has_key(protein_name):
+    virus2proteinCount = defaultdict(dict)
+    pattern2elm = defaultdict(dict)
+    with open(annotation_file) as f:
+        for line in f:
+            protein, st, stp, motif, seq, junk = line.strip().split('\t')
+            protein_split = protein.split('.')
+            subtype = protein_split[0]
+            protein_name = protein_split[-1]
+            elm, pattern = motif.split(':')
+            virus2proteinCount[protein_name][subtype] = True
+            if protein_name not in virus2annotation:
                 virus2annotation[protein_name] = {}
-            if not virus2annotation[protein_name].has_key(motif):
-                virus2annotation[protein_name][motif] = 0
-            virus2annotation[protein_name][motif] += 1
-    return [virus2annotation, virus2proteinCount]
+            if pattern not in virus2annotation[protein_name]:
+                virus2annotation[protein_name][pattern] = {}
+            virus2annotation[protein_name][pattern][subtype] = True
+            pattern2elm[pattern][elm] = True
+            
+    return [virus2annotation, virus2proteinCount, pattern2elm]
 
 def main():
     req_args = ['virus annotation file',
-                'annotation tool',
                 '% MSA cutoff']
     examples = ['../../Data/ProfileScan/hiv.prosite',
-                'ProfileScan',
                 '90']
     utils_scripting.checkStart(sys.argv, req_args, examples, len(req_args), True)
     
     annotation_file = sys.argv[1]
-    tool = sys.argv[2]
-    conserved_cutoff = float(sys.argv[3])
+    conserved_cutoff = float(sys.argv[2])
     
-    protein2annotation = utils_motif.protein2annotation(annotation_file,
-                                                        {tool:True})
-    [virus2annotation, virus2proteinCount] = getCounts(protein2annotation)
+    [virus2annotation, virus2proteinCount,
+     pattern2elm] = getCounts(annotation_file)
 
     for vp in virus2annotation.keys():
-        for motif in virus2annotation[vp].keys():
-            percent = (float(100) * float(virus2annotation[vp][motif]) / 
-                       float(virus2proteinCount[vp]))
-            if percent >= conserved_cutoff:
-                print vp + '\t0\t0\t' + motif + '\tseq\t' + tool
-            sys.stderr.write(vp + '\t' + motif + '\t' + str(percent) + '\n')
+        for pattern in virus2annotation[vp]:
+            percent = (float(100) * float(len(virus2annotation[vp][motif])) / 
+                       float(len(virus2proteinCount[vp])))
+            for elm in pattern2elm[pattern]:
+                motif = elm + ':' + pattern
+                if percent >= conserved_cutoff:
+                    print vp + '\t0\t0\t' + motif + '\tseq\t' + tool
+                sys.stderr.write(vp + '\t' + motif + '\t' + str(percent) + '\n')
 
 if __name__ == '__main__': main()

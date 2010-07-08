@@ -8,8 +8,8 @@
 """ Match regular expressions from ELM given a pattern file and fasta file.
 ../../../school/Data/Protein_Annotations/ELM/elm2pattern
 fasta file """
-import string, re, sys
-import utils_scripting, utils_fasta
+import string, re, sys, utils
+import utils_scripting
 
 special_p = re.compile("Q.[^FHWY][ILM][^P][^FHILVWYP][DHFM][FMY]..")
 
@@ -22,10 +22,10 @@ def printResult(protein, elm, match, seq, offset):
           + seq[int(match.start()):int(match.end())] + '\tELM'
 
 def matchSeq(protein, seq, elm2pattern):
-    for elm in elm2pattern.keys():
+    for elm in elm2pattern:
         #elm_pattern = elm2pattern[elm]#.replace('(','').replace(')','')
         #p = re.compile(elm_pattern)
-        [p, elm_pattern] = elm2pattern[elm]
+        p, elm_pattern = elm2pattern[elm]
         match = p.search(seq)
         
         # there's no need to search for more matches
@@ -64,14 +64,12 @@ utils_scripting.checkStart(sys.argv, req_args, examples, len(req_args), True)
 
 input_pattern_file = sys.argv[1]
 elm2pattern = {}
-f = open(input_pattern_file)
-for line in f.xreadlines():
-    [elm, pattern] = map(string.strip, line.split())
-    elm2pattern[elm] = [re.compile(pattern), pattern]
-f.close()
+with open(input_pattern_file) as f:
+    for line in f:
+        [elm, pattern] = map(string.strip, line.split())
+        elm2pattern[elm] = [re.compile(pattern), pattern]
 
-fasta = utils_fasta.loadFASTA(sys.argv[2])
-for protein in fasta.keys():
-     matchSeq(protein, fasta[protein], elm2pattern)
+for protein, seq in utils.fasta_iter(sys.argv[2]):
+    matchSeq(protein, seq, elm2pattern)
 
 
