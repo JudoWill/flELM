@@ -7,11 +7,14 @@ import utils, os, sys
 use_host = sys.argv[1]
 
 def get_annotations(afile):
+    """Grab sequences seen on strains"""
+
     d = defaultdict(dict)
     with open(afile) as f:
         for line in f:
             protein, elm = line.strip().split('\t')
-            d[protein][elm] = True
+            seq = elm.split(':')[1]
+            d[protein][seq] = True
     return d
 
 def get_important(ls1, ls2):
@@ -31,19 +34,29 @@ def get_uniq(uniq, ls1, ls2):
                 uniq[protein + ':' + elm] = True
 
 def get_freqs(afile, seq_percents):
-
+    
+    seen = {}
     with open(afile) as f:
         for line in f:
             protein, elmseq, freq = line.strip().split('\t')
-            key = ':'.join([protein, elmseq])
-            seq_percents[key].append(float(freq))
+            key = ':'.join([protein, elmseq.split(':')[1]])
+            if key not in seen:
+                seq_percents[key].append(float(freq))
+                seen[key] = True
 
 def get_host_freqs(afile):
+    """Count freq as faction of this seq over total"""
+
     freqs = {}
     with open(afile) as f:
         for line in f:
             elm, seq, count, freq = line.strip().split('\t')
-            freqs[elm + ':' + seq] = float(freq)
+            freqs[seq] = float(count)
+    total = float(0)
+    for seq in freqs:
+        total += freqs[seq]
+    for seq in freqs:
+        freqs[seq] = float(100)*freqs[seq]/total
     return freqs
 
 dir = 'working/Jul7'
@@ -106,50 +119,43 @@ human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
 if sys.argv[1] == 'bird':
-    with open('working/Jul7/hi_bird', 'w') as hi:
+    with open('working/Jul7/hi_bird2', 'w') as hi:
         for elmseq in uniq_bird:
             #'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
             if sum(seq_percents_bird[elmseq])/float(total_bird) - sum(seq_percents_human[elmseq])/float(total_human) > float(20):
-                dels = elmseq.split(':')
-                #new_seq = utils.mk_sub(dels[2])
-                key = dels[1] + ':' + dels[2]
+                key = elmseq.split(':')[1]
                 #frac = 0
                 if key in chicken_host_freqs:
                     frac = chicken_host_freqs[key]
                     hi.write(str(frac) + '\n')
+            #else:
+            #    print sum(seq_percents_bird[elmseq])/float(total_bird)
 
-    with open('working/Jul7/low_bird', 'w') as low:
+    with open('working/Jul7/low_bird2', 'w') as low:
         for elmseq in uniq_human:
             # 'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
             if sum(seq_percents_human[elmseq])/float(total_human) - sum(seq_percents_bird[elmseq])/float(total_bird) > float(20):
-                 dels = elmseq.split(':')
-                 #new_seq = utils.mk_sub(dels[2])
-                 key = dels[1] + ':' + dels[2]
+                 key = elmseq.split(':')[1]
                  if key in chicken_host_freqs:
                      frac = chicken_host_freqs[key]
                      low.write(str(frac) + '\n')
 elif sys.argv[1] == 'human':
-    with open('working/Jul7/hi_human', 'w') as hi:
+    with open('working/Jul7/hi_human2', 'w') as hi:
         for elmseq in uniq_human:
             if sum(seq_percents_human[elmseq])/float(total_human) - sum(seq_percents_bird[elmseq])/float(total_bird) > float(20):
-                dels = elmseq.split(':')
-                #new_seq = utils.mk_sub(dels[2])
-                key = dels[1] + ':' + dels[2]
+                key = elmseq.split(':')[1]
                 #frac = 0
                 if key in human_host_freqs:
                     frac = human_host_freqs[key]
-                    cfrac = human_host_freqs[key]
-                    hi.write(str(frac) + '\t' + str(cfrac) + '\n')
-    with open('working/Jul7/low_human', 'w') as low:
+                    hi.write(str(frac) + '\n')
+    with open('working/Jul7/low_human2', 'w') as low:
         for elmseq in uniq_bird:
             if sum(seq_percents_bird[elmseq])/float(total_bird) - sum(seq_percents_human[elmseq])/float(total_human) > float(20):
-                 dels = elmseq.split(':')
-                 #new_seq = utils.mk_sub(dels[2])
-                 key = dels[1] + ':' + dels[2]
+                 key = elmseq.split(':')[1]
                  if key in human_host_freqs:
                      frac = human_host_freqs[key]
-                     cfrac = human_host_freqs[key]
-                     low.write(str(frac) + '\t' + str(cfrac) + '\n')
+                     low.write(str(frac)  + '\n')
+
 
    
 

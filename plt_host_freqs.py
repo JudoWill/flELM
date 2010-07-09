@@ -11,10 +11,11 @@ def write_file(fname, uniq, this_host_freqs, that_host_freqs, this, that):
         f.write('ELM\tSeq\tHost\tFreq\n')
         for elmseq in uniq:
             protein, elm, seq = elmseq.split(':')
-            new_seq = utils.mk_sub(seq)
-            key = elm + ':' + new_seq
-            seq = new_seq
-            if key != 'LIG_RGD:RGD' and key != 'LIG_AP2alpha_2:DPF' and key not in used and elm in good_elms:
+            #new_seq = utils.mk_sub(seq)
+            #new_seq = seq
+            key = elm + ':' + seq
+            #seq = new_seq
+            if 'LIG' in key and key not in used and elm in good_elms:
                 
                 used[key] = True
                 this_val = float(0)
@@ -75,7 +76,7 @@ def get_host_freqs(afile):
             freqs[elm + ':' + seq] = float(freq)
     return freqs
 
-dir = 'working/Jul1_year'
+dir = 'working/Jul7'
 years = range(2000,2011,1)
 
 # bird
@@ -87,7 +88,7 @@ for bird in birds:
     for strain in strains:
         for year in years:
             file = os.path.join(dir, '.'.join((bird, strain, str(year),
-                                               'elmseqs.conservation')))
+                                               'elms.conservation')))
             if os.path.exists(file):
                 total_bird += 1
                 get_freqs(file, seq_percents_bird)
@@ -101,13 +102,13 @@ for host in hosts:
     for strain in strains:
         for year in years:
             file = os.path.join(dir, '.'.join((host, strain, str(year),
-                                               'elmseqs.conservation')))
+                                               'elms.conservation')))
             if os.path.exists(file):
                 total_human += 1
                 get_freqs(file, seq_percents_human)
 
-human_elmseqs_file = 'working/Jul1_year/mammal_elmseqs'
-bird_elmseqs_file = 'working/Jul1_year/bird_elmseqs'
+human_elmseqs_file = 'working/Jul7/mammal_elms'
+bird_elmseqs_file = 'working/Jul7/bird_elms'
 
 human_elmseqs = get_annotations(human_elmseqs_file)
 bird_elmseqs = get_annotations(bird_elmseqs_file)
@@ -131,7 +132,7 @@ chicken_host_file = 'working/Jul7/elmdict_Gallus_gallus.RWinit'
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
               
-write_file('working/human_plt_host_freqs_RW', uniq_human, human_host_freqs, 
+write_file('working/Jul7/human_plt_host_freqs_RW2', uniq_human, human_host_freqs, 
            chicken_host_freqs, 'Human', 'Chicken')
-write_file('working/chicken_plt_host_freqs_RW', uniq_bird, chicken_host_freqs, 
+write_file('working/Jul7/chicken_plt_host_freqs_RW2', uniq_bird, chicken_host_freqs, 
            human_host_freqs, 'Chicken', 'Human')

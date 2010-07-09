@@ -649,7 +649,7 @@ def conserved_elms_2():
 	"""Find ELMs conserved on strains"""
 
 	cut = options.conserved_elms_2.get('cutoff')
-	host_strains = [#['human','H1N1']],
+	host_strains = [['human','H1N1']],
 			 ['human','H3N2'],
 			 ['human','H5N1'],
 
