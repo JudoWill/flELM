@@ -128,9 +128,6 @@ if sys.argv[1] == 'bird':
                 if key in chicken_host_freqs:
                     frac = chicken_host_freqs[key]
                     hi.write(str(frac) + '\n')
-            #else:
-            #    print sum(seq_percents_bird[elmseq])/float(total_bird)
-
     with open('working/Jul7/low_bird2', 'w') as low:
         for elmseq in uniq_human:
             # 'X' not in elmseq and 'J' not in elmseq and 'B' not in elmseq and
