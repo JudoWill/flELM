@@ -22,7 +22,7 @@ elif host == 'bird':
 
 d = {'ELM':True}
 suffix = '.elms'
-utils.get_cons_elms(dir, hosts, years, strains, '70', d, out_file_elms, suffix)
+utils.get_cons_elms(dir, hosts, years, strains, '90', d, out_file_elms, suffix)
 
 # d = {'ELMseq':True}
 # suffix = '.elmseqs'

@@ -52,12 +52,12 @@ def main():
 
     for vp in virus2annotation.keys():
         for pattern in virus2annotation[vp]:
-            percent = (float(100) * float(len(virus2annotation[vp][motif])) / 
+            percent = (float(100) * float(len(virus2annotation[vp][pattern])) / 
                        float(len(virus2proteinCount[vp])))
             for elm in pattern2elm[pattern]:
                 motif = elm + ':' + pattern
                 if percent >= conserved_cutoff:
-                    print vp + '\t0\t0\t' + motif + '\tseq\t' + tool
+                    print vp + '\t0\t0\t' + motif + '\tseq\tELM'
                 sys.stderr.write(vp + '\t' + motif + '\t' + str(percent) + '\n')
 
 if __name__ == '__main__': main()

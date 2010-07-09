@@ -13,9 +13,18 @@ import cloud, random, numpy, utils_motif
 
 def init_zero(): return 0
 
+def get_proteins_from_elm_file(afile):
+     """Grab the proteins with ELM hits"""
+
+     proteins = {}
+     with open(afile) as f:
+          for line in f:
+               proteins[line.split('\t')[0]] = True
+     return proteins
+
 def count_cons(use_files, protein_counts_pass, f, d, new_f):
      protein_counts = defaultdict(dict)
-     proteinName2motif = utils_motif.protein2annotation(f, d)
+     proteinName2motif = get_proteins_from_elm_file(f)
      for proteinName in proteinName2motif:
          protein = proteinName.split('.')[1]
          if protein in FLU_PROTEINS_LTD:
