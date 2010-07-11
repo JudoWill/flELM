@@ -8,6 +8,16 @@ from global_settings import *
 import utils
 
 @task
+def rewrite_simple_elmdict_len():
+    """After reducing the aminoacid space, and scanning reduced fasta, I need to redo the elmdicts produced. Split up ELM hits by length"""
+    
+    for g in TEST_GENOMES:
+        sh('python rewrite_simple_elmdict.py '
+           + os.path.join('working', 'Jul7', 'elmdict_' + g + '.init ')
+           + '> ' + os.path.join('working', 'Jul7', 'elmdict_' + g + '.RWlenInit'))
+
+
+@task
 def rewrite_simple_elmdict():
     """After reducing the aminoacid space, and scanning reduced fasta, I need to redo the elmdicts produced"""
     
@@ -649,20 +659,20 @@ def conserved_elms_2():
 	"""Find ELMs conserved on strains"""
 
 	cut = options.conserved_elms_2.get('cutoff')
-	host_strains = [['human','H1N1']],
-			 ['human','H3N2'],
-			 ['human','H5N1'],
-
-			 ['swine','H3N2'],
-			 ['swine','H1N1'],
-
-			 ['equine','H3N8'],
+	host_strains = [['human','H1N1'],
+                        ['human','H3N2'],
+                        ['human','H5N1'],
+                        
+                        ['swine','H3N2'],
+                        ['swine','H1N1'],
+                        
+                        ['equine','H3N8'],
 			
-			 ['chicken','H9N2'],
-			 ['chicken','H5N1'],
-
-			 ['duck','H9N2'],
-			 ['duck','H5N1']]
+                        ['chicken','H9N2'],
+                        ['chicken','H5N1'],
+                        
+                        ['duck','H9N2'],
+                        ['duck','H5N1']]
 
 	for host, strain in host_strains:
             for year in xrange(2000, 2010):
