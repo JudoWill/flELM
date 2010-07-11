@@ -12,7 +12,7 @@ def rewrite_simple_elmdict_len():
     """After reducing the aminoacid space, and scanning reduced fasta, I need to redo the elmdicts produced. Split up ELM hits by length"""
     
     for g in TEST_GENOMES:
-        sh('python rewrite_simple_elmdict.py '
+        sh('python rewrite_simple_elmdict_len.py '
            + os.path.join('working', 'Jul7', 'elmdict_' + g + '.init ')
            + '> ' + os.path.join('working', 'Jul7', 'elmdict_' + g + '.RWlenInit'))
 
