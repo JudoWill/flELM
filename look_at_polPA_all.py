@@ -7,9 +7,8 @@ def get_host_freqs(afile):
     with open(afile) as f:
         for line in f:
             elm_len, seq, count, freq = line.strip().split('\t')
-            if 'LIG_MAPK_1' in elm_len:
-                elm, length = elm_len.split(':')
-                freqs[elm + ':' + seq + ':' + length] = float(freq)
+            elm, length = elm_len.split(':')
+            freqs[elm + ':' + seq + ':' + length] = float(freq)
     return freqs
 
 def get_freqs(afile, seq_percents):
@@ -33,9 +32,8 @@ def get_annotations(afile):
         for line in f:
             protein, elm = line.strip().split('\t')
             if protein == 'polymerase PA':
-                if 'LIG_MAPK_1' in elm:
-                    seq = elm.split(':')[1] + ':' + str(len(elm.split(':')[1]))
-                    d[protein][seq] = True
+                seq = elm + ':' + str(len(elm.split(':')[1]))
+                d[protein][seq] = True
     return d
 
 def get_uniq(uniq, ls1, ls2):
@@ -77,7 +75,7 @@ for bird in birds:
                 get_freqs(file, seq_percents_bird)
 
 # human
-hosts = ('human',)
+hosts = ('swine',)
 strains = ('H5N1', 'H1N1', 'H3N2', 'H3N8')
 seq_percents_human = defaultdict(list)
 total_human = 0
@@ -96,23 +94,40 @@ human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
 print 'BIRD'
-sum = float(0)
+sums = defaultdict(utils.init_zero)
+totals = defaultdict(utils.init_zero)
+
 for elmseq in uniq_bird:
-    seq = elmseq.split(':')[1] + ':' + elmseq.split(':')[2]
-    elmseq = 'LIG_MAPK_1' + ':' + seq
-    diff = chicken_host_freqs[elmseq]-human_host_freqs[elmseq]
-    print elmseq, diff
+    protein, elm, seq, length = elmseq.split(':')
+    key = elm + ':' + seq + ':' + length
+    diff = chicken_host_freqs[key]-human_host_freqs[key]
     if diff > float(0):
-        sum += 1
-print sum
+        sums[elm] += 1
+    totals[elm] += 1
+
+full_sum = 0
+full_total = 0
+for elm in sums:
+    print elm, float(100)*float(sums[elm])/float(totals[elm])
+    full_sum += sums[elm]
+    full_total += totals[elm]
+print float(100)*float(full_sum)/float(full_total)
 
 print 'MAMMAL'
-s = float(0)
+s = defaultdict(utils.init_zero)
+t = defaultdict(utils.init_zero)
 for elmseq in uniq_human:
-    seq = elmseq.split(':')[1] + ':' + elmseq.split(':')[2]
-    elmseq = 'LIG_MAPK_1' + ':' + seq
-    diff = human_host_freqs[elmseq]-chicken_host_freqs[elmseq]
-    print elmseq, diff
+    protein, elm, seq, length = elmseq.split(':')
+    key = elm + ':' + seq + ':' + length
+    diff = human_host_freqs[key]-chicken_host_freqs[key]
     if diff > float(0):
-        s += 1
-print s
+        s[elm] += 1
+    t[elm] += 1
+
+full_sum = 0
+full_total = 0
+for elm in s:
+    print elm, float(100)*float(s[elm])/float(t[elm])
+    full_sum += s[elm]
+    full_total += t[elm]
+print float(100) * float(full_sum)  / float(full_total)
