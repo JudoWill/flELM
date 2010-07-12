@@ -55,6 +55,20 @@ uniq_bird = {}
 get_uniq(uniq_human, human_elmseqs, bird_elmseqs)
 get_uniq(uniq_bird, bird_elmseqs, human_elmseqs)
 
+notUniq_human = {}
+for protein in human_elmseqs:
+    for elm in human_elmseqs[protein]:
+        key = protein + ':' + elm
+        if key not in uniq_human:
+            notUniq_human[key] = True
+
+notUniq_bird = {}
+for protein in bird_elmseqs:
+    for elm in bird_elmseqs[protein]:
+        key = protein + ':' + elm
+        if key not in uniq_bird:
+            notUniq_bird[key] = True
+
 print len(uniq_human), len(uniq_bird)
 
 dir = 'working/Jul7'
@@ -107,11 +121,31 @@ for elmseq in uniq_bird:
 
 full_sum = 0
 full_total = 0
-for elm in sums:
-    print elm, float(100)*float(sums[elm])/float(totals[elm])
+for elm in totals:
+    #print elm, float(100)*float(sums[elm])/float(totals[elm])
     full_sum += sums[elm]
     full_total += totals[elm]
-print float(100)*float(full_sum)/float(full_total)
+print full_sum, full_total-full_sum, float(100)*float(full_sum)/float(full_total)
+
+print 'NOT UNIQ BIRD'
+sums = defaultdict(utils.init_zero)
+totals = defaultdict(utils.init_zero)
+
+for elmseq in notUniq_bird:
+    protein, elm, seq, length = elmseq.split(':')
+    key = elm + ':' + seq + ':' + length
+    diff = chicken_host_freqs[key]-human_host_freqs[key]
+    if diff > float(0):
+        sums[elm] += 1
+    totals[elm] += 1
+
+full_sum = 0
+full_total = 0
+for elm in totals:
+    #print elm, float(100)*float(sums[elm])/float(totals[elm])
+    full_sum += sums[elm]
+    full_total += totals[elm]
+print full_sum, full_total-full_sum, float(100)*float(full_sum)/float(full_total)
 
 print 'MAMMAL'
 s = defaultdict(utils.init_zero)
@@ -126,8 +160,27 @@ for elmseq in uniq_human:
 
 full_sum = 0
 full_total = 0
-for elm in s:
-    print elm, float(100)*float(s[elm])/float(t[elm])
+for elm in t:
+    #print elm, float(100)*float(s[elm])/float(t[elm])
     full_sum += s[elm]
     full_total += t[elm]
-print float(100) * float(full_sum)  / float(full_total)
+print full_sum, full_total-full_sum, float(100) * float(full_sum)  / float(full_total)
+
+print 'NOT UNIQ MAMMAL'
+s = defaultdict(utils.init_zero)
+t = defaultdict(utils.init_zero)
+for elmseq in notUniq_human:
+    protein, elm, seq, length = elmseq.split(':')
+    key = elm + ':' + seq + ':' + length
+    diff = human_host_freqs[key]-chicken_host_freqs[key]
+    if diff > float(0):
+        s[elm] += 1
+    t[elm] += 1
+
+full_sum = 0
+full_total = 0
+for elm in t:
+    #print elm, float(100)*float(s[elm])/float(t[elm])
+    full_sum += s[elm]
+    full_total += t[elm]
+print full_sum, full_total-full_sum, float(100) * float(full_sum)  / float(full_total)
