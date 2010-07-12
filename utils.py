@@ -30,7 +30,7 @@ def count_cons(use_files, protein_counts_pass, f, d, new_f):
          if protein in FLU_PROTEINS_LTD:
              protein_counts[protein][proteinName] = True
      for protein in protein_counts:
-         if len(protein_counts[protein]) > 50:
+         if len(protein_counts[protein]) > 25:
              use_files[new_f] = True
              protein_counts_pass[protein][new_f] = True
 
@@ -61,9 +61,8 @@ def get_cons_elms(dir, hosts, years, strains, per, d, out_file, suffix):
               #print protein + '\t' + str(len(protein_counts_pass[protein])) + '\t' + str([x.split('/')[2].split('.')[0:3] for x in protein_counts_pass[protein].keys()])
               elm_counts_local = defaultdict(init_zero)
               for f in protein_counts_pass[protein]:
-                   if protein in use_files[f]:
-                        for elm in use_files[f][protein]:
-                             elm_counts_local[elm] += 1
+                   for elm in use_files[f][protein]:
+                        elm_counts_local[elm] += 1
               for elm in elm_counts_local:
                    if len(protein_counts_pass[protein]) == elm_counts_local[elm]:
                         afile.write(protein + '\t' + elm + '\n')

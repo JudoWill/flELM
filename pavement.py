@@ -8,6 +8,13 @@ from global_settings import *
 import utils
 
 @task
+def check_hypoth():
+    """Do individual flu proteins match host/flu hypoth?"""
+    for protein in FLU_PROTEINS_LTD:
+        sh('python look_at_polPA_all.py '
+           + "'" + protein + "'")
+
+@task
 def rewrite_simple_elmdict_len():
     """After reducing the aminoacid space, and scanning reduced fasta, I need to redo the elmdicts produced. Split up ELM hits by length"""
     

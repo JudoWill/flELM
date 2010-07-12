@@ -2,7 +2,7 @@
 import utils, os
 from collections import defaultdict
 
-host = 'mammal'
+host = 'bird'
 dir = 'working/Jul7'
 years = range(2000,2011,1)
 

@@ -14,11 +14,11 @@ dir = 'working/Jul7'
 years = range(2000,2011,1)
 
 if host == 'mammal':
-    hosts = ('human','swine', 'equine')
-    strains = ('H1N1', 'H3N2', 'H5N1', 'H3N8')
+    hosts = ('human',)
+    strains = ('H5N1',)
 elif host == 'bird':
-    hosts = ('duck', 'chicken')
-    strains = ('H9N2', 'H5N1')
+    hosts = ('chicken',)
+    strains = ('H5N1',)
 
 d = {'ELM':True}
 suffix = '.elms'
