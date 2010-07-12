@@ -18,7 +18,7 @@ def get_proteins_from_elm_file(afile):
 
      proteins = {}
      with open(afile) as f:
-          for line in f:
+          for line in f.xreadlines():
                proteins[line.split('\t')[0]] = True
      return proteins
 

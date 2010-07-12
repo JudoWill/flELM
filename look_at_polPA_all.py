@@ -31,7 +31,7 @@ def get_annotations(afile):
     with open(afile) as f:
         for line in f:
             protein, elm = line.strip().split('\t')
-            if protein == 'polymerase PA':
+            if protein == 'nonstructural protein 1':
                 seq = elm + ':' + str(len(elm.split(':')[1]))
                 d[protein][seq] = True
     return d
@@ -114,10 +114,11 @@ totals = defaultdict(utils.init_zero)
 for elmseq in uniq_bird:
     protein, elm, seq, length = elmseq.split(':')
     key = elm + ':' + seq + ':' + length
-    diff = chicken_host_freqs[key]-human_host_freqs[key]
-    if diff > float(0):
-        sums[elm] += 1
-    totals[elm] += 1
+    if key in chicken_host_freqs and key in human_host_freqs:
+        diff = chicken_host_freqs[key]-human_host_freqs[key]
+        if diff > float(0):
+            sums[elm] += 1
+        totals[elm] += 1
 
 full_sum = 0
 full_total = 0
@@ -134,10 +135,11 @@ totals = defaultdict(utils.init_zero)
 for elmseq in notUniq_bird:
     protein, elm, seq, length = elmseq.split(':')
     key = elm + ':' + seq + ':' + length
-    diff = chicken_host_freqs[key]-human_host_freqs[key]
-    if diff > float(0):
-        sums[elm] += 1
-    totals[elm] += 1
+    if key in chicken_host_freqs and key in human_host_freqs:
+        diff = chicken_host_freqs[key]-human_host_freqs[key]
+        if diff > float(0):
+            sums[elm] += 1
+        totals[elm] += 1
 
 full_sum = 0
 full_total = 0
@@ -153,10 +155,11 @@ t = defaultdict(utils.init_zero)
 for elmseq in uniq_human:
     protein, elm, seq, length = elmseq.split(':')
     key = elm + ':' + seq + ':' + length
-    diff = human_host_freqs[key]-chicken_host_freqs[key]
-    if diff > float(0):
-        s[elm] += 1
-    t[elm] += 1
+    if key in chicken_host_freqs and key in human_host_freqs:
+        diff = human_host_freqs[key]-chicken_host_freqs[key]
+        if diff > float(0):
+            s[elm] += 1
+        t[elm] += 1
 
 full_sum = 0
 full_total = 0
@@ -172,10 +175,11 @@ t = defaultdict(utils.init_zero)
 for elmseq in notUniq_human:
     protein, elm, seq, length = elmseq.split(':')
     key = elm + ':' + seq + ':' + length
-    diff = human_host_freqs[key]-chicken_host_freqs[key]
-    if diff > float(0):
-        s[elm] += 1
-    t[elm] += 1
+    if key in chicken_host_freqs and key in human_host_freqs:
+        diff = human_host_freqs[key]-chicken_host_freqs[key]
+        if diff > float(0):
+            s[elm] += 1
+        t[elm] += 1
 
 full_sum = 0
 full_total = 0
