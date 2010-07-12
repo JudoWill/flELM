@@ -39,12 +39,12 @@ def mk_simple_elm_patterns():
 
     sh('python mk_simple_patterns.py '
        + 'working/Jun29/ '
-       + 'working/Jul7/use_elms '
-       + '> working/Jul7/simple_patterns')
+       + 'working/Jul12/use_elms '
+       + '> working/Jul12/simple_patterns')
     for g in TEST_GENOMES:
         sh('python mk_simple_fasta.py '
            + 'working/Jun29/' + g + '.fa '
-           + 'working/Jul7/' + g + '.fa')
+           + 'working/Jul12/' + g + '.fa')
     host_strains = [['human','H1N1'],
                     ['human','H3N2'],
                     ['human','H5N1'],
@@ -63,7 +63,7 @@ def mk_simple_elm_patterns():
         for year in xrange(2000, 2011):
             sh('python mk_simple_fasta.py '
                + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.fa '
-               + 'working/Jul7/' + host + '.' + strain + '.' + str(year) + '.fa')
+               + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.fa')
 
 @task
 def get_mammal_bird_elms():
@@ -351,9 +351,9 @@ def process_elm(options):
 	if options.process_elm.get('picloud', False): c_arg = '-c'
 	
 	for genome in TEST_GENOMES:
-		ofile = os.path.join('working', 'Jul7', 'elmdict_'+genome+'.init')
-		ifile = os.path.join('working', 'Jul7', genome+'.fa')
-                elmfile = os.path.join('working', 'Jul7', 'simple_patterns')
+		ofile = os.path.join('working', 'Jul12', 'elmdict_'+genome+'.init')
+		ifile = os.path.join('working', 'Jul12', genome+'.fa')
+                elmfile = os.path.join('working', 'Jul12', 'simple_patterns')
 		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
 			#only do if missing or FORCING
 			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s %(elm)s' % {'out':ofile, 
@@ -689,15 +689,15 @@ def conserved_elms_2():
                 #   + str(year) + ' '
                 #   + 'working/Jul7/')
 		sh('python matchELMpattern.py '
-		   + 'working/Jul7/simple_patterns '
-		   + 'working/Jul7/' + host + '.' + strain + '.' + str(year) + '.fa '
-		   + '> ' + 'working/Jul7/' + host + '.' 
+		   + 'working/Jul12/simple_patterns '
+		   + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.fa '
+		   + '> ' + 'working/Jul12/' + host + '.' 
                    + strain + '.' + str(year) + '.elms')
-		sh('python getConserved.py '
-		   + 'working/Jul7/' + host + '.' + strain + '.' + str(year) + '.elms '
-		   + cut + ' '
-		   + '1> working/Jul7/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
-		   + '2> working/Jul7/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
+		#sh('python getConserved.py '
+		#   + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms '
+		#   + cut + ' '
+		#   + '1> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
+		#   + '2> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
 
 @task
 @cmdopts([('cutoff=', 'c', '% cutoff'),])
