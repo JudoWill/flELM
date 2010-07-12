@@ -82,48 +82,72 @@ def get_uniq(uniq, ls1, ls2):
             if elm not in ls2[protein]:
                 uniq[protein + ':' + elm] = True
 
-human_elmseqs_file = 'working/Jul7/mammal_elms'
-bird_elmseqs_file = 'working/Jul7/bird_elms'
-
-human_elmseqs = get_annotations(human_elmseqs_file)
-bird_elmseqs = get_annotations(bird_elmseqs_file)
-
 uniq_human = {}
+with open('working/Jul7/mammal_uniq') as f:
+    for line in f:
+        protein, elm = line.strip().split('\t')
+        if protein == use_protein:
+            length = str(len(elm.split(':')[1]))
+            uniq_human[':'.join((protein, elm, length))] = True
+
 uniq_bird = {}
-get_uniq(uniq_human, human_elmseqs, bird_elmseqs)
-get_uniq(uniq_bird, bird_elmseqs, human_elmseqs)
+with open('working/Jul7/bird_uniq') as f:
+    for line in f:
+       protein, elm = line.strip().split('\t')
+       if protein == use_protein:
+           length = str(len(elm.split(':')[1]))
+           uniq_bird[':'.join((protein, elm, length))] = True
 
-notUniq_human = {}
-for protein in human_elmseqs:
-    for elm in human_elmseqs[protein]:
-        key = protein + ':' + elm
-        if key not in uniq_human:
-            notUniq_human[key] = True
+control = {}
+with open('working/Jul7/control') as f:
+    for line in f:
+       protein, elm = line.strip().split('\t')
+       if protein == use_protein:
+           length = str(len(elm.split(':')[1]))
+           control[':'.join((protein, elm, length))] = True
 
-notUniq_bird = {}
-for protein in bird_elmseqs:
-    for elm in bird_elmseqs[protein]:
-        key = protein + ':' + elm
-        if key not in uniq_bird:
-            notUniq_bird[key] = True
+# human_elmseqs_file = 'working/Jul7/mammal_elms'
+# bird_elmseqs_file = 'working/Jul7/bird_elms'
 
-print len(uniq_human), len(uniq_bird)
+# human_elmseqs = get_annotations(human_elmseqs_file)
+# bird_elmseqs = get_annotations(bird_elmseqs_file)
+
+# uniq_human = {}
+# uniq_bird = {}
+# get_uniq(uniq_human, human_elmseqs, bird_elmseqs)
+# get_uniq(uniq_bird, bird_elmseqs, human_elmseqs)
+
+# notUniq_human = {}
+# for protein in human_elmseqs:
+#     for elm in human_elmseqs[protein]:
+#         key = protein + ':' + elm
+#         if key not in uniq_human:
+#             notUniq_human[key] = True
+
+# notUniq_bird = {}
+# for protein in bird_elmseqs:
+#     for elm in bird_elmseqs[protein]:
+#         key = protein + ':' + elm
+#         if key not in uniq_bird:
+#             notUniq_bird[key] = True
+
+print  len(uniq_bird), len(uniq_human)
 
 dir = 'working/Jul7'
 years = range(2000,2011,1)
 
-human_host_file = 'working/Jul7/elmdict_H_sapiens.RWlenInit'
+human_host_file = 'working/Jul7/elmdict_Sus_scrofa.RWlenInit'
 chicken_host_file = 'working/Jul7/elmdict_Gallus_gallus.RWlenInit'
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
 print_it('BIRD', uniq_bird, chicken_host_freqs,
          human_host_freqs)
-print_it('NOT UNIQ BIRD', notUniq_bird, chicken_host_freqs,
+print_it('NOT UNIQ BIRD', control, chicken_host_freqs,
          human_host_freqs)
 print '\n'
 print_it('HUMAN', uniq_human, human_host_freqs,
          chicken_host_freqs)
-print_it('NOT UNIQ HUMAN', notUniq_human, human_host_freqs,
+print_it('NOT UNIQ HUMAN', control, human_host_freqs,
          chicken_host_freqs)
 print '\n'
