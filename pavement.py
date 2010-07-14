@@ -20,8 +20,8 @@ def rewrite_simple_elmdict_len():
     
     for g in TEST_GENOMES:
         sh('python rewrite_simple_elmdict_len.py '
-           + os.path.join('working', 'Jul7', 'elmdict_' + g + '.init ')
-           + '> ' + os.path.join('working', 'Jul7', 'elmdict_' + g + '.RWlenInit'))
+           + os.path.join('working', 'Jul12', 'elmdict_' + g + '.init ')
+           + '> ' + os.path.join('working', 'Jul12', 'elmdict_' + g + '.RWlenInit'))
 
 
 @task
@@ -30,8 +30,8 @@ def rewrite_simple_elmdict():
     
     for g in TEST_GENOMES:
         sh('python rewrite_simple_elmdict.py '
-           + os.path.join('working', 'Jul7', 'elmdict_' + g + '.init ')
-           + '> ' + os.path.join('working', 'Jul7', 'elmdict_' + g + '.RWinit'))
+           + os.path.join('working', 'Jul12', 'elmdict_' + g + '.init ')
+           + '> ' + os.path.join('working', 'Jul12', 'elmdict_' + g + '.RWinit'))
         
 @task
 def mk_simple_elm_patterns():

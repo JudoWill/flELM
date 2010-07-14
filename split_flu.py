@@ -106,7 +106,7 @@ bird_uniq = get_uniq(bird_all_cons, mammal_all_cons)
 
 mammal_protein_counts.update(bird_protein_counts)
 mammal_cons.update(bird_cons)
-all_cons = get_all_cons(mammal_cons, mammal_protein_counts, limit, float(95))
+all_cons = get_all_cons(mammal_cons, mammal_protein_counts, limit, float(90))
 
 print 'MAMMAL', count_it(mammal_uniq)
 print 'BIRD', count_it(bird_uniq)

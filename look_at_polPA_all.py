@@ -83,7 +83,7 @@ def get_uniq(uniq, ls1, ls2):
                 uniq[protein + ':' + elm] = True
 
 uniq_human = {}
-with open('working/Jul7/mammal_uniq') as f:
+with open('working/Jul12/mammal_uniq') as f:
     for line in f:
         protein, elm = line.strip().split('\t')
         if protein == use_protein:
@@ -91,7 +91,7 @@ with open('working/Jul7/mammal_uniq') as f:
             uniq_human[':'.join((protein, elm, length))] = True
 
 uniq_bird = {}
-with open('working/Jul7/bird_uniq') as f:
+with open('working/Jul12/bird_uniq') as f:
     for line in f:
        protein, elm = line.strip().split('\t')
        if protein == use_protein:
@@ -99,7 +99,7 @@ with open('working/Jul7/bird_uniq') as f:
            uniq_bird[':'.join((protein, elm, length))] = True
 
 control = {}
-with open('working/Jul7/control') as f:
+with open('working/Jul12/control') as f:
     for line in f:
        protein, elm = line.strip().split('\t')
        if protein == use_protein:
@@ -133,11 +133,11 @@ with open('working/Jul7/control') as f:
 
 print  len(uniq_bird), len(uniq_human)
 
-dir = 'working/Jul7'
+dir = 'working/Jul12'
 years = range(2000,2011,1)
 
-human_host_file = 'working/Jul7/elmdict_Sus_scrofa.RWlenInit'
-chicken_host_file = 'working/Jul7/elmdict_Gallus_gallus.RWlenInit'
+human_host_file = 'working/Jul12/elmdict_H_sapiens.RWlenInit'
+chicken_host_file = 'working/Jul12/elmdict_Gallus_gallus.RWlenInit'
 human_host_freqs = get_host_freqs(human_host_file)
 chicken_host_freqs = get_host_freqs(chicken_host_file)
 
