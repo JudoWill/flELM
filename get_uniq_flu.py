@@ -84,14 +84,14 @@ def count_it(uniq):
 
 dir = 'working/Jul12'
 years = range(2000,2011,1)
-mammal_hosts = ('human',)
-mammal_strains = ('H5N1',)
-bird_hosts = ('chicken',)
-bird_strains = ('H5N1',)
+mammal_hosts = ('human','swine','horse')
+mammal_strains = ('H5N1','H1N1')
+bird_hosts = ('chicken','duck')
+bird_strains = ('H5N1','H9N2')
 
-limit = 25
-cons_cut = float(80)
-low_cons_cut = float(75)
+limit = 50
+cons_cut = float(90)
+low_cons_cut = float(85)
 mammal_protein_counts = get_protein_counts(dir, mammal_hosts,
                                            mammal_strains, years)
 bird_protein_counts = get_protein_counts(dir, bird_hosts,

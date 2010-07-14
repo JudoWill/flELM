@@ -25,8 +25,10 @@ def dump_it(dir, protein_elm, name):
 
     with open(os.path.join(dir, name), 'w') as f:
         for protein in protein_elm:
-            for elm in protein_elm[protein]:
-                f.write(protein + '\t' + elm + '\n')
+            for elmseq in protein_elm[protein]:
+                elm, seq = elmseq.split(':')
+                f.write(protein + '\t' + elmseq + '\t'
+                        + elm + '\t' + seq + '\n')
 
 def get_cons_elms(dir, protein_counts, limit):
     """Get all ELM conservation for proteins w/ over LIMIT seqs"""
@@ -83,12 +85,24 @@ def count_it(uniq):
             count += 1
     return count
 
+def mk_control(species_all_cons, species_uniq):
+    """Make a control using ELMs that are on 90% of this flu,
+       but not unique and not conserved on all bird flus."""
+
+    control = defaultdict(dict)
+    for protein in species_all_cons:
+        if protein in species_uniq:
+            for elm in species_all_cons[protein]:
+                if elm not in species_uniq[protein]:
+                    control[protein][elm] = True
+    return control    
+
 dir = 'working/Jul12/'
 years = range(2000,2011,1)
 mammal_hosts = ('human','swine','horse')
-mammal_strains = ('H5N1','H3N2','H3N8','H1N1')
-bird_hosts = ('chicken','duck')
-bird_strains = ('H5N1','H9N2')
+mammal_strains = ('H5N1','H1N1')#'H3N2','H3N8','H1N1'
+bird_hosts = ('chicken',)
+bird_strains = ('H5N1','H9N2')#'H9N2'
 
 limit = 50
 cons_cut = float(90)
@@ -114,6 +128,14 @@ print 'ALL', count_it(all_cons)
 print 'MAMMAL ALL', count_it(mammal_all_cons)
 print 'BIRD ALL', count_it(bird_all_cons)
 
+mammal_control = mk_control(mammal_all_cons, mammal_uniq)
+bird_control = mk_control(bird_all_cons, bird_uniq)
+
+print 'MAMMAL CONTROL', count_it(mammal_control)
+print 'BIRD CONTROL', count_it(bird_control)
+
 dump_it(dir, mammal_uniq, 'mammal_uniq')
 dump_it(dir, bird_uniq, 'bird_uniq')
 dump_it(dir, mammal_all_cons, 'control')
+dump_it(dir, mammal_control, 'mammal_control')
+dump_it(dir, bird_control, 'bird_control')

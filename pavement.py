@@ -23,7 +23,6 @@ def rewrite_simple_elmdict_len():
            + os.path.join('working', 'Jul12', 'elmdict_' + g + '.init ')
            + '> ' + os.path.join('working', 'Jul12', 'elmdict_' + g + '.RWlenInit'))
 
-
 @task
 def rewrite_simple_elmdict():
     """After reducing the aminoacid space, and scanning reduced fasta, I need to redo the elmdicts produced"""
@@ -286,6 +285,14 @@ def elm_aa_freqs_roundup():
                + 'data/roundup_paper/' + genome + '.fa '
                + 'results/roundup_all/elmdict_' + genome + '.init '
                + 'results/roundup_all/' + genome + '.init.elm_aa_freq')
+
+@task
+def elm_aa_freqs_Jul12():
+    for genome in TEST_GENOMES:
+        sh('python mk_aa_freq.py '
+           + 'working/Jul12/' + genome + '.fa '
+           + 'working/Jul12/elmdict_' + genome + '.init '
+           + 'working/Jul12/' + genome + '.init.elm_aa_freq')
 
 #conserved_elms -c 90
 @task 
