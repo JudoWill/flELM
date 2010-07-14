@@ -83,7 +83,7 @@ def count_it(uniq):
             count += 1
     return count
 
-dir = 'working/Jul7/'
+dir = 'working/Jul12/'
 years = range(2000,2011,1)
 mammal_hosts = ('human','swine','horse')
 mammal_strains = ('H5N1','H3N2','H3N8','H1N1')

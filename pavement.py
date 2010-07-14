@@ -353,12 +353,34 @@ def process_elm(options):
 	for genome in TEST_GENOMES:
 		ofile = os.path.join('working', 'Jul12', 'elmdict_'+genome+'.init')
 		ifile = os.path.join('working', 'Jul12', genome+'.fa')
-                elmfile = os.path.join('working', 'Jul12', 'simple_patterns')
-		if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
-			#only do if missing or FORCING
-			sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s %(elm)s' % {'out':ofile, 
+                st_elmfile = os.path.join('working', 'Jul12', 'simple_patterns')
+                elms = {}
+                with open(st_elmfile) as f:
+                    for line in f:
+                        elm, pattern = line.strip().split('\t')
+                        elms[elm] = pattern
+                elm_files = []
+                if len(elms) > 5000:
+                    counter = 0
+                    for chunk in utils.chunks(elms.keys(), 5000):
+                        new_elm_file = 'working/elm_tmp_file' + str(counter)
+                        elm_files.append(new_elm_file)
+                        with open(new_elm_file, 'w') as f:
+                            for elm in chunk:
+                                f.write(elm + '\t' + elms[elm] + '\n')
+                        counter += 1
+                else:
+                    elm_files.append(st_elm_file)
+                
+                if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
+                    counter = 0
+                    for elmfile in elm_files:
+                        #only do if missing or FORCING
+                        sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s %(elm)s' % {'out':ofile, 
                                                                                           'c':c_arg, 'infile': ifile,
                                                                                           'elm': elmfile})
+                        sh('mv ' + ofile + ' ' + ofile + str(counter))
+                        counter += 1
 
 @task
 @cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
@@ -688,16 +710,16 @@ def conserved_elms_2():
 		#   + strain + ' '
                 #   + str(year) + ' '
                 #   + 'working/Jul7/')
-		sh('python matchELMpattern.py '
+		sh('python matchELMpattern_once.py '
 		   + 'working/Jul12/simple_patterns '
 		   + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.fa '
 		   + '> ' + 'working/Jul12/' + host + '.' 
-                   + strain + '.' + str(year) + '.elms')
-		#sh('python getConserved.py '
-		#   + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms '
-		#   + cut + ' '
-		#   + '1> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
-		#   + '2> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
+                   + strain + '.' + str(year) + '.elms_once')
+		sh('python getConserved.py '
+		   + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms_once '
+		   + cut + ' '
+		   + '1> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
+		   + '2> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
 
 @task
 @cmdopts([('cutoff=', 'c', '% cutoff'),])
