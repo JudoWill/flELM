@@ -13,10 +13,21 @@ def get_seqs(uniq_file, use_protein):
             protein, elmseq, elm, seq = line.strip().split('\t')
             #if protein == use_protein:
             seqs[seq] = True
+
+    rm_seqs = {}
+    for seq in seqs:
+        for seq2 in seqs:
+            if seq != seq2:
+                if seq in seq2:
+                    rm_seqs[seq2] = True
+    print len(seqs), len(rm_seqs)
+    #for seq in rm_seqs:
+    #    del seqs[seq]
+    print len(seqs)
     return seqs
 
-def get_freqs(flu_seqs, file):
-    """Get host freqs for uniq flu seqs"""
+def get_freqs(file):
+    """Get host freqs"""
 
     freqs = {}
     with open(file) as f:
@@ -30,7 +41,7 @@ def evaluate(name, flu_seqs, host1_freqs, host2_freqs):
     total = 0
     for seq in flu_seqs:
         if seq in host1_freqs and seq in host2_freqs:
-            if host1_freqs[seq] > float(1.2)*host2_freqs[seq]:
+            if host1_freqs[seq] > host2_freqs[seq]:
                 count += 1
             total += 1
     print name, count, total, float(count)/float(total)
@@ -38,18 +49,30 @@ def evaluate(name, flu_seqs, host1_freqs, host2_freqs):
 protein = 'nonstructural protein 1'
 dir = 'working/Jul12/'
 
-mammal = get_seqs(os.path.join(dir, 'mammal_uniq'),
-                  protein)
-bird = get_seqs(os.path.join(dir, 'bird_uniq'),
-                protein)
-mammal_control = get_seqs(os.path.join(dir, 'mammal_control'),
-                          protein)
-bird_control = get_seqs(os.path.join(dir, 'bird_control'),
-                        protein)
-mammal_host_freqs = get_freqs(mammal, 
-                              os.path.join(dir, 'H_sapiens.init.elm_aa_freq'))
-bird_host_freqs = get_freqs(bird, 
-                            os.path.join(dir, 'Gallus_gallus.init.elm_aa_freq'))
+mammal_pre = get_seqs(os.path.join(dir, 'mammal_uniq'),
+                      protein)
+bird_pre = get_seqs(os.path.join(dir, 'bird_uniq'),
+                    protein)
+mammal_control_pre = get_seqs(os.path.join(dir, 'mammal_control'),
+                              protein)
+bird_control_pre = get_seqs(os.path.join(dir, 'bird_control'),
+                            protein)
+mammal_host_freqs = get_freqs(os.path.join(dir, 'H_sapiens.init.elm_aa_freq'))
+bird_host_freqs = get_freqs(os.path.join(dir, 'Gallus_gallus.init.elm_aa_freq'))
+
+mammal = set(mammal_pre.keys()) - set(bird_pre.keys())
+bird = set(bird_pre.keys()) - set(mammal_pre.keys())
+
+mammal_control_pre2 = set(mammal_control_pre.keys()) - mammal
+bird_control_pre2 = set(bird_control_pre.keys()) - bird
+both_control = bird_control_pre2 & mammal_control_pre2
+mammal_control = mammal_control_pre2 - both_control
+bird_control = bird_control_pre2 - both_control
+
+print 'intr', len(mammal_control & mammal)
+print 'intr', len(bird_control & bird)
+print 'intr', len(mammal & bird)
+print 'intr', len(mammal_control & bird_control)
 
 evaluate('MAMMAL', mammal, mammal_host_freqs, bird_host_freqs)
 evaluate('MAMMAL CONTROL', mammal_control, mammal_host_freqs, bird_host_freqs)
