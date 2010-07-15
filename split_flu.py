@@ -1,7 +1,7 @@
 """Split ELM/seqs into those on all strains,
    and those specific to 90% mammal but not
    in 90% bird."""
-import os, utils
+import os, utils, global_settings
 from collections import defaultdict
 
 def get_protein_counts(dir, hosts, strains, years):
@@ -104,7 +104,7 @@ mammal_strains = ('H5N1','H1N1')#'H3N2','H3N8','H1N1'
 bird_hosts = ('chicken',)
 bird_strains = ('H5N1','H9N2')#'H9N2'
 
-limit = 50
+limit = global_settings.SEQ_LIMIT
 cons_cut = float(90)
 low_cons_cut = float(60)
 mammal_protein_counts = get_protein_counts(dir, mammal_hosts,

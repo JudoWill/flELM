@@ -1,8 +1,13 @@
-FLU_PROTEINS = ('hemagglutinin', 'neuraminidase', 'nucleocapsid protein',
-                'matrix protein 1', 'nonstructural protein 1', 
-                'matrix protein 2',
-                'nonstructural protein 2', 'polymerase PA', 'polymerase PB2',
-                'polymerase PB1', 'PB1-F2 protein')
+SEQ_LIMIT = 50
+
+FLU_PROTEINS = {'hemagglutinin':'HA', 'neuraminidase':'NA', 
+                'nucleocapsid protein':'NC',
+                'matrix protein 1':'MA1', 
+                'nonstructural protein 1':'NS1', 
+                'matrix protein 2':'MA2',
+                'nonstructural protein 2':'NS2', 
+                'polymerase PA':'PA', 'polymerase PB2':'PB2',
+                'polymerase PB1':'PB1', 'PB1-F2 protein':'PB1-F2'}
 
 FLU_PROTEINS_LTD = ('hemagglutinin',
                     'matrix protein 1',
@@ -59,13 +64,13 @@ PROTEIN_ALIAS = {'nuclear export protein':'nonstructural protein 2',
                  'M1 protein':'matrix protein 1'}
 
 AA_SUB_8 = {'L':'l', 'V':'l', 'I':'l', 'M':'l', 'C':'l',
-          'A':'a', 'G':'a',
-          'S':'s', 'T':'s',
-          'P':'P',
-          'F':'f', 'Y':'f', 'W':'f',
-          'E':'e', 'D':'e', 'N':'e', 'Q':'e',
-          'K':'k', 'R':'k',
-          'H':'H'}
+            'A':'a', 'G':'a',
+            'S':'s', 'T':'s',
+            'P':'P',
+            'F':'f', 'Y':'f', 'W':'f',
+            'E':'e', 'D':'e', 'N':'e', 'Q':'e',
+            'K':'k', 'R':'k',
+            'H':'H'}
 
 AA_SUB_4 = {'L':'l', 'V':'l', 'I':'l', 'M':'l', 'C':'l',
             'A':'a', 'G':'a', 'S':'a', 'T':'a', 'P':'a',
