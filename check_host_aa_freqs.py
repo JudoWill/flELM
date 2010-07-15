@@ -1,8 +1,27 @@
 """Given a set of uniq sequences for human & bird flu, compare
    the residue frequencies for the 2 species."""
 
-import os
+import os, utils_stats, sys
 from collections import defaultdict
+
+outfile = sys.argv[1]
+
+def write_latex(g1, g2, outfile):
+    """Make table for paper"""
+
+    with open(outfile, 'w') as f:
+        f.write('\\par\n')
+        f.write('\\mbox{\n')
+        f.write('\\begin{tabular}{|c|c|c||c|c|}\n')
+        f.write('\\hline & \\multicolumn{2}{|c||}{Mammal} & \\multicolumn{2}{|c|}{Bird} \\\\ \\hline\n')
+        f.write('Hypoth & True  &  False & True & False \\\\ \\hline\n')
+        f.write('Unique & %d  & %d & %d & %d \\\\ \\hline\n' %
+                (g1[0], g1[1], g2[0], g2[1]))
+        f.write(' Control & %d & %d & %d & %d \\\\ \\hline\n' % 
+                (g1[2], g1[3], g2[2], g2[3]))
+        f.write('\\hline P-value & \\multicolumn{2}{|c||}{%.4f} & \\multicolumn{2}{|c|}{%.4f} \\\\ \\hline\n' %
+                (g1[-1], g2[-1]))
+        f.write('\\end{tabular}}\n')
 
 def get_seqs(uniq_file, use_protein):
     """Get uniq seqs on flu"""
@@ -64,6 +83,7 @@ def evaluate(name, flu_seqs, host1_freqs, host2_freqs):
         #         count += 1
         #     total += 1
     print name, count, total, float(count)/float(total)
+    return (count, total-count)
     
 protein = 'nonstructural protein 1'
 dir = 'working/Jul12/'
@@ -95,11 +115,23 @@ print 'intr', len(bird_control & bird)
 print 'intr', len(mammal & bird)
 print 'intr', len(mammal_control & bird_control)
 
-evaluate('MAMMAL', mammal, mammal_host_freqs, bird_host_freqs)
-evaluate('MAMMAL CONTROL', mammal_control, mammal_host_freqs, bird_host_freqs)
+m1, m2 = evaluate('MAMMAL', mammal, mammal_host_freqs, bird_host_freqs)
+c1, c2 = evaluate('MAMMAL CONTROL', mammal_control, mammal_host_freqs, bird_host_freqs)
+mammal_pval = utils_stats.fisher_positive_pval((m1, m2),
+                                               (c1, c2))
+print mammal_pval
 
-evaluate('BIRD', bird, bird_host_freqs, mammal_host_freqs)
-evaluate('BIRD CONTROL', bird_control, bird_host_freqs, mammal_host_freqs)
+b1, b2 = evaluate('BIRD', bird, 
+                  bird_host_freqs, mammal_host_freqs)
+bc1, bc2 = evaluate('BIRD CONTROL', bird_control, 
+                    bird_host_freqs, mammal_host_freqs)
+bird_pval = utils_stats.fisher_positive_pval((b1, b2),
+                                             (bc1, bc2))
+print bird_pval
+
+write_latex((m1, m2, c1, c2, mammal_pval),
+            (b1, b2, bc1, bc2, bird_pval),
+            outfile)
 
 
 

@@ -251,8 +251,11 @@ influenza sequences by using only those that corresponded to proteins
 hemagglutinin, neuraminidase, nucleocapsid protein, matrix protein 1,
 matrix protein 2, nonstructural protein 1, nonstructural protein 2,
 polymerase PB1, polymerase PA, polymerase PB2, or PB1-F2 protein. We
-organized influenza sequences into groups based on the host organism
-with which there were tagged and curation year.
+organized influenza protein sequences into groups based on the host
+organism with which there were tagged, curation year, and strain. For
+each flu protein, we only used groups that had over 50 protein
+sequences. Figure 4 shows the strains and years that passed this
+sequence count threshold.
 
 All protein sequences were matched against regular expressions for 153
 eukaryotic linear motifs cataloged in the ELM resource
@@ -357,6 +360,18 @@ sequence distributions.
       \end{center}
       \end{figure}  
 
+   \subsection*{Figure 4 - Flu protein sequence counts}
+     For this study, we grouped flu protein sequences by flu protein,
+     host organism, curation year, and subtype. We used groups with
+     over 50 protein sequence instances. The $log_{10}$ of the sequence
+     count is shown here.
+
+     \begin{figure}
+      \begin{center}
+      \includegraphics{figs/fig4}
+      \end{center}
+      \end{figure} 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
 %% Tables                        %%
@@ -379,6 +394,35 @@ sequence distributions.
         A3 & ..  & .  \\ \hline
       \end{tabular}
       }
+
+    \subsection*{Table 2 - Testing flu-host hypothesis}
+    Here is an example of a \emph{small} table in \LaTeX\ using  
+    \verb|\tabular{...}|. This is where the description of the table 
+    should go. \par \mbox{}
+    \par
+    \mbox{
+    \begin{tabular}{|c|c|c||c|c|}
+    \hline & \multicolumn{2}{|c||}{Mammal} & \multicolumn{2}{|c|}{Bird} \\ \hline
+    Hypoth & True  &  False & True & False \\ \hline
+         Unique & B2  & C3 & .. & .. \\ \hline
+         Control & B2  & C3 & .. & .. \\ \hline
+    \hline P-value & \multicolumn{2}{|c||}{...} & \multicolumn{2}{|c|}{...} \\ \hline
+       \end{tabular}
+       }
+
+ \subsection*{Table 2 - Testing flu-host hypothesis}
+    Here is an example of a \emph{small} table in \LaTeX\ using  
+    \verb|\tabular{...}|. This is where the description of the table 
+    should go. \par \mbox{}
+    \par
+\mbox{
+\begin{tabular}{|c|c|c||c|c|}
+\hline & \multicolumn{2}{|c||}{Mammal} & \multicolumn{2}{|c|}{Bird} \\ \hline
+Hypoth & True  &  False & True & False \\ \hline
+Unique & 168  & 149 & 143 & 118 \\ \hline
+ Control & 59 & 87 & 65 & 113 \\ \hline
+\hline P-value & \multicolumn{2}{|c||}{0.0077} & \multicolumn{2}{|c|}{0.0001} \\ \hline
+\end{tabular}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
