@@ -190,7 +190,7 @@ bird_hosts = ('chicken',)
 bird_strains = ('H5N1','H9N2')#'H9N2'
 
 limit = global_settings.SEQ_LIMIT
-cons_cut = float(85)
+cons_cut = float(90)
 low_cons_cut = float(60)
 mammal_protein_counts = get_protein_counts(dir, mammal_hosts,
                                            mammal_strains, years)
@@ -246,8 +246,8 @@ bird_host_freqs = get_freqs(os.path.join(dir, 'Gallus_gallus.init.elm_aa_freq'),
 mammal = set(mammal_pre.keys()) - set(bird_pre.keys())
 bird = set(bird_pre.keys()) - set(mammal_pre.keys())
 
-mammal_control_pre2 = set(mammal_control_pre.keys()) - mammal
-bird_control_pre2 = set(bird_control_pre.keys()) - bird
+mammal_control_pre2 = set(mammal_control_pre.keys()) - set(mammal_pre.keys())
+bird_control_pre2 = set(bird_control_pre.keys()) - set(bird_pre.keys())
 both_control = bird_control_pre2 & mammal_control_pre2
 mammal_control = mammal_control_pre2 - both_control
 bird_control = bird_control_pre2 - both_control
