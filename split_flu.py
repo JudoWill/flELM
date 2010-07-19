@@ -149,7 +149,9 @@ def get_all_cons(cons, protein_counts, seq_limit, cons_limit):
 
 def get_uniq(all_cons, cmp_cons):
     """What protein/ELM pairs are in all_cons, but are not in cmp_cons?
-       Ex. mammal is all_cons, and bird is cmp_cons"""
+       Ex. mammal is all_cons, and bird is cmp_cons
+
+       This leaves out proteins that are not in both sets. """
 
     uniq = defaultdict(dict)
     for protein in all_cons:
@@ -157,6 +159,8 @@ def get_uniq(all_cons, cmp_cons):
             for elm in all_cons[protein]:
                 if elm not in cmp_cons[protein]:
                     uniq[protein][elm] = True
+        #else:
+        #    print 'ignore', protein
     return uniq
 
 def count_it(uniq):
@@ -180,13 +184,13 @@ def mk_control(species_all_cons, species_uniq):
 
 dir = 'working/Jul19/'
 years = range(2000,2011,1)
-mammal_hosts = ('human','swine','horse')
-mammal_strains = ('H5N1','H1N1')#'H3N2','H3N8','H1N1'
+mammal_hosts = ('human',)#'swine','horse'
+mammal_strains = ('H5N1','H1N1','H3N2')#,'H3N8','H1N1'
 bird_hosts = ('chicken',)
 bird_strains = ('H5N1','H9N2')#'H9N2'
 
 limit = global_settings.SEQ_LIMIT
-cons_cut = float(90)
+cons_cut = float(85)
 low_cons_cut = float(60)
 mammal_protein_counts = get_protein_counts(dir, mammal_hosts,
                                            mammal_strains, years)
@@ -200,9 +204,10 @@ bird_all_cons = get_all_cons(bird_cons, bird_protein_counts, limit, cons_cut)
 mammal_uniq = get_uniq(mammal_all_cons, bird_all_cons)
 bird_uniq = get_uniq(bird_all_cons, mammal_all_cons)
 
+# find what is conserved on everything
 mammal_protein_counts.update(bird_protein_counts)
 mammal_cons.update(bird_cons)
-all_cons = get_all_cons(mammal_cons, mammal_protein_counts, limit, float(90))
+all_cons = get_all_cons(mammal_cons, mammal_protein_counts, limit, cons_cut)
 
 print 'MAMMAL', count_it(mammal_uniq)
 print 'BIRD', count_it(bird_uniq)
@@ -210,6 +215,7 @@ print 'ALL', count_it(all_cons)
 print 'MAMMAL ALL', count_it(mammal_all_cons)
 print 'BIRD ALL', count_it(bird_all_cons)
 
+# what is not considered uniq?
 mammal_control = mk_control(mammal_all_cons, mammal_uniq)
 bird_control = mk_control(bird_all_cons, bird_uniq)
 
