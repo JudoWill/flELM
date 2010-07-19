@@ -86,7 +86,7 @@ def evaluate(name, flu_seqs, host1_freqs, host2_freqs):
     return (count, total-count)
     
 protein = 'nonstructural protein 1'
-dir = 'working/Jul12/'
+dir = 'working/Jul19/'
 
 mammal_pre = get_seqs(os.path.join(dir, 'mammal_uniq'),
                       protein)
