@@ -843,3 +843,20 @@ def count_host_elmSeqs(hosts, do_clustering, mapping, results_dir, use_elms, suf
                     else:
                         counts[host][elmSeq] += int(count)
     return counts
+
+
+def count_host_seqs(hosts, results_dir, use_seqs, suffix):
+    """Count seq occurence.
+       Return host->seq>count."""
+
+    counts = {}
+    for host in hosts:
+        counts[host] = defaultdict(init_zero)
+        elm_file = os.path.join(results_dir, 
+                                'elmdict_' + host + suffix)
+        with open(elm_file) as f:
+            for line in f:
+                (elm, seq, count, fq) = line.strip().split('\t')
+                if seq in use_seqs:
+                     counts[host][seq] = int(count)
+    return counts

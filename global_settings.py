@@ -24,6 +24,9 @@ TEST_GENOMES = ('H_sapiens', 'M_musculus', 'Pan_troglodytes',
                 'Gallus_gallus', 'Taeniopygia_guttata',
                 'Sus_scrofa', 'Equus_caballus')
 
+PLT_GENOMES = ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
+                'Gallus_gallus', 'Taeniopygia_guttata')
+
 TEST_GENOMES2 = ('H_sapiens', 'M_musculus', 'Pan_troglodytes', 
                 'Gallus_gallus', 'Taeniopygia_guttata',
                 'Bos_taurus', 'Canis_familiaris')

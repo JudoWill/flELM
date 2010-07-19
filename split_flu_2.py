@@ -153,22 +153,22 @@ def get_uniq(all_cons, cmp_cons):
 
        This leaves out proteins that are not in both sets. """
 
+    other_seqs = {}
+    for protein in cmp_cons:
+        for elm in cmp_cons[protein]:
+            seq = elm.split(':')[-1]
+            other_seqs[seq] = True
+        
     uniq = defaultdict(dict)
     for protein in all_cons:
-        if protein in cmp_cons:
-            for elm in all_cons[protein]:
-                if elm not in cmp_cons[protein]:
-                    uniq[protein][elm] = True
-        #else:
-        #    print 'ignore', protein
+        for elm in all_cons[protein]:
+            seq = elm.split(':')[-1]
+            if seq not in other_seqs:
+                uniq[seq] = True
     return uniq
 
 def count_it(uniq):
-    count = 0
-    for protein in uniq:
-        for elm in uniq[protein]:
-            count += 1
-    return count
+    return len(uniq)
 
 def mk_control(species_all_cons, species_uniq):
     """Make a control using ELMs that are on 90% of this flu,
@@ -176,10 +176,10 @@ def mk_control(species_all_cons, species_uniq):
 
     control = defaultdict(dict)
     for protein in species_all_cons:
-        if protein in species_uniq:
-            for elm in species_all_cons[protein]:
-                if elm not in species_uniq[protein]:
-                    control[protein][elm] = True
+        for elm in species_all_cons[protein]:
+            seq = elm.split(':')[-1]
+            if seq not in species_uniq:
+                control[seq] = True
     return control    
 
 dir = 'working/Jul19/'
@@ -209,35 +209,32 @@ mammal_protein_counts.update(bird_protein_counts)
 mammal_cons.update(bird_cons)
 all_cons = get_all_cons(mammal_cons, mammal_protein_counts, limit, cons_cut)
 
-print 'MAMMAL', count_it(mammal_uniq)
-print 'BIRD', count_it(bird_uniq)
-print 'ALL', count_it(all_cons)
-print 'MAMMAL ALL', count_it(mammal_all_cons)
-print 'BIRD ALL', count_it(bird_all_cons)
-
+print 'MAMMAL', len(mammal_uniq)
+print 'BIRD', len(bird_uniq)
+# print 'ALL', count_it(all_cons)
+# print 'MAMMAL ALL', count_it(mammal_all_cons)
+# print 'BIRD ALL', count_it(bird_all_cons)
+# sys.exit(0)
 # what is not considered uniq?
 mammal_control = mk_control(mammal_all_cons, mammal_uniq)
 bird_control = mk_control(bird_all_cons, bird_uniq)
 
-print 'MAMMAL CONTROL', count_it(mammal_control)
-print 'BIRD CONTROL', count_it(bird_control)
+print 'MAMMAL CONTROL', len(mammal_control)
+print 'BIRD CONTROL', len(bird_control)
 
-dump_it(dir, mammal_uniq, 'mammal_uniq')
-dump_it(dir, bird_uniq, 'bird_uniq')
-dump_it(dir, mammal_all_cons, 'control')
-dump_it(dir, mammal_control, 'mammal_control')
-dump_it(dir, bird_control, 'bird_control')
+# dump_it(dir, mammal_uniq, 'mammal_uniq')
+# dump_it(dir, bird_uniq, 'bird_uniq')
+# dump_it(dir, mammal_all_cons, 'control')
+# dump_it(dir, mammal_control, 'mammal_control')
+# dump_it(dir, bird_control, 'bird_control')
 
 protein = ''
 
-mammal_pre = get_seqs(os.path.join(dir, 'mammal_uniq'),
-                      protein)
-bird_pre = get_seqs(os.path.join(dir, 'bird_uniq'),
-                    protein)
-mammal_control_pre = get_seqs(os.path.join(dir, 'mammal_control'),
-                              protein)
-bird_control_pre = get_seqs(os.path.join(dir, 'bird_control'),
-                            protein)
+mammal_pre = mammal_uniq
+bird_pre = bird_uniq
+mammal_control_pre = mammal_control
+bird_control_pre = bird_control
+
 mammal_host_freqs = get_freqs(os.path.join(dir, 'H_sapiens.init.elm_aa_freq'),
                               os.path.join(dir, 'elmdict_H_sapiens.init'))
 bird_host_freqs = get_freqs(os.path.join(dir, 'Gallus_gallus.init.elm_aa_freq'),
@@ -249,8 +246,8 @@ bird = set(bird_pre.keys()) - set(mammal_pre.keys())
 mammal_control_pre2 = set(mammal_control_pre.keys()) - set(mammal_pre.keys())
 bird_control_pre2 = set(bird_control_pre.keys()) - set(bird_pre.keys())
 both_control = bird_control_pre2 & mammal_control_pre2
-mammal_control = mammal_control_pre2 - both_control
-bird_control = bird_control_pre2 - both_control
+mammal_control = mammal_control_pre2# - both_control
+bird_control = bird_control_pre2# - both_control
 
 print 'intr', len(mammal_control & mammal)
 print 'intr', len(bird_control & bird)
@@ -258,8 +255,7 @@ print 'intr', len(mammal & bird)
 print 'intr', len(mammal_control & bird_control)
 
 m1, m2 = evaluate('MAMMAL', mammal, mammal_host_freqs, bird_host_freqs)
-c1, c2 = evaluate('MAMMAL CONTROL', mammal_control, mammal_host_freqs, 
-                  bird_host_freqs)
+c1, c2 = evaluate('MAMMAL CONTROL', mammal_control, mammal_host_freqs, bird_host_freqs)
 mammal_pval = utils_stats.fisher_positive_pval((m1, m2),
                                                (c1, c2))
 print mammal_pval
@@ -275,9 +271,3 @@ print bird_pval
 write_latex((m1, m2, c1, c2, mammal_pval),
             (b1, b2, bc1, bc2, bird_pval),
             outfile)
-
-f = os.path.join(dir, 'test_host_seqs')
-with open(f, 'w') as f:
-    for d in (mammal, bird):
-        for seq in d:
-            f.write(seq + '\n')
