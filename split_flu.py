@@ -58,15 +58,31 @@ def get_freqs(file, elmdict_file):
         for line in f:
             elmseq, freq = line.strip().split('\t')
             seq = elmseq.split(':')[1]
-            if counts[seq] > 500:
+            if counts[seq] > 20:
                 freqs[seq] = float(freq)
     return freqs
+
+def count_evaluate(name, flu_seqs, host1_freqs, host2_freqs):
+    """Test hypothesis"""
+
+    host1_present = 0
+    host2_present = 0
+    for seq in flu_seqs:
+        if seq in host1_freqs:
+            host1_present += 1
+        if seq in host2_freqs:
+            host2_present += 1
+    print name, host1_present, host2_present, len(flu_seqs)
 
 def evaluate(name, flu_seqs, host1_freqs, host2_freqs):
     """Test hypothesis"""
 
     count = 0
     total = 0
+    k = {}
+    for f in flu_seqs:
+        k[f] = True
+    print 'TESTING', len(flu_seqs), len(k)
     for seq in flu_seqs:
         f1 = float(0)
         f2 = float(0)
@@ -82,7 +98,7 @@ def evaluate(name, flu_seqs, host1_freqs, host2_freqs):
         #     if host1_freqs[seq] > host2_freqs[seq]:
         #         count += 1
         #     total += 1
-    print name, count, total, float(count)/float(total)
+    print name, count, total-count, total, float(count)/float(total)
     return (count, total-count)
 
 def get_protein_counts(dir, hosts, strains, years):
@@ -110,6 +126,18 @@ def dump_it(dir, protein_elm, name):
                 elm, seq = elmseq.split(':')
                 f.write(protein + '\t' + elmseq + '\t'
                         + elm + '\t' + seq + '\n')
+
+def dump_seqs(dir, protein_elm, name):
+    """Print annotation results. Just seqs"""
+
+    seqs = {}
+    for protein in protein_elm:
+        for elmseq in protein_elm[protein]:
+            elm, seq = elmseq.split(':')
+            seqs[seq] = True
+    with open(os.path.join(dir, name), 'w') as f:
+        for seq in seqs:
+            f.write(seq + '\n')
 
 def get_cons_elms(dir, protein_counts, limit):
     """Get all ELM conservation for proteins w/ over LIMIT seqs"""
@@ -215,9 +243,16 @@ print 'ALL', count_it(all_cons)
 print 'MAMMAL ALL', count_it(mammal_all_cons)
 print 'BIRD ALL', count_it(bird_all_cons)
 
+dump_seqs(dir, mammal_uniq, 'mammal_uniq_venn')
+dump_seqs(dir, bird_uniq, 'bird_uniq_venn')
+
+
 # what is not considered uniq?
 mammal_control = mk_control(mammal_all_cons, mammal_uniq)
 bird_control = mk_control(bird_all_cons, bird_uniq)
+
+dump_seqs(dir, mammal_control, 'mammal_control_venn')
+dump_seqs(dir, bird_control, 'bird_control_venn')
 
 print 'MAMMAL CONTROL', count_it(mammal_control)
 print 'BIRD CONTROL', count_it(bird_control)
@@ -281,3 +316,12 @@ with open(f, 'w') as f:
     for d in (mammal, bird):
         for seq in d:
             f.write(seq + '\n')
+
+count_evaluate('MAMMAL', mammal, mammal_host_freqs, bird_host_freqs)
+count_evaluate('MAMMAL CONTROL', mammal_control, mammal_host_freqs, 
+               bird_host_freqs)
+count_evaluate('BIRD', bird, 
+               bird_host_freqs, mammal_host_freqs)
+count_evaluate('BIRD CONTROL', bird_control, 
+               bird_host_freqs, mammal_host_freqs)
+
