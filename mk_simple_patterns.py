@@ -9,24 +9,25 @@ def acc_hits(hits, afile):
     with open(afile) as f:
         for line in f:
             elm, seq, count, freq = line.strip().split('\t')
-            if 'X' not in seq:
-                hits[elm + ':' + utils.mk_sub(seq)] = True
+            new_seq = utils.mk_sub(seq)
+            if new_seq != 'NA':
+                hits[elm + ':' + new_seq] = True
 
 in_dir = sys.argv[1]
 elms_file = sys.argv[2]
 
 hits = {}
-for g in global_settings.TEST_GENOMES:
+for g in ('Gallus_gallus', 'H_sapiens'):
     afile = os.path.join(in_dir, 'elmdict_'
                          + g + '.init')
     acc_hits(hits, afile)
 
 elms = {}
 for elmseq in hits:
-    print elmseq + '\t' + elmseq.split(':')[1]
+#    print elmseq + '\t' + elmseq.split(':')[1]
     elms[elmseq.split(':')[0]] = True
 
 with open(elms_file, 'w') as f:
     for elm in elms:
         f.write(elm + '\tpattern\n')
-
+        print elm + '\t' + elm

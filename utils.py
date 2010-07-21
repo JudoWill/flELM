@@ -77,6 +77,20 @@ def mk_sub(seq):
                        for c in seq])
     return new_seq
 
+def mk_sub_elm(seq):
+    """Make substitutions based on
+       residue properties. Use this
+       for ELM matches"""
+    
+    new_seq = 'NA'
+    try:
+         new_seq = ''.join([AA_SUB_4_elm[c] 
+                            for c in seq])
+    except: pass
+
+    return new_seq
+
+
 def init_mysql(database):
     conn = MySQLdb.connect(host='localhost',
                            user=local_settings.MYSQL_USR,

@@ -37,32 +37,34 @@ def mk_simple_elm_patterns():
     """Look at elmdict hits, and make new simple patterns from them, and make new fasta"""
 
     sh('python mk_simple_patterns.py '
-       + 'working/Jun29/ '
-       + 'working/Jul12/use_elms '
-       + '> working/Jul12/simple_patterns')
-    for g in TEST_GENOMES:
+       + 'working/Jul20/ '
+       + 'elm_expressions.txt '
+       #+ 'working/Jul12/use_elms '
+       + '> working/Jul20/simple_patterns')
+    for g in ('H_sapiens', 'Gallus_gallus'):
         sh('python mk_simple_fasta.py '
-           + 'working/Jun29/' + g + '.fa '
-           + 'working/Jul12/' + g + '.fa')
-    host_strains = [['human','H1N1'],
-                    ['human','H3N2'],
-                    ['human','H5N1'],
+           + 'data/' + g + '.fa '
+           + 'working/Jul20/' + g + '.fa')
+    # copy from Jul19
+    # host_strains = [['human','H1N1'],
+    #                 ['human','H3N2'],
+    #                 ['human','H5N1'],
                     
-                    ['swine','H3N2'],
-                    ['swine','H1N1'],
+    #                 ['swine','H3N2'],
+    #                 ['swine','H1N1'],
                     
-                    ['equine','H3N8'],
+    #                 ['equine','H3N8'],
                     
-                    ['chicken','H9N2'],
-                    ['chicken','H5N1'],
+    #                 ['chicken','H9N2'],
+    #                 ['chicken','H5N1'],
                     
-                    ['duck','H9N2'],
-                    ['duck','H5N1']]
-    for host, strain in host_strains:
-        for year in xrange(2000, 2011):
-            sh('python mk_simple_fasta.py '
-               + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.fa '
-               + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.fa')
+    #                 ['duck','H9N2'],
+    #                 ['duck','H5N1']]
+    # for host, strain in host_strains:
+    #     for year in xrange(2000, 2011):
+    #         sh('python mk_simple_fasta.py '
+    #            + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.fa '
+    #            + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.fa')
 
 @task
 def get_mammal_bird_elms():
@@ -134,32 +136,6 @@ def find_best_elms():
        + use_elms_file)
 
 @task
-def format_ncbi_for_blast():
-    """redo NCBI file for blast input"""
-
-    for g in GENOMES:
-        sh('formatter.py --infile '
-           + 'data/' + g + '.fa --outdir data/my_roundup/')
-
-@task
-def blast():
-    """blast all genomes for RSD use. I can't use this b/c I don't have WU BLAST"""
-
-    for g1,g2 in itertools.combinations(GENOMES,2):
-        for q,s in ((g1,g2), (g2,g1)):
-            sh('Blast_compute.py -q data/my_roundup/' + q
-               + '.fa -s data/my_roundup/' + s + '.fa -o results/BLAST/'
-               + q + '_VS_' + s)
-
-@task
-def xdformat():
-    """mk FASTA databases for blasting w/ Blast_compute.py"""
-
-    for g in GENOMES:
-        sh('xdformat -p data/'
-           + g + '.fa')
-
-@task
 def get_all_roundup_seqs_ncbi():
     """use NCBI eutils to grab protein seqs for roundup orthologs"""
 
@@ -205,12 +181,6 @@ def get_mammal_roundup_seqs_ncbi():
            + 'working/Jun28_mammals/mammal_roundup_clusters '
            + species + ' '
            + 'working/Jun28_mammals/' + name + '.fa')
-
-@task
-def list_tasks():
-    task_list = environment.get_tasks()
-    for task in task_list:
-        print task.shortname 
 
 @task
 def other_virus_elms():
@@ -357,19 +327,20 @@ def process_elm(options):
 	c_arg = ''
 	if options.process_elm.get('picloud', False): c_arg = '-c'
 	
-	for genome in TEST_GENOMES:
-		ofile = os.path.join('working', 'Jul12', 'elmdict_'+genome+'.init')
-		ifile = os.path.join('working', 'Jul12', genome+'.fa')
-                st_elmfile = os.path.join('working', 'Jul12', 'simple_patterns')
+	for genome in ('H_sapiens',):
+		ofile = os.path.join('working', 'Jul20', 'elmdict_'+genome+'.init')
+		ifile = os.path.join('data', genome+'.fa')
+                st_elm_file = os.path.join('working', 'Jul20', 'elm_expressions.txt')
                 elms = {}
-                with open(st_elmfile) as f:
+                with open(st_elm_file) as f:
                     for line in f:
                         elm, pattern = line.strip().split('\t')
                         elms[elm] = pattern
                 elm_files = []
-                if len(elms) > 5000:
+                size = 25
+                if len(elms) > size:
                     counter = 0
-                    for chunk in utils.chunks(elms.keys(), 5000):
+                    for chunk in utils.chunks(elms.keys(), size):
                         new_elm_file = 'working/elm_tmp_file' + str(counter)
                         elm_files.append(new_elm_file)
                         with open(new_elm_file, 'w') as f:
@@ -699,16 +670,16 @@ def conserved_elms_2():
                         ['human','H3N2'],
                         ['human','H5N1'],
                         
-                        ['swine','H3N2'],
-                        ['swine','H1N1'],
+                        #['swine','H3N2'],
+                        #['swine','H1N1'],
                         
-                        ['equine','H3N8'],
+                        #['equine','H3N8'],
 			
                         ['chicken','H9N2'],
-                        ['chicken','H5N1'],
+                        ['chicken','H5N1']]
                         
-                        ['duck','H9N2'],
-                        ['duck','H5N1']]
+                        #['duck','H9N2'],
+                        #['duck','H5N1']]
 
 	for host, strain in host_strains:
             for year in xrange(2000, 2010):
@@ -718,95 +689,16 @@ def conserved_elms_2():
                 #   + str(year) + ' '
                 #   + 'working/Jul7/')
 		sh('python matchELMpattern_once.py '
-		   + 'working/Jul12/simple_patterns '
-		   + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.fa '
-		   + '> ' + 'working/Jul12/' + host + '.' 
+		   + 'working/Jul20/simple_patterns '
+		   + 'working/Jul20/' + host + '.' + strain + '.' + str(year) + '.fa '
+		   + '> ' + 'working/Jul20/' + host + '.' 
                    + strain + '.' + str(year) + '.elms_once')
-		sh('python getConserved.py '
-		   + 'working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms_once '
-		   + cut + ' '
-		   + '1> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
-		   + '2> working/Jul12/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
+		#sh('python getConserved.py '
+		#   + 'working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms_once '
+		#   + cut + ' '
+		#   + '1> working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
+		#   + '2> working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
 
-@task
-@cmdopts([('cutoff=', 'c', '% cutoff'),])
-def conserved_elms_3():
-	"""Find ELM seqs conserved on strains"""
-
-	cut = options.conserved_elms_3.get('cutoff')
-	host_strains = [['human','H1N1'],
-			['human','H3N2'],
-			['human','H5N1'],
-
-			['swine','H3N2'],
-			['swine','H1N1'],
-
-			['equine','H3N8'],
-			
-			['chicken','H9N2'],
-			['chicken','H5N1'],
-
-			['duck','H9N2'],
-			['duck','H5N1']]
-
-	for host, strain in host_strains:
-            for year in xrange(2000, 2011):
-		sh('python getConservedELMseqs.py '
-		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elms '
-		   + 'ELM '
-		   + cut + ' '
-		   + '1> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elmseqs.' + cut + ' '
-		   + '2> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.elmseqs.conservation')
-                sh('python getConservedELMseqs.py '
-		   + 'working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.simpleELMs '
-		   + 'ELM '
-		   + cut + ' '
-		   + '1> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.simpleelmseqs.' + cut + ' '
-		   + '2> working/Jul1_year/' + host + '.' + strain + '.' + str(year) + '.simpleelmseqs.conservation')
-			
-@task
-def conserved_elms_2_old():
-	for host in ['human', 'swine', 'equine', 'chicken']:
-		sh('python mk_freq.py '
-		   + 'results/' + host + '.H9N2.elms.90 '
-		   + 'results/' + host + '.H9N2.elms '
-		   + '> results/' + host + '.H9N2.elms.90.freq')
-		#sh('python prob_of_seq.py '
-		#   + os.path.join(RESULTSDIR, 'flu.' + host + '.aa_freq ')
-		#   + host + ' '
-		#   + os.path.join(RESULTSDIR, host + '.elms.90.freq ')
-		#   + '> ' + os.path.join(RESULTSDIR, host + '.elms.90.freq.redo'))
-
-@task
-def serotypes():
-	""" How does ELM conservation change between serotypes (ex H1N1, H2N4) """
-
-	species = 'swine'
-	type2protein2gb2seq = utils.get_fluSeqs_by_serotype(species)
-	subtypes = ['H1N1', 'H3N2']
-	for t in subtypes:
-		with open(species + '.' + t + '.fa', 'w') as f:
-			for p in type2protein2gb2seq[t]:
-				length = len(type2protein2gb2seq[t][p].keys())
-				if length > 100:
-				#print t + '\t' + p + '\t' + str(length)
-					for gb in type2protein2gb2seq[t][p]:
-						f.write('>' + gb + '.' + p + '\n')
-						f.write(type2protein2gb2seq[t][p][gb] + '\n')
- 		sh('python matchELMpattern.py '
- 		   + 'elm_expressions.txt '
- 		   + species + '.' + t + '.fa '
- 		   + '> ' + species + '.' + t + '.elms')
- 		sh('python getConserved.py '
- 		   + species + '.' + t + '.elms '
- 		   + 'ELM '
- 		   + '90 '
- 		   + '1> ' + species + '.' + t + '.elms.90 '
- 		   + '2> ' + species + '.' + t + '.elms.conservation')
- 		sh('python mk_freq.py '
- 		   + species + '.' + t + '.elms.90 '
- 		   + species + '.' + t + '.elms '
- 		   + '> ' + species + '.' + t + '.elms.90.freq')
 
 @task
 def serotypes_random():
@@ -862,16 +754,4 @@ def serotypes_random_fasta():
 				   + 'random_seq/' + r_str + '/' + species + '.' + t + '.elms '
 				   + '> random_seq/' + r_str + '/' + species + '.' + t + '.elms.' + c + '.freq')
 
-# @task
-# def get_seq():
-# 	""" Grab protein fasta & description file from NCBI """
 
-# 	# flu
-# 	for afile, file_name in [['influenza.faa','influenza.fa'], 
-# 				 ['genomeset.dat','genomeset.dat']]:
-# 		dump_file = os.path.join(DATADIR, afile + '.gz')
-# 		sh('rsync -av --size-only ftp.ncbi.nlm.nih.gov::genomes/INFLUENZA/'
-# 		   + afile + '.gz '
-# 		   + dump_file)
-# 		sh('gunzip -dqc ' + dump_file + ' > '
-# 		   + os.path.join(DATADIR,file_name))
