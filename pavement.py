@@ -292,7 +292,9 @@ def recount_elm_seqs():
 def get_elm_patterns():
 	""" Grab ELM patterns from the resource """
 
-	sh('python get_elm_patterns.py > elm_expressions.txt')
+        out_file = 'data/elm_expressions.txt'
+	sh('python get_elm_patterns.py > '
+           + out_file)
 
 @task
 def get_flu_seq():

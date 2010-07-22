@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-  
 """ Grab ELM patterns based on
     http://elm.eu.org/browse.html
 """
@@ -8,12 +9,15 @@ def get_elm_pattern(elm, link):
 
     os.system('wget http://elm.eu.org/'
               + link)
-    with open(elm + '.html') as f:
-        line = f.readline()
-        while line.find('Pattern:') == -1:
-                line = f.readline()
-        pattern = f.readline().split('>')[1].lstrip().split('<')[0].strip()
-        print elm + '\t' + pattern.upper()
+    elm_file = elm + '.html'
+    if os.path.exists(elm_file):
+        with open(elm_file) as f:
+            line = f.readline()
+            while line.find('Pattern:') == -1:
+                    line = f.readline()
+            pattern = f.readline().split('>')[1].lstrip().split('<')[0].strip()
+            
+            print elm + '\t' + pattern.replace('…','...').upper()
 
 def extract_pages():
     """ Return {} of ELM name to HTML link """
