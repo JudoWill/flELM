@@ -23,11 +23,15 @@ for g in ('Gallus_gallus', 'H_sapiens'):
     acc_hits(hits, afile)
 
 elms = {}
+seqs = {}
 for elmseq in hits:
-#    print elmseq + '\t' + elmseq.split(':')[1]
-    elms[elmseq.split(':')[0]] = True
+    elm, seq = elmseq.split(':')
+    elms[elm] = True
+    seqs[seq] = True
 
 with open(elms_file, 'w') as f:
     for elm in elms:
         f.write(elm + '\tpattern\n')
-        print elm + '\t' + elm
+
+for seq in seqs:
+    print seq + '\t' + seq

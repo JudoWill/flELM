@@ -23,7 +23,7 @@ def printResult(protein, elm, match, seq, offset):
           + '\t' + elm + '\t' \
           + seq[int(match.start()):int(match.end())] + '\tELM'
 
-def matchSeq(protein, seq, pattern2elm, pattern2regex):
+def matchSeq(protein, seq, pattern2regex):
     for elm_pattern in pattern2regex:
         #elm_pattern = elm2pattern[elm]#.replace('(','').replace(')','')
         #p = re.compile(elm_pattern)
@@ -34,10 +34,8 @@ def matchSeq(protein, seq, pattern2elm, pattern2regex):
         # if the match must occur at the amino end
         offset = 0
         if match:
-            for elm in pattern2elm[elm_pattern]:
-                printResult(protein, elm, 
-                            match, seq, offset)
-              
+            printResult(protein, elm_pattern, 
+                        match, seq, offset)
 
 req_args = ['pattern file',
             'fasta file']
@@ -48,15 +46,12 @@ utils_scripting.checkStart(sys.argv, req_args, examples, len(req_args), True)
 input_pattern_file = sys.argv[1]
 fasta_file = sys.argv[2]
 pattern2regex = {}
-pattern2elm = defaultdict(dict)
 with open(input_pattern_file) as f:
     for line in f:
         elm, pattern = line.strip().split('\t')
-        pattern2elm[pattern][elm] = True
-for pattern in pattern2elm:
-    pattern2regex[pattern] = re.compile(pattern)
+        pattern2regex[pattern] = re.compile(pattern)
 
 for protein, seq in utils.fasta_iter(fasta_file):
-    matchSeq(protein, seq, pattern2elm, pattern2regex)
+    matchSeq(protein, seq, pattern2regex)
 
 

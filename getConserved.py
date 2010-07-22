@@ -22,20 +22,18 @@ def getCounts(annotation_file):
     pattern2elm = defaultdict(dict)
     with open(annotation_file) as f:
         for line in f:
-            protein, st, stp, motif, seq, junk = line.strip().split('\t')
+            protein, st, stp, pattern, seq, junk = line.strip().split('\t')
             protein_split = protein.split('.')
             subtype = protein_split[0]
             protein_name = protein_split[-1]
-            elm, pattern = motif.split(':')
             virus2proteinCount[protein_name][subtype] = True
             if protein_name not in virus2annotation:
                 virus2annotation[protein_name] = {}
             if pattern not in virus2annotation[protein_name]:
                 virus2annotation[protein_name][pattern] = {}
             virus2annotation[protein_name][pattern][subtype] = True
-            pattern2elm[pattern][elm] = True
             
-    return [virus2annotation, virus2proteinCount, pattern2elm]
+    return [virus2annotation, virus2proteinCount]
 
 def main():
     req_args = ['virus annotation file',
@@ -47,17 +45,14 @@ def main():
     annotation_file = sys.argv[1]
     conserved_cutoff = float(sys.argv[2])
     
-    [virus2annotation, virus2proteinCount,
-     pattern2elm] = getCounts(annotation_file)
+    [virus2annotation, virus2proteinCount] = getCounts(annotation_file)
 
     for vp in virus2annotation.keys():
         for pattern in virus2annotation[vp]:
             percent = (float(100) * float(len(virus2annotation[vp][pattern])) / 
                        float(len(virus2proteinCount[vp])))
-            for elm in pattern2elm[pattern]:
-                motif = elm + ':' + pattern
-                if percent >= conserved_cutoff:
-                    print vp + '\t0\t0\t' + motif + '\tseq\tELM'
-                sys.stderr.write(vp + '\t' + motif + '\t' + str(percent) + '\n')
+            if percent >= conserved_cutoff:
+                print vp + '\t0\t0\t' + pattern + '\tseq\tELM'
+            sys.stderr.write(vp + '\t' + pattern + '\t' + str(percent) + '\n')
 
 if __name__ == '__main__': main()

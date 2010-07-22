@@ -38,8 +38,7 @@ def mk_simple_elm_patterns():
 
     sh('python mk_simple_patterns.py '
        + 'working/Jul20/ '
-       + 'elm_expressions.txt '
-       #+ 'working/Jul12/use_elms '
+       + 'working/Jul20/use_elms '
        + '> working/Jul20/simple_patterns')
     for g in ('H_sapiens', 'Gallus_gallus'):
         sh('python mk_simple_fasta.py '
@@ -351,6 +350,50 @@ def process_elm(options):
                     elm_files.append(st_elm_file)
                 
                 if not os.path.exists(ofile) or options.process_elm.get('forcenew', False):
+                    counter = 0
+                    for elmfile in elm_files:
+                        #only do if missing or FORCING
+                        sh('python makeELMdict.py %(c)s -o %(out)s %(infile)s %(elm)s' % {'out':ofile, 
+                                                                                          'c':c_arg, 'infile': ifile,
+                                                                                          'elm': elmfile})
+                        sh('mv ' + ofile + ' ' + ofile + str(counter))
+                        counter += 1
+
+@task
+@cmdopts([('forcenew', 'f', 'Force the re-creation of the result files'),
+	  ('picloud', 'c', 'Use PiCloud')])
+def process_elm_simple(options):
+	"""Determines (and writes) the ELM dictionary"""
+	
+	c_arg = ''
+	if options.process_elm_simple.get('picloud', False): c_arg = '-c'
+	
+	for genome in ('H_sapiens','Gallus_gallus'):
+		ofile = os.path.join('working', 'Jul20', 
+                                     'elmdict_'+genome+'.simple')
+		ifile = os.path.join('working', 'Jul20', genome+'.fa')
+                st_elm_file = os.path.join('working', 'Jul20', 
+                                           'simple_patterns')
+                elms = {}
+                with open(st_elm_file) as f:
+                    for line in f:
+                        elm, pattern = line.strip().split('\t')
+                        elms[elm] = pattern
+                elm_files = []
+                size = 1000
+                if len(elms) > size:
+                    counter = 0
+                    for chunk in utils.chunks(elms.keys(), size):
+                        new_elm_file = 'working/elm_tmp_file' + str(counter)
+                        elm_files.append(new_elm_file)
+                        with open(new_elm_file, 'w') as f:
+                            for elm in chunk:
+                                f.write(elm + '\t' + elms[elm] + '\n')
+                        counter += 1
+                else:
+                    elm_files.append(st_elm_file)
+                
+                if not os.path.exists(ofile) or options.process_elm_simple.get('forcenew', False):
                     counter = 0
                     for elmfile in elm_files:
                         #only do if missing or FORCING
@@ -693,12 +736,11 @@ def conserved_elms_2():
 		   + 'working/Jul20/' + host + '.' + strain + '.' + str(year) + '.fa '
 		   + '> ' + 'working/Jul20/' + host + '.' 
                    + strain + '.' + str(year) + '.elms_once')
-		#sh('python getConserved.py '
-		#   + 'working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms_once '
-		#   + cut + ' '
-		#   + '1> working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
-		#   + '2> working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
-
+		sh('python getConserved.py '
+		   + 'working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms_once '
+		   + cut + ' '
+		   + '1> working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms.' + cut + ' '
+		   + '2> working/Jul20/' + host + '.' + strain + '.' + str(year) + '.elms.conservation')
 
 @task
 def serotypes_random():
