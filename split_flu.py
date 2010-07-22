@@ -58,7 +58,7 @@ def get_freqs(file, elmdict_file):
         for line in f:
             seq, freq = line.strip().split('\t')
             #seq = elmseq.split(':')[1]
-            if counts[seq] > 20:
+            if counts[seq] > 500:
                 freqs[seq] = float(freq)
     return freqs
 
