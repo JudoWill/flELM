@@ -252,16 +252,16 @@ def elm_aa_freqs_roundup():
 	for genome in TEST_GENOMES:
             sh('python mk_aa_freq.py '
                + 'data/roundup_paper/' + genome + '.fa '
-               + 'results/roundup_all/elmdict_' + genome + '.init '
+               + 'results/roundup_all/elmdict_' + genome + '.simple '
                + 'results/roundup_all/' + genome + '.init.elm_aa_freq')
 
 @task
-def elm_aa_freqs_Jul12():
-    for genome in TEST_GENOMES:
+def elm_aa_freqs_Jul20():
+    for genome in ('Gallus_gallus', 'H_sapiens'):
         sh('python mk_aa_freq.py '
-           + 'working/Jul12/' + genome + '.fa '
-           + 'working/Jul12/elmdict_' + genome + '.init '
-           + 'working/Jul12/' + genome + '.init.elm_aa_freq')
+           + 'data/' + genome + '.fa '
+           + 'working/Jul20/elmdict_' + genome + '.simple '
+           + 'working/Jul20/' + genome + '.simple.elm_aa_freq')
 
 #conserved_elms -c 90
 @task 

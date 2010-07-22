@@ -56,8 +56,8 @@ def get_freqs(file, elmdict_file):
     freqs = {}
     with open(file) as f:
         for line in f:
-            elmseq, freq = line.strip().split('\t')
-            seq = elmseq.split(':')[1]
+            seq, freq = line.strip().split('\t')
+            #seq = elmseq.split(':')[1]
             if counts[seq] > 20:
                 freqs[seq] = float(freq)
     return freqs
@@ -122,18 +122,18 @@ def dump_it(dir, protein_elm, name):
 
     with open(os.path.join(dir, name), 'w') as f:
         for protein in protein_elm:
-            for elmseq in protein_elm[protein]:
-                elm, seq = elmseq.split(':')
-                f.write(protein + '\t' + elmseq + '\t'
-                        + elm + '\t' + seq + '\n')
+            for seq in protein_elm[protein]:
+                #elm, seq = elmseq.split(':')
+                f.write(protein + '\t' + seq + '\t'
+                        + seq + '\t' + seq + '\n')
 
 def dump_seqs(dir, protein_elm, name):
     """Print annotation results. Just seqs"""
 
     seqs = {}
     for protein in protein_elm:
-        for elmseq in protein_elm[protein]:
-            elm, seq = elmseq.split(':')
+        for seq in protein_elm[protein]:
+            #elm, seq = elmseq.split(':')
             seqs[seq] = True
     with open(os.path.join(dir, name), 'w') as f:
         for seq in seqs:
@@ -210,7 +210,7 @@ def mk_control(species_all_cons, species_uniq):
                     control[protein][elm] = True
     return control    
 
-dir = 'working/Jul19/'
+dir = 'working/Jul20/'
 years = range(2000,2011,1)
 mammal_hosts = ('human',)#'swine','horse'
 mammal_strains = ('H5N1','H1N1','H3N2')#,'H3N8','H1N1'
@@ -246,7 +246,6 @@ print 'BIRD ALL', count_it(bird_all_cons)
 dump_seqs(dir, mammal_uniq, 'mammal_uniq_venn')
 dump_seqs(dir, bird_uniq, 'bird_uniq_venn')
 
-
 # what is not considered uniq?
 mammal_control = mk_control(mammal_all_cons, mammal_uniq)
 bird_control = mk_control(bird_all_cons, bird_uniq)
@@ -273,10 +272,11 @@ mammal_control_pre = get_seqs(os.path.join(dir, 'mammal_control'),
                               protein)
 bird_control_pre = get_seqs(os.path.join(dir, 'bird_control'),
                             protein)
-mammal_host_freqs = get_freqs(os.path.join(dir, 'H_sapiens.init.elm_aa_freq'),
-                              os.path.join(dir, 'elmdict_H_sapiens.init'))
-bird_host_freqs = get_freqs(os.path.join(dir, 'Gallus_gallus.init.elm_aa_freq'),
-                            os.path.join(dir, 'elmdict_Gallus_gallus.init'))
+mammal_host_freqs = get_freqs(os.path.join(dir, 'H_sapiens.simple.elm_aa_freq'),
+                              os.path.join(dir, 'elmdict_H_sapiens.simple'))
+bird_host_freqs = get_freqs(os.path.join(dir, 
+                                         'Gallus_gallus.simple.elm_aa_freq'),
+                            os.path.join(dir, 'elmdict_Gallus_gallus.simple'))
 
 mammal = set(mammal_pre.keys()) - set(bird_pre.keys())
 bird = set(bird_pre.keys()) - set(mammal_pre.keys())
