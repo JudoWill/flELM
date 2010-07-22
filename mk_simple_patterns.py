@@ -9,7 +9,7 @@ def acc_hits(hits, afile):
     with open(afile) as f:
         for line in f:
             elm, seq, count, freq = line.strip().split('\t')
-            new_seq = utils.mk_sub(seq)
+            new_seq = utils.mk_sub_elm(seq)
             if new_seq != 'NA':
                 hits[elm + ':' + new_seq] = True
 

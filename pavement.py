@@ -55,13 +55,13 @@ def mk_simple_elm_patterns():
     """Look at elmdict hits, and make new simple patterns from them, and make new fasta"""
 
     sh('python mk_simple_patterns.py '
-       + 'working/Jul20/ '
-       + 'working/Jul20/use_elms '
-       + '> working/Jul20/simple_patterns')
+       + 'working/Jul22/ '
+       + 'working/Jul22/use_elms '
+       + '> working/Jul22/simple_patterns')
     for g in ('H_sapiens', 'Gallus_gallus'):
         sh('python mk_simple_fasta.py '
-           + 'data/' + g + '.fa '
-           + 'working/Jul20/' + g + '.fa')
+           + 'working/Jul22/fasta_use/' + g + '.fa '
+           + 'working/Jul22/' + g + '.fa')
     # copy from Jul19
     # host_strains = [['human','H1N1'],
     #                 ['human','H3N2'],
@@ -346,17 +346,18 @@ def process_elm(options):
 	c_arg = ''
 	if options.process_elm.get('picloud', False): c_arg = '-c'
 	
-	for genome in ('H_sapiens',):
-		ofile = os.path.join('working', 'Jul20', 'elmdict_'+genome+'.init')
+	for genome in ('H_sapiens', 'Gallus_gallus'):
+		ofile = os.path.join('working', 'Jul22', 
+                                     'elmdict_'+genome+'.init')
 		ifile = os.path.join('data', genome+'.fa')
-                st_elm_file = os.path.join('working', 'Jul20', 'elm_expressions.txt')
+                st_elm_file = os.path.join('data', 'elm_expressions.txt')
                 elms = {}
                 with open(st_elm_file) as f:
                     for line in f:
                         elm, pattern = line.strip().split('\t')
                         elms[elm] = pattern
                 elm_files = []
-                size = 25
+                size = 50
                 if len(elms) > size:
                     counter = 0
                     for chunk in utils.chunks(elms.keys(), size):
