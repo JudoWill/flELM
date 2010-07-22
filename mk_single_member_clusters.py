@@ -11,12 +11,13 @@ import sys, random, utils, numpy
 from collections import defaultdict
 
 name2label = {"Homo sapiens": 'H_sapiens',
-              "Mus musculus": 'M_musculus',
-              "Pan troglodytes": 'Pan_troglodytes',
-              "Sus scrofa": 'Sus_scrofa',
-              "Taeniopygia guttata": 'Taeniopygia_guttata',
-              "Gallus gallus": 'Gallus_gallus',
-              "Equus caballus": 'Equus_caballus'}
+              "Gallus gallus": 'Gallus_gallus'}
+              # "Mus musculus": 'M_musculus',
+              # "Pan troglodytes": 'Pan_troglodytes',
+              # "Sus scrofa": 'Sus_scrofa',
+              # "Taeniopygia guttata": 'Taeniopygia_guttata',
+              
+              # "Equus caballus": 'Equus_caballus'}
 
 def getID_local(line):
     return line.split('|')[1].strip()

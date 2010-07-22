@@ -9,8 +9,10 @@
 import sys, utils, global_settings
 from collections import defaultdict
 
+use_species = ('Gallus gallus', 'Homo sapiens')
+
 roundup_file = sys.argv[1]
-species = int(len(global_settings.MAMMALS))
+species = int(len(use_species))
 outfile = sys.argv[2]
 
 cluster = defaultdict(dict)
@@ -28,7 +30,7 @@ with open(outfile, 'w') as outf:
                 cluster = defaultdict(dict)
             elif 'Genome' not in line and line.strip() != '' and current_cluster:
                 sp = line.split('\t')
-                if sp[1] in global_settings.MAMMALS:
+                if sp[1] in use_species:
                     if sp[0].strip() != '-':
                         cluster[sp[1]][sp[0]] = True
     # catch the last one

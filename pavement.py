@@ -8,6 +8,24 @@ from global_settings import *
 import utils
 
 @task
+def roundup():
+    """Parse human/chicken roundup & get FASTA"""
+
+    sh('python parse_roundup.py '
+       + 'working/Jul22/human_chicken.roundup '
+       + 'working/Jul22/human_chicken.roundup.parsed')
+    for species, name in (("'Homo sapiens'", 'H_sapiens'),
+                          ("'Gallus gallus'", 'Gallus_gallus')):
+        sh('python get_protein_seq_for_gi.py '
+           + 'working/Jul22/human_chicken.roundup.parsed '
+           + species + ' '
+           + 'working/Jul22/fasta_all/' + name + '.fa')
+    sh('python mk_single_member_clusters.py '
+       + 'working/Jul22/human_chicken.roundup.parsed '
+       + 'working/Jul22/fasta_all/ '
+       + 'working/Jul22/fasta_use/')
+
+@task
 def check_hypoth():
     """Do individual flu proteins match host/flu hypoth?"""
     for protein in FLU_PROTEINS_LTD:
