@@ -277,9 +277,9 @@ def elm_aa_freqs_roundup():
 def elm_aa_freqs_Jul20():
     for genome in ('Gallus_gallus', 'H_sapiens'):
         sh('python mk_aa_freq.py '
-           + 'data/' + genome + '.fa '
-           + 'working/Jul20/elmdict_' + genome + '.simple '
-           + 'working/Jul20/' + genome + '.simple.elm_aa_freq')
+           + 'working/Jul22/' + genome + '.fa '
+           + 'working/Jul22/elmdict_' + genome + '.simple '
+           + 'working/Jul22/' + genome + '.simple.elm_aa_freq')
 
 #conserved_elms -c 90
 @task 
@@ -389,11 +389,11 @@ def process_elm_simple(options):
 	c_arg = ''
 	if options.process_elm_simple.get('picloud', False): c_arg = '-c'
 	
-	for genome in ('H_sapiens','Gallus_gallus'):
-		ofile = os.path.join('working', 'Jul20', 
+	for genome in ('H_sapiens', 'Gallus_gallus'):
+		ofile = os.path.join('working', 'Jul22', 
                                      'elmdict_'+genome+'.simple')
-		ifile = os.path.join('working', 'Jul20', genome+'.fa')
-                st_elm_file = os.path.join('working', 'Jul20', 
+		ifile = os.path.join('working', 'Jul22', genome+'.fa')
+                st_elm_file = os.path.join('working', 'Jul22', 
                                            'simple_patterns')
                 elms = {}
                 with open(st_elm_file) as f:

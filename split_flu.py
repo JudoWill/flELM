@@ -58,8 +58,13 @@ def get_freqs(file, elmdict_file):
         for line in f:
             seq, freq = line.strip().split('\t')
             #seq = elmseq.split(':')[1]
-            if counts[seq] > 500:
+            if float(freq) > float(0.001):
                 freqs[seq] = float(freq)
+            #if float(freq) == float(.0001):
+            #    print 'count', counts[seq]#freqs[seq] = float(freq)
+            # elif counts[seq] == 1000:
+            #     print 'freq', freq
+                
     return freqs
 
 def count_evaluate(name, flu_seqs, host1_freqs, host2_freqs):
@@ -210,7 +215,7 @@ def mk_control(species_all_cons, species_uniq):
                     control[protein][elm] = True
     return control    
 
-dir = 'working/Jul20/'
+dir = 'working/Jul22/'
 years = range(2000,2011,1)
 mammal_hosts = ('human',)#'swine','horse'
 mammal_strains = ('H5N1','H1N1','H3N2')#,'H3N8','H1N1'
@@ -284,8 +289,8 @@ bird = set(bird_pre.keys()) - set(mammal_pre.keys())
 mammal_control_pre2 = set(mammal_control_pre.keys()) - set(mammal_pre.keys())
 bird_control_pre2 = set(bird_control_pre.keys()) - set(bird_pre.keys())
 both_control = bird_control_pre2 & mammal_control_pre2
-mammal_control = mammal_control_pre2 - both_control
-bird_control = bird_control_pre2 - both_control
+mammal_control = mammal_control_pre2# - both_control
+bird_control = bird_control_pre2# - both_control
 
 print 'intr', len(mammal_control & mammal)
 print 'intr', len(bird_control & bird)
