@@ -1,4 +1,4 @@
-SEQ_LIMIT = 50
+SEQ_LIMIT = 30
 
 FLU_PROTEINS = {'hemagglutinin':'HA', 'neuraminidase':'NA', 
                 'nucleocapsid protein':'NC',

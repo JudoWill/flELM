@@ -1,11 +1,21 @@
 """Split ELM/seqs into those on all strains,
    and those specific to 90% mammal but not
    in 90% bird."""
-import os, utils, global_settings, sys, utils_stats
+import os, utils, global_settings, sys, utils_stats, random
 from collections import defaultdict
 
 outfile = sys.argv[1]
 
+def plot_virus(uniq_human, uniq_chicken, human_freqs, bird_freqs):
+    """For unique sequences in flu, plot the % MSA coverage."""
+
+    tmp_r = 'rfile' + str(random.randint(0,100))
+    tmp_input = 'rinput' + str(random.randint(0,100))
+    with open(tmp_input, 'w') as f:
+        for seq in uniq_human:
+            f.write('%.10f\t%.10f\n' %
+                    (human_freqs[seq], chicken_freqs[seq]))
+    
 def write_latex(g1, g2, outfile):
     """Make table for paper"""
 
@@ -58,7 +68,7 @@ def get_freqs(file, elmdict_file):
         for line in f:
             seq, freq = line.strip().split('\t')
             #seq = elmseq.split(':')[1]
-            if float(freq) > float(0.001):
+            if float(freq) > float(0.0001):
                 freqs[seq] = float(freq)
             #if float(freq) == float(.0001):
             #    print 'count', counts[seq]#freqs[seq] = float(freq)
@@ -220,7 +230,7 @@ years = range(2000,2011,1)
 mammal_hosts = ('human',)#'swine','horse'
 mammal_strains = ('H5N1','H1N1','H3N2')#,'H3N8','H1N1'
 bird_hosts = ('chicken',)
-bird_strains = ('H5N1','H9N2')#'H9N2'
+bird_strains = ('H5N1','H9N2','H7N2')#'H9N2'
 
 limit = global_settings.SEQ_LIMIT
 cons_cut = float(90)
@@ -285,6 +295,9 @@ bird_host_freqs = get_freqs(os.path.join(dir,
 
 mammal = set(mammal_pre.keys()) - set(bird_pre.keys())
 bird = set(bird_pre.keys()) - set(mammal_pre.keys())
+
+#plot_virus(mammal, bird, human_freqs, bird_freqs):
+#sys.exit(0)
 
 mammal_control_pre2 = set(mammal_control_pre.keys()) - set(mammal_pre.keys())
 bird_control_pre2 = set(bird_control_pre.keys()) - set(bird_pre.keys())

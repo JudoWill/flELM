@@ -4,19 +4,19 @@ import utils, os, random, utils, global_settings, math
 from collections import defaultdict
 
 host = 'mammal'
-dir = 'working/Jul12'
+dir = 'working/Jul22'
 years = range(2000,2011,1)
 
 #if host == 'mammal':
 hosts = ('human', 'swine', 'equine', 'chicken', 'duck')
-strains = ('H1N1', 'H3N2', 'H5N1', 'H3N8', 'H9N2')
+strains = ('H1N1', 'H3N2', 'H5N1', 'H3N8', 'H9N2', 'H7N2')
 #elif host == 'bird':
 #    hosts = ('duck', 'chicken')
 #    strains = ('H9N2', 'H5N1')
 
 input = 'working/input' + str(random.randint(0,100))
 rfile = 'working/rfile' + str(random.randint(0,100))
-outfile = 'working/Jul12/flu_seqs.png'
+outfile = 'working/Jul22/flu_seqs.png'
 with open(input, 'w') as f:
     f.write('Host\tStrain\tYear\tProtein\tLogCount\n')
     for host in hosts:
@@ -44,7 +44,7 @@ with open(rfile, 'w') as f:
     f.write("d<-read.delim('"
             + input + "', header=TRUE, sep='\\t', as.is=TRUE)\n")
     f.write("png('" + outfile + "')\n")
-    f.write("ggplot(d,aes(Year,Host)) + geom_tile(aes(fill=LogCount),colour='white') + scale_fill_gradient(low='white',high='red') + facet_grid(Protein~Strain)\n")
+    f.write("ggplot(d,aes(Year,Host)) + geom_tile(aes(fill=LogCount),colour='white') + scale_fill_gradient(low='steelblue',high='red') + facet_grid(Protein~Strain)\n")
     f.write('dev.off()\n')
 os.system('R < ' + rfile + ' --no-save')
 os.system('rm ' + rfile + ' ' + input)
