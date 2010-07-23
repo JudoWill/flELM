@@ -1,6 +1,106 @@
 """Plot sequence frequencies for flu"""
-import global_settings, utils, os, random, math
+import global_settings, utils, os, random, math, utils_graph, itertools, utils_stats
 from collections import defaultdict
+
+def get_x(ls, ten_per):
+    """Grab top ten_per percent from this list"""
+
+    counter = 0
+    fill = {}
+    vals = []
+    while counter < ten_per:
+        fill[ ls[counter][1] ] = True
+        val = ls[counter][0]
+        vals.append(val)
+        counter += 1
+    if val == ls[counter][0]:
+        while True:
+            fill[ ls[counter][1] ] = True
+            vals.append( ls[counter][0] )
+            counter += 1
+            if val != ls[counter][0]:
+                break
+    return (fill, vals)
+
+def write_vals(vals, file):
+    """Write values in this list"""
+
+    with open(file, 'w') as f:
+        for v in vals:
+            f.write(str(v) + '\n')
+
+def plot_extremes(foreground_vals, control_vals, outfile):
+    """Plot extemes of flu diff distribution"""
+
+    fore = 'tmpfore' + str(random.randint(0,100))
+    control = 'tmpcontrol' + str(random.randint(0,100))
+    write_vals(foreground_vals, fore)
+    write_vals(control_vals, control)
+    tmpr = 'tmpr' + str(random.randint(0,100))
+    with open(tmpr, 'w') as f:
+        f.write("fore<-read.delim('"
+                + fore + "', header=FALSE, sep='\\t')\n")
+        f.write("control<-read.delim('"
+                + control + "', header=FALSE, sep='\\t')\n")
+        f.write("png('" + outfile + "')\n")
+        f.write("plot.multi.dens(list(fore[,1],control[,1]))\ndev.off()\nq()\n")
+    os.system('R < ' + tmpr + ' --no-save')
+    os.system('rm ' + tmpr + ' ' + fore + ' ' + control)
+
+def get_fore_control(dir, protein, this_freqs, that_freqs, outfile):
+    """For this flu protein, grab top/bottom 10% of MSA % diffs"""
+
+    ls = []
+    for seq in this_freqs:
+        diff = this_freqs[seq] - that_freqs[seq]
+        ls.append((diff,seq))
+    ls.sort()
+    ten_per = int(float(.05)*float(len(ls)))
+    
+    # get bottom
+    control, control_vals = get_x(ls, ten_per)
+
+    # get top
+    ls.reverse()
+    foreground, foreground_vals = get_x(ls, ten_per)
+    
+    plot_extremes(foreground_vals, control_vals, outfile)
+
+    return (foreground, control)
+
+def dump_input(seqs, f1, f2, file):
+    """Write host diffs one per line for seq in seqs"""
+
+    vals = []
+    with open(file, 'w') as f:
+        for seq in seqs:
+            if seq in f1 and seq in f2:
+                val = float(-1)*(math.log(f1[seq],100)-math.log(f2[seq],100))
+                f.write('%.20f\n' %
+                        (val))
+                vals.append(val)
+    return vals
+
+def plot_fore_control(outfile, protein, fore, control, 
+                      this_host_freqs, that_host_freqs):
+    """Plot density for flu foreground vs control for host differences"""
+
+    fore_input = 'fore' + str(random.randint(0,100))
+    control_input = 'control' + str(random.randint(0,100))
+    fore_vals = dump_input(fore, this_host_freqs, that_host_freqs, fore_input)
+    control_vals = dump_input(control, this_host_freqs, that_host_freqs, control_input)
+
+    rfile = 'tmpr' + str(random.randint(0,100))
+    with open(rfile, 'w') as f:
+        f.write("fore<-read.delim('"
+                + fore_input + "', header=FALSE, sep='\\t')\n")
+        f.write("control<-read.delim('"
+                + control_input + "', header=FALSE, sep='\\t')\n")
+        f.write("png('" + outfile + "')\n")
+        f.write("plot.multi.dens(list(fore[,1],control[,1]))\ndev.off()\nq()\n")
+    os.system('R < ' + rfile + ' --no-save')
+    os.system('rm ' + rfile + ' ' + fore_input + ' ' + control_input)
+    return (fore_vals, control_vals)
 
 def get_freqs(file, elmdict_file):
     """Get host freqs"""
@@ -16,8 +116,8 @@ def get_freqs(file, elmdict_file):
         for line in f:
             seq, freq = line.strip().split('\t')
             #seq = elmseq.split(':')[1]
-            if float(freq) > float(0.0001):
-                freqs[seq] = float(freq)
+            #if float(freq) > float(0.0001):
+            freqs[seq] = float(freq)
             #if float(freq) == float(.0001):
             #    print 'count', counts[seq]#freqs[seq] = float(freq)
             # elif counts[seq] == 1000:
@@ -191,15 +291,58 @@ human_cons = get_avg_cons(human_protein2strain, human_files)
 chicken_cons = get_avg_cons(chicken_protein2strain, chicken_files)
 limit = float(0)
 interesting = {}
-for protein in human_cons:
-    interesting[protein] = mk_plot(dir, protein, human_cons[protein],
-                                   chicken_cons[protein], limit)
-
 human_host_freqs = get_freqs(os.path.join(dir, 'H_sapiens.simple.elm_aa_freq'),
                              os.path.join(dir, 'elmdict_H_sapiens.simple'))
 chicken_host_freqs = get_freqs(os.path.join(dir, 
                                             'Gallus_gallus.simple.elm_aa_freq'),
                                os.path.join(dir, 'elmdict_Gallus_gallus.simple'))
+
+masters_human = []
+masters_chicken = []
+for protein in human_cons:
+    # interesting[protein] = mk_plot(dir, protein, human_cons[protein],
+    #                                chicken_cons[protein], limit)
+    human_fore, human_control = get_fore_control(dir, protein, 
+                                                 human_cons[protein],
+                                                 chicken_cons[protein],
+                                                 os.path.join('human_' + protein + '.extreme.png'))
+    chicken_fore, chicken_control = get_fore_control(dir, protein, 
+                                                     chicken_cons[protein],
+                                                     human_cons[protein],
+                                                     os.path.join(dir,
+                                                                  'chicken_' + protein + '.extreme.png'))
+    outfile = os.path.join(dir, 'human_' + protein + '.png')
+    human_fore_vals, human_control_vals = plot_fore_control(outfile, protein, 
+                                                            human_fore, human_control, 
+                                                            human_host_freqs, 
+                                                            chicken_host_freqs)
+    outfile = os.path.join(dir, 'chicken_' + protein + '.png')
+    chicken_fore_vals, chicken_control_vals  = plot_fore_control(outfile, protein, 
+                                                                 chicken_fore, 
+                                                                 chicken_control, 
+                                                                 chicken_host_freqs, 
+                                                                 human_host_freqs)
+    if protein in ('polymerase PB1', 'neuraminidase', 'polymerase PB2',
+                   'nonstructural protein 2', 'polymerase PA'):
+        human_pval = 'fore gtr ' + str(len(human_fore_vals)) + ' ' + str(len(human_control_vals) )+ ' ' + str(utils_stats.wilcox_gtr(human_fore_vals, human_control_vals))
+        chicken_pval = 'fore gtr ' + str(len(chicken_fore_vals)) + ' ' + str(len(chicken_control_vals)) + ' ' + str(utils_stats.wilcox_gtr(chicken_fore_vals, chicken_control_vals))
+    else:
+        human_pval = 'ctrl gtr ' + str(len(human_control_vals)) + ' ' + str(len(human_fore_vals)) + ' ' + str(utils_stats.wilcox_gtr(human_control_vals, human_fore_vals))
+        chicken_pval = 'ctrl gtr ' + str(len(chicken_control_vals)) + ' ' + str(len(chicken_fore_vals)) + ' ' + str(utils_stats.wilcox_gtr(chicken_control_vals, chicken_fore_vals))
+    print 'human pval', protein, human_pval
+    print 'chicken pval', protein, chicken_pval
+    # print(protein, len(human_fore), len(human_control), 
+    #       len(chicken_fore), len(chicken_control),
+    #       len(set(human_fore.keys()) & set(chicken_fore.keys())))
+    masters_human.append((human_fore, human_control))
+    masters_chicken.append((chicken_fore, chicken_control))
+# for p1,p2 in itertools.combinations(masters_human, 2):
+#     print len(utils_graph.intersectLists([p1[0],p2[1]])), len(utils_graph.intersectLists([p2[0],p1[1]]))
+    
+     
+
+
+
 # for protein in human_cons:
 #      mk_host_plot(dir, 'human ' + protein, human_cons[protein], chicken_cons[protein], 
 #                   limit,
