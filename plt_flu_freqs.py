@@ -371,7 +371,9 @@ for protein in human_cons:
                    'nonstructural protein 2', 'polymerase PA',
                    'matrix protein 2'):
         human_pval = 'fore gtr ' + str(len(human_fore_vals)) + ' ' + str(len(human_control_vals) )+ ' ' + str(utils_stats.wilcox_gtr(human_fore_vals, human_control_vals))
-        chicken_pval = 'fore gtr ' + str(len(chicken_fore_vals)) + ' ' + str(len(chicken_control_vals)) + ' ' + str(utils_stats.wilcox_gtr(chicken_fore_vals, chicken_control_vals))
+        p = utils_stats.wilcox_gtr(chicken_fore_vals, chicken_control_vals)
+        print 'pval', p, 'yo'
+        chicken_pval = 'fore gtr ' + str(len(chicken_fore_vals)) + ' ' + str(len(chicken_control_vals)) + ' ' + str(p)
     else:
         human_pval = 'ctrl gtr ' + str(len(human_control_vals)) + ' ' + str(len(human_fore_vals)) + ' ' + str(utils_stats.wilcox_gtr(human_control_vals, human_fore_vals))
         chicken_pval = 'ctrl gtr ' + str(len(chicken_control_vals)) + ' ' + str(len(chicken_fore_vals)) + ' ' + str(utils_stats.wilcox_gtr(chicken_control_vals, chicken_fore_vals))
