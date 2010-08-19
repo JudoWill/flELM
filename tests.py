@@ -3,7 +3,7 @@ import nose.tools
 import utils, random
 
 def test_w_stat():
-     """nosetest for w_stat"""
+     """nosetest for utils.w_stat"""
 
      # sorted vals
      ls1 = (1,2,3)
@@ -41,6 +41,31 @@ def test_w_stat():
      nose.tools.assert_equal(w2, 23)
      nose.tools.assert_equal(w1+w2, 36)
 
-     
-     
-     
+def test_my_wil_rank_sum_gtr():
+     """nosetest for utils.my_wil_rank_sum_gtr"""
+
+     # test gtr dist
+     vals = []
+     for x in xrange(1000):
+          vals.append(random.randint(0, 10000))
+     vals.sort()
+     low_vals = vals[0:300]
+     high_vals = vals[800:]
+
+     pval = utils.my_wil_rank_sum_gtr(high_vals, low_vals,
+                                      vals)
+     nose.tools.assert_true(pval < float(.01))
+
+     # test eq dist
+     low_vals = []
+     for x in xrange(300):
+          low_vals.append( vals[random.randint(0,999)] )
+     high_vals = []
+     for x in xrange(300):
+          high_vals.append( vals[random.randint(0,999)] )
+
+     pval = utils.my_wil_rank_sum_gtr(high_vals, low_vals,
+                                      vals)
+     nose.tools.assert_true(pval > float(.05),
+                            'pval was significant, but should not be '
+                            + str(pval))

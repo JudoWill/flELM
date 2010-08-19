@@ -40,6 +40,38 @@ def w_stat(dist1_vals, dist2_vals):
                ws[w] += val2rank[val]
      return (ws[1], ws[2])
 
+def my_wil_rank_sum_gtr(dist1, dist2, vals):
+     """ Sample from vals to recreate dist1 and dist2.
+         Permutation test on w stat.
+         alt hypoth is dist1 is gtr than dist2
+     """
+
+     real_w, junk = w_stat(dist2, dist1)
+     size1 = len(dist1)
+     size2 = len(dist2)
+     size_vals = len(vals)-1
+     less_count = 0
+     trials = 1000
+     for x in xrange(trials):
+          idx1 = {}
+          idx2 = {}
+          while len(idx1) != size1:
+               idx1[random.randint(0, size_vals)] = True
+          while len(idx2) != size2:
+               r = random.randint(0, size_vals)
+               if r not in idx1:
+                    idx2[r] = True
+          rand_vals1 = []
+          rand_vals2 = []
+          for idx in idx1:
+               rand_vals1.append(vals[idx])
+          for idx in idx2:
+               rand_vals2.append(vals[idx])
+          rand_w, junk = w_stat(rand_vals1, rand_vals2)
+          if rand_w <= real_w:
+               less_count += 1
+     return float(less_count) / float(trials)
+
 def init_zero(): return 0
 
 def get_proteins_from_elm_file(afile):
