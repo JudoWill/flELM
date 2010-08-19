@@ -9,7 +9,36 @@ from itertools import *
 from collections import defaultdict
 import markov_chain, utils_graph, math
 from scipy.spatial import distance
-import cloud, random, numpy, utils_motif
+import cloud, random, numpy, utils_motif     
+
+def w_stat(dist1_vals, dist2_vals):
+     """W statistic for wilcoxon sum rank test"""
+
+     ls = []
+     ls.extend(dist1_vals)
+     ls.extend(dist2_vals)
+     ls.sort()
+     
+     # if there are ties in the list
+     # a value can have multiple ranks
+     val2rank_pre = defaultdict(list)
+     for idx, val in enumerate(ls):
+          val2rank_pre[val].append(idx+1)
+
+     # average ranks
+     val2rank = {}
+     for val in val2rank_pre:
+          val2rank[val] = numpy.average(numpy.array(val2rank_pre[val]))
+
+     # sum ranks for both dists
+     # lowest ranking is 1
+     ws = {1:float(0),
+           2:float(0)}
+     for w, dist in ( (1, dist1_vals),
+                      (2, dist2_vals)):
+          for val in dist:
+               ws[w] += val2rank[val]
+     return (ws[1], ws[2])
 
 def init_zero(): return 0
 
