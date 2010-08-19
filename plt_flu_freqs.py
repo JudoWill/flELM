@@ -67,10 +67,12 @@ def get_fore_control(dir, protein, this_freqs, that_freqs, outfile):
 
     ls = []
     all_vals = []
+    all_seqs = {}
     for seq in this_freqs:
         diff = this_freqs[seq] - that_freqs[seq]
         all_vals.append(diff)
         ls.append((diff,seq))
+        all_seqs[seq] = True
     # ls_a = numpy.array(all_vals)
     # mean = numpy.mean(ls_a)
     # std = numpy.std(ls_a)
@@ -103,7 +105,7 @@ def get_fore_control(dir, protein, this_freqs, that_freqs, outfile):
     check_overlap(control_vals, foreground_vals, outfile)
     plot_extremes(foreground_vals, control_vals, all_vals, outfile)
 
-    return (foreground, control)
+    return (foreground, control, all_seqs)
 
 def dump_input(seqs, f1, f2, file):
     """Write host diffs one per line for seq in seqs"""
@@ -118,15 +120,18 @@ def dump_input(seqs, f1, f2, file):
                 vals.append(val)
     return vals
 
-def plot_fore_control(outfile, protein, fore, control, 
+def plot_fore_control(outfile, protein, fore, control, all_seqs 
                       this_host_freqs, that_host_freqs):
     """Plot density for flu foreground vs control for host differences"""
 
     fore_input = 'fore' + str(random.randint(0,100))
     control_input = 'control' + str(random.randint(0,100))
+    all_input = 'all' + str(random.randint(0,100))
     fore_vals = dump_input(fore, this_host_freqs, that_host_freqs, fore_input)
     control_vals = dump_input(control, this_host_freqs, that_host_freqs, control_input)
-
+    all_vals = dump_input(all_seqs, this_host_freqs, 
+                          that_host_freqs, all_input)
+    
     rfile = 'tmpr' + str(random.randint(0,100))
     with open(rfile, 'w') as f:
         f.write("fore<-read.delim('"
@@ -137,7 +142,7 @@ def plot_fore_control(outfile, protein, fore, control,
         f.write("plot.multi.dens(list(fore[,1],control[,1]))\ndev.off()\nq()\n")
     os.system('R < ' + rfile + ' --no-save')
     os.system('rm ' + rfile + ' ' + fore_input + ' ' + control_input)
-    return (fore_vals, control_vals)
+    return (fore_vals, control_vals, all_vals)
 
 def get_freqs(file, elmdict_file):
     """Get host freqs"""
@@ -340,33 +345,45 @@ for protein in human_cons:
     # interesting[protein] = mk_plot(dir, protein, human_cons[protein],
     #                                chicken_cons[protein], limit)
     (human_fore, 
-     human_control) = get_fore_control(dir, protein, 
-                                       human_cons[protein],
-                                       chicken_cons[protein],
-                                       os.path.join(dir, 'human_' 
-                                                    + protein 
-                                                    + '.extreme.png'))
+     human_control,
+     human_all) = get_fore_control(dir, protein, 
+                                        human_cons[protein],
+                                        chicken_cons[protein],
+                                        os.path.join(dir, 'human_' 
+                                                     + protein 
+                                                     + '.extreme.png'))
     (chicken_fore,
-     chicken_control) = get_fore_control(dir, protein, 
-                                         chicken_cons[protein],
-                                         human_cons[protein],
-                                         os.path.join(dir,
-                                                      'chicken_' 
-                                                      + protein 
-                                                      + '.extreme.png'))
-    outfile = os.path.join(dir, 'human_' + protein + '.png')
-    (human_fore_vals, 
-     human_control_vals) = plot_fore_control(outfile, protein, 
-                                             human_fore, human_control, 
-                                             human_host_freqs, 
-                                             chicken_host_freqs)
+     chicken_control,
+     chicken_all) = get_fore_control(dir, protein, 
+                                          chicken_cons[protein],
+                                          human_cons[protein],
+                                          os.path.join(dir,
+                                                       'chicken_' 
+                                                       + protein 
+                                                       + '.extreme.png'))
+     outfile = os.path.join(dir, 'human_' + protein + '.png')
+     (human_fore_vals, 
+      human_control_vals,
+      human_all_vals) = plot_fore_control(outfile, protein, 
+                                          human_fore, human_control, 
+                                          human_all,
+                                          human_host_freqs, 
+                                          chicken_host_freqs)
     outfile = os.path.join(dir, 'chicken_' + protein + '.png')
     (chicken_fore_vals,
-     chicken_control_vals)  = plot_fore_control(outfile, protein, 
-                                                chicken_fore, 
-                                                chicken_control, 
-                                                chicken_host_freqs, 
-                                                human_host_freqs)
+     chicken_control_vals,
+     chicken_all_vals)  = plot_fore_control(outfile, protein, 
+                                            chicken_fore, 
+                                            chicken_control, 
+                                            chicken_all,
+                                            chicken_host_freqs, 
+                                            human_host_freqs)
+     human_control_pval = utils.my_wil_rank_sum_gtr(human_fore_vals,
+                                                    human_control_vals,
+                                                    human_all_vals)
+     chicken_control_pval = utils.my_wil_rank_sum_gtr(chicken_fore_vals,
+                                                    chicken_control_vals,
+                                                    chicken_all_vals)
     if protein in ('polymerase PB1', 'neuraminidase', 'polymerase PB2',
                    'nonstructural protein 2', 'polymerase PA',
                    'matrix protein 2'):
